@@ -1,12 +1,82 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect } from "react";
+import { Navigation } from "@/components/Navigation";
+import { HomeScreen } from "@/components/screens/HomeScreen";
+import { LettersScreen } from "@/components/screens/LettersScreen";
+import { WordsScreen } from "@/components/screens/WordsScreen";
+import { SentencesScreen } from "@/components/screens/SentencesScreen";
+
+type Screen = "home" | "letters" | "words" | "sentences";
 
 const Index = () => {
+  const [currentScreen, setCurrentScreen] = useState<Screen>("home");
+  const [stars, setStars] = useState(() => {
+    const saved = localStorage.getItem("english-learning-stars");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [showHebrew, setShowHebrew] = useState(true);
+
+  // Save stars to localStorage
+  useEffect(() => {
+    localStorage.setItem("english-learning-stars", stars.toString());
+  }, [stars]);
+
+  // Initialize speech synthesis voices
+  useEffect(() => {
+    const loadVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
+
+  const handleAddStar = () => {
+    setStars((prev) => prev + 1);
+  };
+
+  const handleToggleHebrew = () => {
+    setShowHebrew((prev) => !prev);
+  };
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case "home":
+        return <HomeScreen stars={stars} onNavigate={setCurrentScreen} />;
+      case "letters":
+        return (
+          <LettersScreen
+            stars={stars}
+            onAddStar={handleAddStar}
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      case "words":
+        return (
+          <WordsScreen
+            stars={stars}
+            onAddStar={handleAddStar}
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      case "sentences":
+        return (
+          <SentencesScreen
+            stars={stars}
+            onAddStar={handleAddStar}
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      default:
+        return <HomeScreen stars={stars} onNavigate={setCurrentScreen} />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {renderScreen()}
+      <Navigation currentScreen={currentScreen} onNavigate={setCurrentScreen} />
     </div>
   );
 };

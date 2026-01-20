@@ -4,7 +4,7 @@ export const useSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const speak = useCallback((text: string, rate: number = 0.8) => {
+  const speak = useCallback((text: string, rate: number = 0.6) => {
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
@@ -42,15 +42,15 @@ export const useSpeech = () => {
   }, []);
 
   const speakLetter = useCallback((letter: string) => {
-    speak(letter, 0.7);
+    speak(letter, 0.55);
   }, [speak]);
 
   const speakWord = useCallback((word: string) => {
-    speak(word, 0.75);
+    speak(word, 0.55);
   }, [speak]);
 
   const speakSentence = useCallback((sentence: string) => {
-    speak(sentence, 0.7);
+    speak(sentence, 0.5);
   }, [speak]);
 
   const stop = useCallback(() => {

@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
-import { Shuffle, RotateCcw, Volume2, Check, X } from "lucide-react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { Shuffle, RotateCcw, Volume2, Check } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { spellingWords } from "@/data/content";
+import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface SpellingGameScreenProps {
@@ -29,91 +29,121 @@ export const SpellingGameScreen = ({
   showHebrew,
   onToggleHebrew,
 }: SpellingGameScreenProps) => {
+  const [difficulty, setDifficulty] = useState(1); // 1-5 difficulty
+  const [missingLetters, setMissingLetters] = useState(1); // How many letters to fill
+  const [wordList, setWordList] = useState<SpellingWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [availableLetters, setAvailableLetters] = useState<{ letter: string; id: string; used: boolean }[]>([]);
-  const [selectedLetters, setSelectedLetters] = useState<{ letter: string; id: string }[]>([]);
+  const [userInput, setUserInput] = useState<string[]>([]);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [wordsCompleted, setWordsCompleted] = useState(0);
   const { speakWord } = useSpeech();
 
-  const currentWord = spellingWords[currentWordIndex];
+  const currentWord = wordList[currentWordIndex];
 
-  const initializeWord = useCallback(() => {
-    const word = spellingWords[currentWordIndex];
-    const letters = word.english.toUpperCase().split("");
+  // Generate word puzzle with missing letters
+  const puzzle = useMemo(() => {
+    if (!currentWord) return { display: [], missingIndices: [], letters: [] };
     
-    // Add some extra random letters to make it more challenging
-    const extraLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      .split("")
-      .filter((l) => !letters.includes(l))
-      .slice(0, Math.min(3, 6 - letters.length));
+    const word = currentWord.english.toUpperCase();
+    const letters = word.split("");
+    const numMissing = Math.min(missingLetters, Math.floor(letters.length / 2));
     
-    const allLetters = [...letters, ...extraLetters].map((letter, index) => ({
-      letter,
-      id: `${letter}-${index}-${Date.now()}`,
-      used: false,
-    }));
+    // Pick random indices to hide
+    const indices = letters.map((_, i) => i);
+    const missingIndices = shuffleArray(indices).slice(0, numMissing).sort((a, b) => a - b);
+    
+    const display = letters.map((letter, i) => 
+      missingIndices.includes(i) ? "_" : letter
+    );
+    
+    return { display, missingIndices, letters };
+  }, [currentWord, missingLetters]);
 
-    setAvailableLetters(shuffleArray(allLetters));
-    setSelectedLetters([]);
+  const loadWords = useCallback(() => {
+    const words = getSpellingWordsByDifficulty(difficulty, 10);
+    setWordList(words);
+    setCurrentWordIndex(0);
+    setUserInput([]);
+    setIsCorrect(null);
+    setWordsCompleted(0);
+  }, [difficulty]);
+
+  useEffect(() => {
+    loadWords();
+  }, [loadWords]);
+
+  useEffect(() => {
+    setUserInput([]);
     setIsCorrect(null);
   }, [currentWordIndex]);
 
-  useEffect(() => {
-    initializeWord();
-  }, [initializeWord]);
-
-  const handleLetterClick = (letterObj: { letter: string; id: string }) => {
-    if (isCorrect !== null) return;
-
-    // Add to selected
-    setSelectedLetters((prev) => [...prev, letterObj]);
-    setAvailableLetters((prev) =>
-      prev.map((l) => (l.id === letterObj.id ? { ...l, used: true } : l))
-    );
+  const handleLetterClick = (letter: string) => {
+    if (isCorrect !== null || userInput.length >= puzzle.missingIndices.length) return;
+    setUserInput(prev => [...prev, letter]);
   };
 
-  const handleSelectedLetterClick = (letterObj: { letter: string; id: string }) => {
+  const handleBackspace = () => {
     if (isCorrect !== null) return;
-
-    // Remove from selected and return to available
-    setSelectedLetters((prev) => prev.filter((l) => l.id !== letterObj.id));
-    setAvailableLetters((prev) =>
-      prev.map((l) => (l.id === letterObj.id ? { ...l, used: false } : l))
-    );
+    setUserInput(prev => prev.slice(0, -1));
   };
 
   const checkAnswer = () => {
-    const attempt = selectedLetters.map((l) => l.letter).join("");
-    const correct = currentWord.english.toUpperCase();
+    const correctLetters = puzzle.missingIndices.map(i => puzzle.letters[i]);
+    const isAllCorrect = userInput.every((letter, i) => letter === correctLetters[i]) 
+      && userInput.length === correctLetters.length;
 
-    if (attempt === correct) {
+    if (isAllCorrect) {
       setIsCorrect(true);
       setShowStarBurst(true);
       onAddStar();
-      setWordsCompleted((prev) => prev + 1);
-      setTimeout(() => setShowEncouragement(true), 200);
+      setWordsCompleted(prev => prev + 1);
       speakWord(currentWord.english);
+      setTimeout(() => setShowEncouragement(true), 200);
+      
+      // Increase difficulty after every 3 words
+      if ((wordsCompleted + 1) % 3 === 0 && missingLetters < 4) {
+        setMissingLetters(prev => prev + 1);
+      }
     } else {
       setIsCorrect(false);
-      // Shake animation handled by CSS
       setTimeout(() => setIsCorrect(null), 1000);
+      setUserInput([]);
     }
   };
 
   const nextWord = () => {
-    setCurrentWordIndex((prev) => (prev + 1) % spellingWords.length);
+    if (currentWordIndex < wordList.length - 1) {
+      setCurrentWordIndex(prev => prev + 1);
+    } else {
+      loadWords();
+    }
   };
 
   const handleHearWord = () => {
-    speakWord(currentWord.english);
+    if (currentWord) speakWord(currentWord.english);
   };
 
-  const resetWord = () => {
-    initializeWord();
+  const handleDifficultyChange = (newDiff: number) => {
+    setDifficulty(newDiff);
+    setMissingLetters(1);
   };
+
+  // Get current display with user input
+  const getDisplayWord = () => {
+    const result = [...puzzle.display];
+    puzzle.missingIndices.forEach((idx, i) => {
+      if (userInput[i]) {
+        result[idx] = userInput[i];
+      }
+    });
+    return result;
+  };
+
+  const letterOptions = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  if (!currentWord) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
@@ -129,11 +159,28 @@ export const SpellingGameScreen = ({
       {/* Header */}
       <div className="mt-4 text-center">
         <h2 className="text-2xl font-black text-foreground">
-          Spell the Word! ✏️
+          Fill the Letters! ✏️
         </h2>
         <p className="text-muted-foreground font-semibold mt-1">
-          Words spelled: {wordsCompleted}
+          Words: {wordsCompleted} | Missing: {missingLetters} letter{missingLetters > 1 ? "s" : ""}
         </p>
+      </div>
+
+      {/* Difficulty selector */}
+      <div className="mt-4 flex justify-center gap-2">
+        {[1, 2, 3, 4, 5].map(d => (
+          <button
+            key={d}
+            onClick={() => handleDifficultyChange(d)}
+            className={`px-3 py-1 rounded-lg text-sm font-bold transition-all ${
+              difficulty === d
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            Level {d}
+          </button>
+        ))}
       </div>
 
       {/* Word to spell */}
@@ -157,7 +204,7 @@ export const SpellingGameScreen = ({
         </GameButton>
       </div>
 
-      {/* Selected letters (answer area) */}
+      {/* Word display with blanks */}
       <div className="mt-6 relative">
         <div
           className={`
@@ -166,32 +213,24 @@ export const SpellingGameScreen = ({
             ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
           `}
         >
-          {selectedLetters.length === 0 ? (
-            <span className="text-muted-foreground font-semibold self-center">
-              Tap letters below to spell the word
-            </span>
-          ) : (
-            selectedLetters.map((letterObj) => (
-              <button
-                key={letterObj.id}
-                onClick={() => handleSelectedLetterClick(letterObj)}
-                disabled={isCorrect !== null}
-                className={`
-                  w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black
-                  transition-all duration-200 shadow-button active:translate-y-1 active:shadow-none
-                  ${
-                    isCorrect === true
+          {getDisplayWord().map((letter, index) => (
+            <div
+              key={index}
+              className={`
+                w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black flex items-center justify-center
+                ${puzzle.missingIndices.includes(index)
+                  ? letter === "_"
+                    ? "bg-muted border-2 border-dashed border-primary text-muted-foreground"
+                    : isCorrect === true
                       ? "bg-accent text-accent-foreground"
-                      : isCorrect === false
-                      ? "bg-destructive text-destructive-foreground"
-                      : "bg-primary text-primary-foreground hover:brightness-110"
-                  }
-                `}
-              >
-                {letterObj.letter}
-              </button>
-            ))
-          )}
+                      : "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground"
+                }
+              `}
+            >
+              {letter}
+            </div>
+          ))}
         </div>
         
         <StarBurst
@@ -200,37 +239,16 @@ export const SpellingGameScreen = ({
         />
       </div>
 
-      {/* Hint: show letter placeholders */}
-      <div className="mt-2 flex justify-center gap-1">
-        {currentWord.english.split("").map((_, index) => (
-          <div
-            key={index}
-            className={`
-              w-8 h-1 rounded-full
-              ${index < selectedLetters.length ? "bg-primary" : "bg-muted-foreground/30"}
-            `}
-          />
-        ))}
-      </div>
-
-      {/* Available letters */}
-      <div className="mt-6 flex flex-wrap justify-center gap-2 max-w-md mx-auto">
-        {availableLetters.map((letterObj) => (
+      {/* Letter keyboard */}
+      <div className="mt-6 flex flex-wrap justify-center gap-1 max-w-md mx-auto">
+        {letterOptions.map((letter) => (
           <button
-            key={letterObj.id}
-            onClick={() => handleLetterClick(letterObj)}
-            disabled={letterObj.used || isCorrect !== null}
-            className={`
-              w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black
-              transition-all duration-200
-              ${
-                letterObj.used
-                  ? "bg-muted text-muted-foreground opacity-40"
-                  : "bg-secondary text-secondary-foreground shadow-button hover:scale-105 active:translate-y-1 active:shadow-none"
-              }
-            `}
+            key={letter}
+            onClick={() => handleLetterClick(letter)}
+            disabled={isCorrect !== null}
+            className="w-9 h-9 md:w-10 md:h-10 rounded-lg text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
           >
-            {letterObj.letter}
+            {letter}
           </button>
         ))}
       </div>
@@ -251,18 +269,19 @@ export const SpellingGameScreen = ({
             <GameButton
               variant="ghost"
               size="default"
-              onClick={resetWord}
+              onClick={handleBackspace}
+              disabled={userInput.length === 0}
               className="gap-2"
             >
               <RotateCcw className="h-5 w-5" />
-              Reset
+              Undo
             </GameButton>
 
             <GameButton
               variant="primary"
               size="lg"
               onClick={checkAnswer}
-              disabled={selectedLetters.length === 0}
+              disabled={userInput.length !== puzzle.missingIndices.length}
               className="gap-2"
             >
               <Check className="h-5 w-5" />
@@ -283,12 +302,23 @@ export const SpellingGameScreen = ({
       </div>
 
       {/* Word list */}
-      <div className="mt-8">
-        <h3 className="text-lg font-bold text-center mb-3 text-muted-foreground">
-          All words
-        </h3>
+      <div className="mt-6">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <h3 className="text-lg font-bold text-muted-foreground">
+            Words
+          </h3>
+          <GameButton
+            variant="ghost"
+            size="sm"
+            onClick={loadWords}
+            className="gap-1"
+          >
+            <Shuffle className="h-4 w-4" />
+            New Set
+          </GameButton>
+        </div>
         <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-          {spellingWords.map((word, index) => (
+          {wordList.map((word, index) => (
             <button
               key={word.english}
               onClick={() => setCurrentWordIndex(index)}

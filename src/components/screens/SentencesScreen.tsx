@@ -1,10 +1,10 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { Play, Pause, ArrowLeft, ArrowRight, Volume2 } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Play, Shuffle, Volume2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { sentences } from "@/data/content";
+import { getRandomSentences, SentenceData } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface SentencesScreenProps {
@@ -20,82 +20,31 @@ export const SentencesScreen = ({
   showHebrew,
   onToggleHebrew,
 }: SentencesScreenProps) => {
+  const [displayedSentences, setDisplayedSentences] = useState<SentenceData[]>(() => getRandomSentences(3));
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [highlightedWordIndex, setHighlightedWordIndex] = useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
-  const { speakWord, isSpeaking } = useSpeech();
-  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const { speakWord, speakSentence, isSpeaking } = useSpeech();
 
-  const currentSentence = sentences[currentIndex];
+  const currentSentence = displayedSentences[currentIndex];
 
-  const clearTimeouts = useCallback(() => {
-    timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
-  }, []);
-
-  useEffect(() => {
-    return () => clearTimeouts();
-  }, [clearTimeouts]);
-
+  // Play the whole sentence smoothly
   const playSentence = useCallback(() => {
-    clearTimeouts();
-    setIsPlaying(true);
-    setHighlightedWordIndex(null);
+    speakSentence(currentSentence.english);
+    setShowStarBurst(true);
+    onAddStar();
+    setTimeout(() => setShowEncouragement(true), 500);
+  }, [currentSentence, speakSentence, onAddStar]);
 
-    const words = currentSentence.words;
-    let currentTime = 0;
-
-    // Calculate timing for each word (roughly 400-600ms per word depending on length)
-    words.forEach((word, index) => {
-      const wordDuration = Math.max(400, word.length * 80);
-
-      const highlightTimeout = setTimeout(() => {
-        setHighlightedWordIndex(index);
-      }, currentTime);
-
-      const speakTimeout = setTimeout(() => {
-        speakWord(word.replace(/[!.,?]/g, ""));
-      }, currentTime);
-
-      timeoutsRef.current.push(highlightTimeout, speakTimeout);
-      currentTime += wordDuration;
-    });
-
-    // End playing after all words
-    const endTimeout = setTimeout(() => {
-      setIsPlaying(false);
-      setHighlightedWordIndex(null);
-      setShowStarBurst(true);
-      onAddStar();
-      setTimeout(() => setShowEncouragement(true), 300);
-    }, currentTime + 300);
-
-    timeoutsRef.current.push(endTimeout);
-  }, [currentSentence, clearTimeouts, speakWord, onAddStar]);
-
-  const stopPlaying = useCallback(() => {
-    clearTimeouts();
-    setIsPlaying(false);
-    setHighlightedWordIndex(null);
-    window.speechSynthesis.cancel();
-  }, [clearTimeouts]);
-
+  // Click individual word to hear it
   const handleWordClick = (word: string) => {
-    if (!isPlaying) {
-      speakWord(word.replace(/[!.,?]/g, ""));
-    }
+    speakWord(word.replace(/[!.,?]/g, ""));
   };
 
-  const goNext = () => {
-    stopPlaying();
-    setCurrentIndex((prev) => (prev + 1) % sentences.length);
-  };
-
-  const goPrev = () => {
-    stopPlaying();
-    setCurrentIndex((prev) => (prev - 1 + sentences.length) % sentences.length);
+  const handleGenerateMore = () => {
+    const newSentences = getRandomSentences(3);
+    setDisplayedSentences(newSentences);
+    setCurrentIndex(0);
   };
 
   return (
@@ -109,49 +58,24 @@ export const SentencesScreen = ({
         />
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-center items-center gap-6 mt-6">
-        <GameButton
-          variant="ghost"
-          size="icon"
-          onClick={goPrev}
-          className="rounded-full"
-        >
-          <ArrowLeft className="h-8 w-8" />
-        </GameButton>
-
-        <span className="text-muted-foreground font-bold text-lg">
-          {currentIndex + 1} / {sentences.length}
-        </span>
-
-        <GameButton
-          variant="ghost"
-          size="icon"
-          onClick={goNext}
-          className="rounded-full"
-        >
-          <ArrowRight className="h-8 w-8" />
-        </GameButton>
+      {/* Header */}
+      <div className="mt-4 text-center">
+        <h2 className="text-2xl font-black text-foreground">
+          Read the Sentence! 📖
+        </h2>
       </div>
 
       {/* Sentence display */}
-      <div className="mt-8 flex flex-col items-center relative">
+      <div className="mt-6 flex flex-col items-center relative">
         <div className="bg-card rounded-3xl p-6 md:p-8 shadow-soft max-w-lg w-full relative">
-          {/* Words */}
+          {/* Words - clickable individually */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-6">
             {currentSentence.words.map((word, index) => (
               <button
                 key={index}
                 onClick={() => handleWordClick(word)}
-                disabled={isSpeaking && isPlaying}
-                className={`
-                  text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200
-                  ${
-                    highlightedWordIndex === index
-                      ? "bg-primary text-primary-foreground scale-110 shadow-glow-primary animate-word-highlight"
-                      : "text-foreground hover:bg-muted hover:scale-105"
-                  }
-                `}
+                disabled={isSpeaking}
+                className="text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200 text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
               >
                 {word}
               </button>
@@ -179,44 +103,41 @@ export const SentencesScreen = ({
 
         {/* Play button */}
         <div className="mt-6">
-          {isPlaying ? (
-            <GameButton
-              variant="destructive"
-              size="xl"
-              onClick={stopPlaying}
-              className="gap-3"
-            >
-              <Pause className="h-8 w-8" />
-              Stop
-            </GameButton>
-          ) : (
-            <GameButton
-              variant="accent"
-              size="xl"
-              onClick={playSentence}
-              className="gap-3 glow-accent"
-            >
-              <Play className="h-8 w-8" />
-              Play Sentence
-            </GameButton>
-          )}
+          <GameButton
+            variant="accent"
+            size="xl"
+            onClick={playSentence}
+            disabled={isSpeaking}
+            className="gap-3 glow-accent"
+          >
+            <Play className="h-8 w-8" />
+            Play Sentence
+          </GameButton>
         </div>
       </div>
 
-      {/* Sentence list */}
+      {/* Sentence list - only 3 */}
       <div className="mt-8">
-        <h3 className="text-lg font-bold text-center mb-4 text-muted-foreground">
-          More sentences
-        </h3>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <h3 className="text-lg font-bold text-muted-foreground">
+            Sentences
+          </h3>
+          <GameButton
+            variant="ghost"
+            size="sm"
+            onClick={handleGenerateMore}
+            className="gap-1"
+          >
+            <Shuffle className="h-4 w-4" />
+            More
+          </GameButton>
+        </div>
 
-        <div className="flex flex-col gap-2 max-w-lg mx-auto max-h-48 overflow-y-auto">
-          {sentences.map((sentence, index) => (
+        <div className="flex flex-col gap-2 max-w-lg mx-auto">
+          {displayedSentences.map((sentence, index) => (
             <button
               key={index}
-              onClick={() => {
-                stopPlaying();
-                setCurrentIndex(index);
-              }}
+              onClick={() => setCurrentIndex(index)}
               className={`
                 text-left p-3 rounded-xl transition-all text-base font-semibold
                 ${

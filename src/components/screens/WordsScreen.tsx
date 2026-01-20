@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Volume2, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { words } from "@/data/content";
+import { getRandomWords, WordData } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface WordsScreenProps {
@@ -14,7 +14,7 @@ interface WordsScreenProps {
   onToggleHebrew: () => void;
 }
 
-const categories = ["All", "Mario", "Sonic", "Paw Patrol", "Smurfs", "Soccer", "Colors"];
+const categories = ["All", "Mario", "Sonic", "Paw Patrol", "Soccer", "Family", "Body", "Home", "Animals", "Colors"];
 
 export const WordsScreen = ({
   stars,
@@ -23,17 +23,13 @@ export const WordsScreen = ({
   onToggleHebrew,
 }: WordsScreenProps) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [displayedWords, setDisplayedWords] = useState<WordData[]>(() => getRandomWords(10));
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
   const { speakWord, isSpeaking } = useSpeech();
 
-  const filteredWords =
-    selectedCategory === "All"
-      ? words
-      : words.filter((w) => w.category === selectedCategory);
-
-  const currentWord = filteredWords[currentWordIndex];
+  const currentWord = displayedWords[currentWordIndex];
 
   const handlePlayWord = () => {
     if (currentWord) {
@@ -44,14 +40,32 @@ export const WordsScreen = ({
     }
   };
 
-  const handleShuffle = () => {
-    const newIndex = Math.floor(Math.random() * filteredWords.length);
-    setCurrentWordIndex(newIndex);
-  };
+  const handleGenerateMore = useCallback(() => {
+    const category = selectedCategory === "All" ? undefined : selectedCategory;
+    const newWords = getRandomWords(10, category);
+    setDisplayedWords(newWords);
+    setCurrentWordIndex(0);
+  }, [selectedCategory]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    const cat = category === "All" ? undefined : category;
+    const newWords = getRandomWords(10, cat);
+    setDisplayedWords(newWords);
     setCurrentWordIndex(0);
+  };
+
+  const getVowelBadge = (vowelType?: "short" | "long" | "none") => {
+    if (!vowelType || vowelType === "none") return null;
+    return (
+      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+        vowelType === "long" 
+          ? "bg-accent/20 text-accent-foreground" 
+          : "bg-secondary/50 text-secondary-foreground"
+      }`}>
+        {vowelType} vowel
+      </span>
+    );
   };
 
   return (
@@ -104,48 +118,56 @@ export const WordsScreen = ({
             />
           </div>
 
+          {/* Vowel type indicator */}
+          <div className="mt-2">
+            {getVowelBadge(currentWord.vowelType)}
+          </div>
+
           {showHebrew && (
-            <p className="mt-4 text-2xl text-muted-foreground font-bold" dir="rtl">
+            <p className="mt-2 text-2xl text-muted-foreground font-bold" dir="rtl">
               {currentWord.hebrew}
             </p>
           )}
 
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Category: {currentWord.category}
           </p>
 
-          {/* Shuffle button */}
+          {/* Generate more button */}
           <GameButton
             variant="accent"
             size="lg"
-            onClick={handleShuffle}
+            onClick={handleGenerateMore}
             className="mt-6 gap-3"
           >
             <Shuffle className="h-6 w-6" />
-            Next Word
+            New Words
           </GameButton>
         </div>
       )}
 
-      {/* Word grid */}
+      {/* Word grid - show only 10 */}
       <div className="mt-8">
         <h3 className="text-lg font-bold text-center mb-4 text-muted-foreground">
-          All {selectedCategory === "All" ? "" : selectedCategory + " "}words
+          {selectedCategory === "All" ? "Words" : `${selectedCategory} words`} (10)
         </h3>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-w-lg mx-auto">
-          {filteredWords.map((word, index) => (
+          {displayedWords.map((word, index) => (
             <GameButton
-              key={word.english}
+              key={`${word.english}-${index}`}
               variant={index === currentWordIndex ? "primary" : "word"}
               size="sm"
               onClick={() => {
                 setCurrentWordIndex(index);
                 speakWord(word.english);
               }}
-              className="text-base"
+              className="text-base flex-col gap-0 py-3"
             >
-              {word.english}
+              <span>{word.emoji} {word.english}</span>
+              {word.vowelType && word.vowelType !== "none" && (
+                <span className="text-[10px] opacity-70">{word.vowelType}</span>
+              )}
             </GameButton>
           ))}
         </div>

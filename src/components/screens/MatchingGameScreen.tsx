@@ -4,7 +4,7 @@ import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { matchingPairs } from "@/data/content";
+import { getRandomMatchingPairs } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface MatchingGameScreenProps {
@@ -17,8 +17,9 @@ interface MatchingGameScreenProps {
 interface Card {
   id: string;
   content: string;
-  type: "english" | "hebrew" | "emoji";
+  type: "english" | "emoji";
   pairId: string;
+  englishWord: string;
   isFlipped: boolean;
   isMatched: boolean;
 }
@@ -49,7 +50,7 @@ export const MatchingGameScreen = ({
 
   const initializeGame = useCallback(() => {
     // Pick 6 random pairs for a 4x3 grid (12 cards)
-    const selectedPairs = shuffleArray(matchingPairs).slice(0, 6);
+    const selectedPairs = getRandomMatchingPairs(6);
     
     const newCards: Card[] = [];
     selectedPairs.forEach((pair, index) => {
@@ -59,15 +60,17 @@ export const MatchingGameScreen = ({
         content: pair.english,
         type: "english",
         pairId: `pair-${index}`,
+        englishWord: pair.english,
         isFlipped: false,
         isMatched: false,
       });
-      // Hebrew/Emoji card
+      // Emoji card (always show emoji, not Hebrew)
       newCards.push({
-        id: `he-${index}`,
-        content: showHebrew ? pair.hebrew : pair.emoji,
-        type: showHebrew ? "hebrew" : "emoji",
+        id: `em-${index}`,
+        content: pair.emoji,
+        type: "emoji",
         pairId: `pair-${index}`,
+        englishWord: pair.english,
         isFlipped: false,
         isMatched: false,
       });
@@ -77,7 +80,7 @@ export const MatchingGameScreen = ({
     setSelectedCards([]);
     setMatchedPairs(0);
     setGameComplete(false);
-  }, [showHebrew]);
+  }, []);
 
   useEffect(() => {
     initializeGame();
@@ -88,10 +91,8 @@ export const MatchingGameScreen = ({
       return;
     }
 
-    // Speak the word
-    if (card.type === "english") {
-      speakWord(card.content);
-    }
+    // Always speak the English word when clicking any card
+    speakWord(card.englishWord);
 
     const newCards = cards.map((c) =>
       c.id === card.id ? { ...c, isFlipped: true } : c
@@ -154,7 +155,7 @@ export const MatchingGameScreen = ({
       {/* Header */}
       <div className="mt-4 text-center">
         <h2 className="text-2xl font-black text-foreground">
-          Match the Words! 🎯
+          Match Words & Pictures! 🎯
         </h2>
         <p className="text-muted-foreground font-semibold mt-1">
           Find matching pairs: {matchedPairs}/6
@@ -203,12 +204,9 @@ export const MatchingGameScreen = ({
                   : "bg-secondary text-secondary-foreground hover:scale-105 shadow-button active:translate-y-1 active:shadow-none"
               }
             `}
-            style={{
-              transform: card.isFlipped || card.isMatched ? "rotateY(0deg)" : "",
-            }}
           >
             {card.isFlipped || card.isMatched ? (
-              <span className={card.type === "emoji" ? "text-3xl" : ""}>
+              <span className={card.type === "emoji" ? "text-4xl" : ""}>
                 {card.content}
               </span>
             ) : (
@@ -239,7 +237,7 @@ export const MatchingGameScreen = ({
       {/* Instructions */}
       <div className="mt-6 text-center text-muted-foreground">
         <p className="text-sm">
-          Tap cards to flip them and find matching English-{showHebrew ? "Hebrew" : "Emoji"} pairs!
+          Match English words with their pictures! 🖼️
         </p>
       </div>
 

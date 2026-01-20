@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Volume2, ArrowLeft, ArrowRight } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Volume2, ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { letters } from "@/data/content";
+import { letters, getWordsForLetter } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface LettersScreenProps {
@@ -23,11 +23,10 @@ export const LettersScreen = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
-  const [showAllWords, setShowAllWords] = useState(false);
+  const [currentWords, setCurrentWords] = useState(letters[0].words);
   const { speakLetter, speakWord, isSpeaking } = useSpeech();
 
   const currentLetter = letters[currentIndex];
-  const displayedWords = showAllWords ? currentLetter.words : currentLetter.words.slice(0, 4);
 
   const handlePlayLetter = () => {
     speakLetter(currentLetter.letter);
@@ -40,14 +39,26 @@ export const LettersScreen = ({
     speakWord(word);
   };
 
+  const handleShuffle = useCallback(() => {
+    const newWords = getWordsForLetter(currentLetter.letter, 10);
+    setCurrentWords(newWords);
+  }, [currentLetter.letter]);
+
   const goNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % letters.length);
-    setShowAllWords(false);
+    const nextIndex = (currentIndex + 1) % letters.length;
+    setCurrentIndex(nextIndex);
+    setCurrentWords(letters[nextIndex].words);
   };
 
   const goPrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + letters.length) % letters.length);
-    setShowAllWords(false);
+    const prevIndex = (currentIndex - 1 + letters.length) % letters.length;
+    setCurrentIndex(prevIndex);
+    setCurrentWords(letters[prevIndex].words);
+  };
+
+  const goToLetter = (index: number) => {
+    setCurrentIndex(index);
+    setCurrentWords(letters[index].words);
   };
 
   return (
@@ -121,16 +132,27 @@ export const LettersScreen = ({
         </GameButton>
       </div>
 
-      {/* Example words */}
+      {/* Example words - show all 10 by default */}
       <div className="mt-4">
-        <h3 className="text-xl font-bold text-center mb-3 text-foreground">
-          Words with <span className="text-primary">{currentLetter.letter}{currentLetter.lowercase}</span>
-        </h3>
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <h3 className="text-xl font-bold text-foreground">
+            Words with <span className="text-primary">{currentLetter.letter}{currentLetter.lowercase}</span>
+          </h3>
+          <GameButton
+            variant="accent"
+            size="sm"
+            onClick={handleShuffle}
+            className="gap-1"
+          >
+            <Shuffle className="h-4 w-4" />
+            New Words
+          </GameButton>
+        </div>
 
         <div className="flex flex-col gap-2 max-w-sm mx-auto">
-          {displayedWords.map((wordData, index) => (
+          {currentWords.map((wordData, index) => (
             <GameButton
-              key={index}
+              key={`${wordData.english}-${index}`}
               variant="word"
               size="lg"
               onClick={() => handlePlayWord(wordData.english)}
@@ -148,16 +170,6 @@ export const LettersScreen = ({
             </GameButton>
           ))}
         </div>
-
-        {/* Show more/less button */}
-        {currentLetter.words.length > 4 && (
-          <button
-            onClick={() => setShowAllWords(!showAllWords)}
-            className="mt-2 mx-auto block text-primary font-bold hover:underline"
-          >
-            {showAllWords ? "Show less ↑" : `Show all ${currentLetter.words.length} words ↓`}
-          </button>
-        )}
       </div>
 
       {/* Letter grid quick navigation */}
@@ -166,10 +178,7 @@ export const LettersScreen = ({
           {letters.map((l, index) => (
             <button
               key={l.letter}
-              onClick={() => {
-                setCurrentIndex(index);
-                setShowAllWords(false);
-              }}
+              onClick={() => goToLetter(index)}
               className={`
                 aspect-square rounded-lg text-sm font-bold transition-all
                 ${

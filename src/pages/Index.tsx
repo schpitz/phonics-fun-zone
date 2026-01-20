@@ -4,8 +4,10 @@ import { HomeScreen } from "@/components/screens/HomeScreen";
 import { LettersScreen } from "@/components/screens/LettersScreen";
 import { WordsScreen } from "@/components/screens/WordsScreen";
 import { SentencesScreen } from "@/components/screens/SentencesScreen";
+import { MatchingGameScreen } from "@/components/screens/MatchingGameScreen";
+import { SpellingGameScreen } from "@/components/screens/SpellingGameScreen";
 
-type Screen = "home" | "letters" | "words" | "sentences";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
@@ -62,6 +64,24 @@ const Index = () => {
       case "sentences":
         return (
           <SentencesScreen
+            stars={stars}
+            onAddStar={handleAddStar}
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      case "matching":
+        return (
+          <MatchingGameScreen
+            stars={stars}
+            onAddStar={handleAddStar}
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      case "spelling":
+        return (
+          <SpellingGameScreen
             stars={stars}
             onAddStar={handleAddStar}
             showHebrew={showHebrew}

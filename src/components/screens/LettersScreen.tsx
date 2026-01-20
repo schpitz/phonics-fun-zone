@@ -23,9 +23,11 @@ export const LettersScreen = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
+  const [showAllWords, setShowAllWords] = useState(false);
   const { speakLetter, speakWord, isSpeaking } = useSpeech();
 
   const currentLetter = letters[currentIndex];
+  const displayedWords = showAllWords ? currentLetter.words : currentLetter.words.slice(0, 4);
 
   const handlePlayLetter = () => {
     speakLetter(currentLetter.letter);
@@ -40,10 +42,12 @@ export const LettersScreen = ({
 
   const goNext = () => {
     setCurrentIndex((prev) => (prev + 1) % letters.length);
+    setShowAllWords(false);
   };
 
   const goPrev = () => {
     setCurrentIndex((prev) => (prev - 1 + letters.length) % letters.length);
+    setShowAllWords(false);
   };
 
   return (
@@ -57,18 +61,26 @@ export const LettersScreen = ({
         />
       </div>
 
-      {/* Letter display */}
-      <div className="flex flex-col items-center mt-6">
-        <div className="relative">
+      {/* Letter display - both uppercase and lowercase */}
+      <div className="flex flex-col items-center mt-4">
+        <div className="relative flex items-center gap-4">
           <GameButton
             variant="letter"
             size="icon-xl"
             onClick={handlePlayLetter}
             disabled={isSpeaking}
-            className="w-40 h-40 text-8xl relative"
+            className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative"
           >
             {currentLetter.letter}
-            <Volume2 className="absolute bottom-3 right-3 h-6 w-6 opacity-60" />
+          </GameButton>
+          <GameButton
+            variant="letter"
+            size="icon-xl"
+            onClick={handlePlayLetter}
+            disabled={isSpeaking}
+            className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative bg-gradient-to-br from-secondary to-secondary/80"
+          >
+            {currentLetter.lowercase}
           </GameButton>
           <StarBurst
             show={showStarBurst}
@@ -76,13 +88,16 @@ export const LettersScreen = ({
           />
         </div>
 
-        <p className="mt-4 text-lg text-muted-foreground font-semibold">
-          Tap to hear the sound!
-        </p>
+        <div className="mt-3 flex items-center gap-2">
+          <Volume2 className="h-5 w-5 text-primary" />
+          <p className="text-lg text-muted-foreground font-semibold">
+            Tap to hear the sound!
+          </p>
+        </div>
       </div>
 
       {/* Navigation arrows */}
-      <div className="flex justify-center items-center gap-8 mt-6">
+      <div className="flex justify-center items-center gap-8 mt-4">
         <GameButton
           variant="ghost"
           size="icon"
@@ -107,13 +122,13 @@ export const LettersScreen = ({
       </div>
 
       {/* Example words */}
-      <div className="mt-8">
-        <h3 className="text-xl font-bold text-center mb-4 text-foreground">
-          Words with <span className="text-primary">{currentLetter.letter}</span>
+      <div className="mt-4">
+        <h3 className="text-xl font-bold text-center mb-3 text-foreground">
+          Words with <span className="text-primary">{currentLetter.letter}{currentLetter.lowercase}</span>
         </h3>
 
-        <div className="flex flex-col gap-3 max-w-sm mx-auto">
-          {currentLetter.words.map((wordData, index) => (
+        <div className="flex flex-col gap-2 max-w-sm mx-auto">
+          {displayedWords.map((wordData, index) => (
             <GameButton
               key={index}
               variant="word"
@@ -133,15 +148,28 @@ export const LettersScreen = ({
             </GameButton>
           ))}
         </div>
+
+        {/* Show more/less button */}
+        {currentLetter.words.length > 4 && (
+          <button
+            onClick={() => setShowAllWords(!showAllWords)}
+            className="mt-2 mx-auto block text-primary font-bold hover:underline"
+          >
+            {showAllWords ? "Show less ↑" : `Show all ${currentLetter.words.length} words ↓`}
+          </button>
+        )}
       </div>
 
       {/* Letter grid quick navigation */}
-      <div className="mt-8 px-2">
+      <div className="mt-6 px-2">
         <div className="grid grid-cols-9 gap-1 max-w-md mx-auto">
           {letters.map((l, index) => (
             <button
               key={l.letter}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                setCurrentIndex(index);
+                setShowAllWords(false);
+              }}
               className={`
                 aspect-square rounded-lg text-sm font-bold transition-all
                 ${

@@ -861,9 +861,17 @@ export const spellingWords: WordData[] = allSpellingWords.map(w => ({
   emoji: w.emoji,
 }));
 
-// Get spelling words by difficulty
-export const getSpellingWordsByDifficulty = (maxDifficulty: number, count: number = 10): SpellingWord[] => {
-  const filtered = allSpellingWords.filter(w => w.difficulty <= maxDifficulty);
+// Get spelling words by exact difficulty level
+export const getSpellingWordsByDifficulty = (difficulty: number, count: number = 10): SpellingWord[] => {
+  // Filter by exact difficulty level (1-5)
+  const filtered = allSpellingWords.filter(w => w.difficulty === difficulty);
+  // If not enough words at exact level, include adjacent levels
+  if (filtered.length < count) {
+    const adjacent = allSpellingWords.filter(w => 
+      w.difficulty === difficulty - 1 || w.difficulty === difficulty + 1
+    );
+    return shuffleArray([...filtered, ...adjacent]).slice(0, count);
+  }
   return shuffleArray(filtered).slice(0, count);
 };
 

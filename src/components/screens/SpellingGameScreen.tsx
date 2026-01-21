@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Shuffle, RotateCcw, Volume2, Check, Keyboard } from "lucide-react";
+import { Shuffle, Volume2, Check, Keyboard } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -188,20 +188,30 @@ export const SpellingGameScreen = ({
       </div>
 
       {/* Difficulty selector */}
-      <div className="mt-4 flex justify-center gap-2">
-        {[1, 2, 3, 4, 5].map((d) => (
-          <button
-            key={d}
-            onClick={() => handleDifficultyChange(d)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
-              difficulty === d
-                ? "bg-primary text-primary-foreground shadow-button"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            {d}
-          </button>
-        ))}
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <p className="text-sm font-bold text-muted-foreground">Choose Difficulty</p>
+        <div className="flex gap-2 bg-muted/50 p-2 rounded-2xl">
+          {[
+            { level: 1, label: "Easy", icon: "🌟" },
+            { level: 2, label: "Medium", icon: "⭐" },
+            { level: 3, label: "Hard", icon: "🔥" },
+            { level: 4, label: "Expert", icon: "💪" },
+            { level: 5, label: "Master", icon: "🏆" },
+          ].map((d) => (
+            <button
+              key={d.level}
+              onClick={() => handleDifficultyChange(d.level)}
+              className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-bold transition-all min-w-[60px] ${
+                difficulty === d.level
+                  ? "bg-primary text-primary-foreground shadow-button scale-105"
+                  : "bg-card text-muted-foreground hover:bg-card/80 hover:scale-102"
+              }`}
+            >
+              <span className="text-lg">{d.icon}</span>
+              <span>{d.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Word to spell - clickable emoji */}
@@ -232,34 +242,65 @@ export const SpellingGameScreen = ({
         </button>
       </div>
 
-      {/* Word display with blanks */}
+      {/* Word display with blanks and check button */}
       <div className="mt-6 relative">
-        <div
-          className={`
-            flex justify-center gap-2 min-h-[70px] p-3 bg-card rounded-2xl shadow-soft mx-auto max-w-md
-            ${isCorrect === false ? "animate-shake border-2 border-destructive" : ""}
-            ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
-          `}
-        >
-          {getDisplayWord().map((letter, index) => (
-            <div
-              key={index}
+        <div className="flex items-center justify-center gap-3 max-w-lg mx-auto">
+          <div
+            className={`
+              flex justify-center gap-2 min-h-[70px] p-3 bg-card rounded-2xl shadow-soft flex-1
+              ${isCorrect === false ? "animate-shake border-2 border-destructive" : ""}
+              ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
+            `}
+          >
+            {getDisplayWord().map((letter, index) => (
+              <div
+                key={index}
+                className={`
+                  w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black flex items-center justify-center
+                  ${
+                    puzzle.missingIndices.includes(index)
+                      ? letter === "_"
+                        ? "bg-muted border-2 border-dashed border-primary text-muted-foreground"
+                        : isCorrect === true
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-primary text-primary-foreground"
+                      : "bg-secondary text-secondary-foreground"
+                  }
+                `}
+              >
+                {letter}
+              </div>
+            ))}
+          </div>
+          
+          {/* Check button - next to word input */}
+          {isCorrect !== true && (
+            <button
+              onClick={checkAnswer}
+              disabled={userInput.length !== puzzle.missingIndices.length}
               className={`
-                w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black flex items-center justify-center
-                ${
-                  puzzle.missingIndices.includes(index)
-                    ? letter === "_"
-                      ? "bg-muted border-2 border-dashed border-primary text-muted-foreground"
-                      : isCorrect === true
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
+                w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all shadow-button
+                ${userInput.length === puzzle.missingIndices.length
+                  ? "bg-accent text-accent-foreground hover:scale-105 active:scale-95"
+                  : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
                 }
               `}
+              aria-label="Check answer"
             >
-              {letter}
-            </div>
-          ))}
+              <Check className="h-7 w-7" />
+            </button>
+          )}
+          
+          {/* Next button - when correct */}
+          {isCorrect === true && (
+            <button
+              onClick={nextWord}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all shadow-button"
+              aria-label="Next word"
+            >
+              <span className="text-2xl">→</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -305,49 +346,6 @@ export const SpellingGameScreen = ({
                 ))}
               </div>
             ))}
-          </>
-        )}
-      </div>
-
-      {/* Action buttons */}
-      <div className="mt-6 flex justify-center gap-3">
-        {isCorrect === true ? (
-          <GameButton variant="accent" size="lg" onClick={nextWord} className="gap-2">
-            Next Word →
-          </GameButton>
-        ) : (
-          <>
-            <GameButton
-              variant="ghost"
-              size="default"
-              onClick={handleBackspace}
-              disabled={userInput.length === 0}
-              className="gap-2"
-            >
-              <RotateCcw className="h-5 w-5" />
-              Undo
-            </GameButton>
-
-            <GameButton
-              variant="primary"
-              size="lg"
-              onClick={checkAnswer}
-              disabled={userInput.length !== puzzle.missingIndices.length}
-              className="gap-2"
-            >
-              <Check className="h-5 w-5" />
-              Check
-            </GameButton>
-
-            <GameButton
-              variant="ghost"
-              size="default"
-              onClick={nextWord}
-              className="gap-2"
-            >
-              <Shuffle className="h-5 w-5" />
-              Skip
-            </GameButton>
           </>
         )}
       </div>

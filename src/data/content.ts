@@ -516,12 +516,99 @@ export const masterWordBank: WordData[] = [
 // For backward compatibility - keep words export
 export const words: WordData[] = masterWordBank;
 
-// Get words for a specific letter (contains that letter in upper or lowercase)
-export const getWordsForLetter = (letter: string, count: number = 10): { english: string; hebrew: string }[] => {
-  const filtered = masterWordBank.filter(word => 
-    wordContainsLetter(word.english, letter)
+// Get words for a specific letter with 50% uppercase, 50% lowercase distribution
+export const getWordsForLetter = (letter: string, count: number = 10): { english: string; hebrew: string; startsWithUpper: boolean }[] => {
+  const upperLetter = letter.toUpperCase();
+  const lowerLetter = letter.toLowerCase();
+  
+  // Words that start with or prominently feature uppercase letter
+  const upperWords = masterWordBank.filter(word => 
+    word.english.startsWith(upperLetter) || word.english.includes(upperLetter)
   );
-  return shuffleArray(filtered).slice(0, count).map(w => ({ english: w.english, hebrew: w.hebrew }));
+  
+  // Words that contain lowercase letter (not starting with it)
+  const lowerWords = masterWordBank.filter(word => 
+    word.english.toLowerCase().includes(lowerLetter) && !word.english.startsWith(upperLetter)
+  );
+  
+  const halfCount = Math.floor(count / 2);
+  const shuffledUpper = shuffleArray(upperWords).slice(0, halfCount);
+  const shuffledLower = shuffleArray(lowerWords).slice(0, count - halfCount);
+  
+  const result = [
+    ...shuffledUpper.map(w => ({ english: w.english, hebrew: w.hebrew, startsWithUpper: true })),
+    ...shuffledLower.map(w => ({ english: w.english, hebrew: w.hebrew, startsWithUpper: false }))
+  ];
+  
+  // If we don't have enough words, fill from available
+  if (result.length < count) {
+    const allFiltered = masterWordBank.filter(word => wordContainsLetter(word.english, letter));
+    const additional = shuffleArray(allFiltered)
+      .filter(w => !result.some(r => r.english === w.english))
+      .slice(0, count - result.length)
+      .map(w => ({ english: w.english, hebrew: w.hebrew, startsWithUpper: w.english.startsWith(upperLetter) }));
+    result.push(...additional);
+  }
+  
+  return shuffleArray(result).slice(0, count);
+};
+
+// Letter sounds data - vowel sounds and pronunciation for each letter
+export const letterSounds: Record<string, { sound: string; example: string; type: "short" | "long" | "consonant" }[]> = {
+  A: [
+    { sound: "æ", example: "apple", type: "short" },
+    { sound: "eɪ", example: "cake", type: "long" },
+    { sound: "ɑː", example: "car", type: "long" },
+  ],
+  E: [
+    { sound: "ɛ", example: "bed", type: "short" },
+    { sound: "iː", example: "see", type: "long" },
+  ],
+  I: [
+    { sound: "ɪ", example: "sit", type: "short" },
+    { sound: "aɪ", example: "kite", type: "long" },
+  ],
+  O: [
+    { sound: "ɒ", example: "hot", type: "short" },
+    { sound: "oʊ", example: "go", type: "long" },
+  ],
+  U: [
+    { sound: "ʌ", example: "cup", type: "short" },
+    { sound: "uː", example: "blue", type: "long" },
+  ],
+  B: [{ sound: "b", example: "ball", type: "consonant" }],
+  C: [
+    { sound: "k", example: "cat", type: "consonant" },
+    { sound: "s", example: "city", type: "consonant" },
+  ],
+  D: [{ sound: "d", example: "dog", type: "consonant" }],
+  F: [{ sound: "f", example: "fish", type: "consonant" }],
+  G: [
+    { sound: "g", example: "go", type: "consonant" },
+    { sound: "dʒ", example: "giant", type: "consonant" },
+  ],
+  H: [{ sound: "h", example: "hat", type: "consonant" }],
+  J: [{ sound: "dʒ", example: "jump", type: "consonant" }],
+  K: [{ sound: "k", example: "kick", type: "consonant" }],
+  L: [{ sound: "l", example: "leg", type: "consonant" }],
+  M: [{ sound: "m", example: "man", type: "consonant" }],
+  N: [{ sound: "n", example: "net", type: "consonant" }],
+  P: [{ sound: "p", example: "pen", type: "consonant" }],
+  Q: [{ sound: "kw", example: "queen", type: "consonant" }],
+  R: [{ sound: "r", example: "run", type: "consonant" }],
+  S: [
+    { sound: "s", example: "sun", type: "consonant" },
+    { sound: "z", example: "rose", type: "consonant" },
+  ],
+  T: [{ sound: "t", example: "top", type: "consonant" }],
+  V: [{ sound: "v", example: "van", type: "consonant" }],
+  W: [{ sound: "w", example: "wet", type: "consonant" }],
+  X: [{ sound: "ks", example: "box", type: "consonant" }],
+  Y: [
+    { sound: "j", example: "yes", type: "consonant" },
+    { sound: "iː", example: "happy", type: "long" },
+  ],
+  Z: [{ sound: "z", example: "zoo", type: "consonant" }],
 };
 
 // Shuffle utility

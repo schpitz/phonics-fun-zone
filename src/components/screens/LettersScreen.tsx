@@ -4,7 +4,7 @@ import { GameButton } from "../ui/game-button";
 import { ProgressBar } from "../ProgressBar";
 import { StarBurst } from "../StarBurst";
 import { EncouragementPopup } from "../EncouragementPopup";
-import { letters, getWordsForLetter } from "@/data/content";
+import { letters, getWordsForLetter, letterSounds } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface LettersScreenProps {
@@ -23,16 +23,45 @@ export const LettersScreen = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showStarBurst, setShowStarBurst] = useState(false);
   const [showEncouragement, setShowEncouragement] = useState(false);
-  const [currentWords, setCurrentWords] = useState(letters[0].words);
+  const [currentWords, setCurrentWords] = useState(() => getWordsForLetter(letters[0].letter, 10));
   const { speakLetter, speakWord, isSpeaking } = useSpeech();
 
   const currentLetter = letters[currentIndex];
+  const currentSounds = letterSounds[currentLetter.letter] || [];
 
-  const handlePlayLetter = () => {
-    speakLetter(currentLetter.letter);
+  const handlePlayUppercase = () => {
+    speakWord(`Uppercase ${currentLetter.letter}`);
     setShowStarBurst(true);
     onAddStar();
     setTimeout(() => setShowEncouragement(true), 300);
+  };
+
+  const handlePlayLowercase = () => {
+    speakWord(`Lowercase ${currentLetter.lowercase}`);
+    setShowStarBurst(true);
+    onAddStar();
+    setTimeout(() => setShowEncouragement(true), 300);
+  };
+
+  const handlePlaySound = (example: string) => {
+    speakWord(example);
+  };
+
+  // Highlight the target letter in a word
+  const highlightLetter = (word: string, letter: string) => {
+    const upperLetter = letter.toUpperCase();
+    const lowerLetter = letter.toLowerCase();
+    
+    return word.split('').map((char, index) => {
+      if (char === upperLetter || char === lowerLetter) {
+        return (
+          <span key={index} className="text-primary font-black">
+            {char}
+          </span>
+        );
+      }
+      return <span key={index}>{char}</span>;
+    });
   };
 
   const handlePlayWord = (word: string) => {
@@ -47,18 +76,18 @@ export const LettersScreen = ({
   const goNext = () => {
     const nextIndex = (currentIndex + 1) % letters.length;
     setCurrentIndex(nextIndex);
-    setCurrentWords(letters[nextIndex].words);
+    setCurrentWords(getWordsForLetter(letters[nextIndex].letter, 10));
   };
 
   const goPrev = () => {
     const prevIndex = (currentIndex - 1 + letters.length) % letters.length;
     setCurrentIndex(prevIndex);
-    setCurrentWords(letters[prevIndex].words);
+    setCurrentWords(getWordsForLetter(letters[prevIndex].letter, 10));
   };
 
   const goToLetter = (index: number) => {
     setCurrentIndex(index);
-    setCurrentWords(letters[index].words);
+    setCurrentWords(getWordsForLetter(letters[index].letter, 10));
   };
 
   return (
@@ -75,24 +104,30 @@ export const LettersScreen = ({
       {/* Letter display - both uppercase and lowercase */}
       <div className="flex flex-col items-center mt-4">
         <div className="relative flex items-center gap-4">
-          <GameButton
-            variant="letter"
-            size="icon-xl"
-            onClick={handlePlayLetter}
-            disabled={isSpeaking}
-            className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative"
-          >
-            {currentLetter.letter}
-          </GameButton>
-          <GameButton
-            variant="letter"
-            size="icon-xl"
-            onClick={handlePlayLetter}
-            disabled={isSpeaking}
-            className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative bg-gradient-to-br from-secondary to-secondary/80"
-          >
-            {currentLetter.lowercase}
-          </GameButton>
+          <div className="flex flex-col items-center">
+            <GameButton
+              variant="letter"
+              size="icon-xl"
+              onClick={handlePlayUppercase}
+              disabled={isSpeaking}
+              className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative"
+            >
+              {currentLetter.letter}
+            </GameButton>
+            <span className="text-xs mt-1 text-muted-foreground font-bold">Uppercase</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <GameButton
+              variant="letter"
+              size="icon-xl"
+              onClick={handlePlayLowercase}
+              disabled={isSpeaking}
+              className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative bg-gradient-to-br from-secondary to-secondary/80"
+            >
+              {currentLetter.lowercase}
+            </GameButton>
+            <span className="text-xs mt-1 text-muted-foreground font-bold">Lowercase</span>
+          </div>
           <StarBurst
             show={showStarBurst}
             onComplete={() => setShowStarBurst(false)}
@@ -102,10 +137,36 @@ export const LettersScreen = ({
         <div className="mt-3 flex items-center gap-2">
           <Volume2 className="h-5 w-5 text-primary" />
           <p className="text-lg text-muted-foreground font-semibold">
-            Tap to hear the sound!
+            Tap to hear the letter name!
           </p>
         </div>
       </div>
+
+      {/* Letter sounds section */}
+      {currentSounds.length > 0 && (
+        <div className="mt-4 px-4">
+          <h3 className="text-center text-lg font-bold text-foreground mb-2">
+            Sounds of <span className="text-primary">{currentLetter.letter}</span>
+          </h3>
+          <div className="flex flex-wrap justify-center gap-2">
+            {currentSounds.map((soundData, index) => (
+              <GameButton
+                key={index}
+                variant="accent"
+                size="sm"
+                onClick={() => handlePlaySound(soundData.example)}
+                className="flex-col py-2 px-4"
+              >
+                <span className="text-lg font-bold">{soundData.sound}</span>
+                <span className="text-xs opacity-80">
+                  {soundData.type === "consonant" ? "consonant" : `${soundData.type} vowel`}
+                </span>
+                <span className="text-xs opacity-60">{soundData.example}</span>
+              </GameButton>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Navigation arrows */}
       <div className="flex justify-center items-center gap-8 mt-4">
@@ -160,7 +221,16 @@ export const LettersScreen = ({
             >
               <div className="flex items-center gap-3">
                 <Volume2 className="h-5 w-5 text-primary" />
-                <span className="text-xl">{wordData.english}</span>
+                <span className="text-xl">{highlightLetter(wordData.english, currentLetter.letter)}</span>
+                {wordData.startsWithUpper !== undefined && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    wordData.startsWithUpper 
+                      ? "bg-primary/20 text-primary" 
+                      : "bg-secondary/50 text-secondary-foreground"
+                  }`}>
+                    {wordData.startsWithUpper ? "A" : "a"}
+                  </span>
+                )}
               </div>
               {showHebrew && (
                 <span className="text-lg text-muted-foreground" dir="rtl">

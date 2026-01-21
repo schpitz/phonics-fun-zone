@@ -1,15 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Shuffle, RotateCcw, Volume2, Check } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { ProgressBar } from "../ProgressBar";
-import { StarBurst } from "../StarBurst";
-import { EncouragementPopup } from "../EncouragementPopup";
 import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface SpellingGameScreenProps {
-  stars: number;
-  onAddStar: () => void;
   showHebrew: boolean;
   onToggleHebrew: () => void;
 }
@@ -24,8 +19,6 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 export const SpellingGameScreen = ({
-  stars,
-  onAddStar,
   showHebrew,
   onToggleHebrew,
 }: SpellingGameScreenProps) => {
@@ -34,8 +27,6 @@ export const SpellingGameScreen = ({
   const [wordList, setWordList] = useState<SpellingWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState<string[]>([]);
-  const [showStarBurst, setShowStarBurst] = useState(false);
-  const [showEncouragement, setShowEncouragement] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [wordsCompleted, setWordsCompleted] = useState(0);
   const { speakWord } = useSpeech();
@@ -96,11 +87,8 @@ export const SpellingGameScreen = ({
 
     if (isAllCorrect) {
       setIsCorrect(true);
-      setShowStarBurst(true);
-      onAddStar();
       setWordsCompleted(prev => prev + 1);
       speakWord(currentWord.english);
-      setTimeout(() => setShowEncouragement(true), 200);
       
       // Increase difficulty after every 3 words
       if ((wordsCompleted + 1) % 3 === 0 && missingLetters < 4) {
@@ -147,13 +135,17 @@ export const SpellingGameScreen = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
-      <div className="pt-4">
-        <ProgressBar
-          stars={stars}
-          showHebrewToggle
-          showHebrew={showHebrew}
-          onToggleHebrew={onToggleHebrew}
-        />
+      {/* Hebrew toggle */}
+      <div className="pt-4 flex justify-end">
+        <button
+          onClick={onToggleHebrew}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors text-sm font-bold"
+        >
+          <span className="text-lg">🇮🇱</span>
+          <span className={showHebrew ? "text-foreground" : "text-muted-foreground"}>
+            {showHebrew ? "עברית" : "Hebrew"}
+          </span>
+        </button>
       </div>
 
       {/* Header */}
@@ -232,11 +224,6 @@ export const SpellingGameScreen = ({
             </div>
           ))}
         </div>
-        
-        <StarBurst
-          show={showStarBurst}
-          onComplete={() => setShowStarBurst(false)}
-        />
       </div>
 
       {/* Letter keyboard */}
@@ -308,13 +295,13 @@ export const SpellingGameScreen = ({
             Words
           </h3>
           <GameButton
-            variant="ghost"
+            variant="accent"
             size="sm"
             onClick={loadWords}
             className="gap-1"
           >
             <Shuffle className="h-4 w-4" />
-            New Set
+            New Words
           </GameButton>
         </div>
         <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
@@ -336,11 +323,6 @@ export const SpellingGameScreen = ({
           ))}
         </div>
       </div>
-
-      <EncouragementPopup
-        show={showEncouragement}
-        onComplete={() => setShowEncouragement(false)}
-      />
     </div>
   );
 };

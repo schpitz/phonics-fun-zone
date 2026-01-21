@@ -11,16 +11,7 @@ type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spellin
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
-  const [stars, setStars] = useState(() => {
-    const saved = localStorage.getItem("english-learning-stars");
-    return saved ? parseInt(saved, 10) : 0;
-  });
   const [showHebrew, setShowHebrew] = useState(true);
-
-  // Save stars to localStorage
-  useEffect(() => {
-    localStorage.setItem("english-learning-stars", stars.toString());
-  }, [stars]);
 
   // Initialize speech synthesis voices
   useEffect(() => {
@@ -31,10 +22,6 @@ const Index = () => {
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
-  const handleAddStar = () => {
-    setStars((prev) => prev + 1);
-  };
-
   const handleToggleHebrew = () => {
     setShowHebrew((prev) => !prev);
   };
@@ -42,12 +29,10 @@ const Index = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case "home":
-        return <HomeScreen stars={stars} onNavigate={setCurrentScreen} />;
+        return <HomeScreen onNavigate={setCurrentScreen} />;
       case "letters":
         return (
           <LettersScreen
-            stars={stars}
-            onAddStar={handleAddStar}
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />
@@ -55,8 +40,6 @@ const Index = () => {
       case "words":
         return (
           <WordsScreen
-            stars={stars}
-            onAddStar={handleAddStar}
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />
@@ -64,8 +47,6 @@ const Index = () => {
       case "sentences":
         return (
           <SentencesScreen
-            stars={stars}
-            onAddStar={handleAddStar}
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />
@@ -73,8 +54,6 @@ const Index = () => {
       case "matching":
         return (
           <MatchingGameScreen
-            stars={stars}
-            onAddStar={handleAddStar}
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />
@@ -82,14 +61,12 @@ const Index = () => {
       case "spelling":
         return (
           <SpellingGameScreen
-            stars={stars}
-            onAddStar={handleAddStar}
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />
         );
       default:
-        return <HomeScreen stars={stars} onNavigate={setCurrentScreen} />;
+        return <HomeScreen onNavigate={setCurrentScreen} />;
     }
   };
 

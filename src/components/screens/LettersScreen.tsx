@@ -1,28 +1,19 @@
 import { useState, useCallback } from "react";
 import { Volume2, ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { ProgressBar } from "../ProgressBar";
-import { StarBurst } from "../StarBurst";
-import { EncouragementPopup } from "../EncouragementPopup";
 import { letters, getWordsForLetter, letterSounds } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface LettersScreenProps {
-  stars: number;
-  onAddStar: () => void;
   showHebrew: boolean;
   onToggleHebrew: () => void;
 }
 
 export const LettersScreen = ({
-  stars,
-  onAddStar,
   showHebrew,
   onToggleHebrew,
 }: LettersScreenProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showStarBurst, setShowStarBurst] = useState(false);
-  const [showEncouragement, setShowEncouragement] = useState(false);
   const [currentWords, setCurrentWords] = useState(() => getWordsForLetter(letters[0].letter, 10));
   const { speakLetter, speakWord, isSpeaking } = useSpeech();
 
@@ -31,16 +22,10 @@ export const LettersScreen = ({
 
   const handlePlayUppercase = () => {
     speakWord(`Uppercase ${currentLetter.letter}`);
-    setShowStarBurst(true);
-    onAddStar();
-    setTimeout(() => setShowEncouragement(true), 300);
   };
 
   const handlePlayLowercase = () => {
     speakWord(`Lowercase ${currentLetter.lowercase}`);
-    setShowStarBurst(true);
-    onAddStar();
-    setTimeout(() => setShowEncouragement(true), 300);
   };
 
   const handlePlaySound = (example: string) => {
@@ -92,13 +77,17 @@ export const LettersScreen = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
-      <div className="pt-4">
-        <ProgressBar
-          stars={stars}
-          showHebrewToggle
-          showHebrew={showHebrew}
-          onToggleHebrew={onToggleHebrew}
-        />
+      {/* Hebrew toggle */}
+      <div className="pt-4 flex justify-end">
+        <button
+          onClick={onToggleHebrew}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors text-sm font-bold"
+        >
+          <span className="text-lg">🇮🇱</span>
+          <span className={showHebrew ? "text-foreground" : "text-muted-foreground"}>
+            {showHebrew ? "עברית" : "Hebrew"}
+          </span>
+        </button>
       </div>
 
       {/* Letter display - both uppercase and lowercase */}
@@ -128,10 +117,6 @@ export const LettersScreen = ({
             </GameButton>
             <span className="text-xs mt-1 text-muted-foreground font-bold">Lowercase</span>
           </div>
-          <StarBurst
-            show={showStarBurst}
-            onComplete={() => setShowStarBurst(false)}
-          />
         </div>
 
         <div className="mt-3 flex items-center gap-2">
@@ -263,11 +248,6 @@ export const LettersScreen = ({
           ))}
         </div>
       </div>
-
-      <EncouragementPopup
-        show={showEncouragement}
-        onComplete={() => setShowEncouragement(false)}
-      />
     </div>
   );
 };

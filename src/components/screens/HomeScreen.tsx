@@ -1,14 +1,13 @@
-import { Sparkles, BookOpen, MessageSquare, Star, Puzzle, PenTool } from "lucide-react";
+import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 
 type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
 
 interface HomeScreenProps {
-  stars: number;
   onNavigate: (screen: Screen) => void;
 }
 
-export const HomeScreen = ({ stars, onNavigate }: HomeScreenProps) => {
+export const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
       {/* Header */}
@@ -19,15 +18,6 @@ export const HomeScreen = ({ stars, onNavigate }: HomeScreenProps) => {
         <p className="text-xl text-muted-foreground font-semibold">
           Let's have fun! 🎮
         </p>
-      </div>
-
-      {/* Stars display */}
-      <div className="flex justify-center mb-4">
-        <div className="flex items-center gap-3 bg-card px-6 py-3 rounded-2xl shadow-soft">
-          <Star className="h-10 w-10 fill-success text-success animate-pulse-glow" />
-          <span className="text-4xl font-black text-foreground">{stars}</span>
-          <span className="text-lg font-bold text-muted-foreground">stars</span>
-        </div>
       </div>
 
       {/* Character mascots */}

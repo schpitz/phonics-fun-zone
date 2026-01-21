@@ -9,7 +9,7 @@ interface WordsScreenProps {
   onToggleHebrew: () => void;
 }
 
-const categories = ["All", "Mario", "Sonic", "Paw Patrol", "Soccer", "Family", "Body", "Home", "Animals", "Colors"];
+const categories = ["All", "Mario", "Sonic", "Paw Patrol", "Soccer", "Star Wars", "Family", "Body", "Home", "Animals", "Colors"];
 
 export const WordsScreen = ({
   showHebrew,

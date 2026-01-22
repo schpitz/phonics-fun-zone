@@ -33,10 +33,12 @@ const getDifficultyConfig = (difficulty: number) => {
       return { missingLetters: 1, minLength: 2, maxLength: 4, label: "Easy" };
     case 2: // Medium: 4-5 letters, 1 missing
       return { missingLetters: 1, minLength: 4, maxLength: 5, label: "Medium" };
-    case 3: // Hard: 3-5 letters, 2 missing
-      return { missingLetters: 2, minLength: 3, maxLength: 5, label: "Hard" };
+    case 3: // Hard: 4-5 letters, 2 missing
+      return { missingLetters: 2, minLength: 4, maxLength: 5, label: "Hard" };
     case 4: // Expert: 5-6 letters, 2 missing
       return { missingLetters: 2, minLength: 5, maxLength: 6, label: "Expert" };
+    case 5: // Master: 7+ letters, 3 missing
+      return { missingLetters: 3, minLength: 7, maxLength: 12, label: "Master" };
     default:
       return { missingLetters: 1, minLength: 2, maxLength: 4, label: "Easy" };
   }
@@ -189,12 +191,13 @@ export const SpellingGameScreen = ({
       {/* Difficulty selector */}
       <div className="mt-4 flex flex-col items-center gap-2">
         <p className="text-sm font-bold text-muted-foreground">Choose Difficulty</p>
-        <div className="flex flex-wrap justify-center gap-2 bg-muted/50 p-2 rounded-2xl max-w-xs sm:max-w-none">
+        <div className="flex flex-wrap justify-center gap-2 bg-muted/50 p-2 rounded-2xl max-w-sm sm:max-w-none">
           {[
             { level: 1, label: "Easy", icon: "🌟" },
             { level: 2, label: "Medium", icon: "⭐" },
             { level: 3, label: "Hard", icon: "🔥" },
             { level: 4, label: "Expert", icon: "💪" },
+            { level: 5, label: "Master", icon: "🏆" },
           ].map((d) => (
             <button
               key={d.level}

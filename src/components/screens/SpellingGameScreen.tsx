@@ -3,6 +3,7 @@ import { Shuffle, Volume2, Keyboard } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
+import { CelebrationFeedback } from "../CelebrationFeedback";
 
 interface SpellingGameScreenProps {
   showHebrew: boolean;
@@ -54,6 +55,7 @@ export const SpellingGameScreen = ({
   const [userInput, setUserInput] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [keyboardLayout, setKeyboardLayout] = useState<"abc" | "qwerty">("abc");
+  const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord } = useSpeech();
 
   const currentWord = wordList[currentWordIndex];
@@ -120,6 +122,7 @@ export const SpellingGameScreen = ({
 
     if (isAllCorrect) {
       setIsCorrect(true);
+      setShowCelebration(true);
       speakWord(currentWord.english);
     } else {
       setIsCorrect(false);
@@ -163,6 +166,11 @@ export const SpellingGameScreen = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-3 sm:px-4 overflow-x-hidden">
+      {/* Celebration feedback */}
+      <CelebrationFeedback 
+        show={showCelebration} 
+        onComplete={() => setShowCelebration(false)} 
+      />
       {/* Hebrew toggle */}
       <div className="pt-4 flex justify-end">
         <button

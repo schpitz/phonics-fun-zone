@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Shuffle, Volume2, Check, Keyboard } from "lucide-react";
+import { Shuffle, Volume2, Keyboard } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -26,20 +26,19 @@ const QWERTY_LAYOUT = [
 ];
 
 // Difficulty determines number of missing letters
+// Difficulty config: word length range + missing letters
 const getDifficultyConfig = (difficulty: number) => {
   switch (difficulty) {
-    case 1:
-      return { missingLetters: 1, label: "1 letter" };
-    case 2:
-      return { missingLetters: 2, label: "2 letters" };
-    case 3:
-      return { missingLetters: 3, label: "3 letters" };
-    case 4:
-      return { missingLetters: 4, label: "4 letters" };
-    case 5:
-      return { missingLetters: 5, label: "5 letters" };
+    case 1: // Easy: 2-4 letters, 1 missing
+      return { missingLetters: 1, minLength: 2, maxLength: 4, label: "Easy" };
+    case 2: // Medium: 4-5 letters, 1 missing
+      return { missingLetters: 1, minLength: 4, maxLength: 5, label: "Medium" };
+    case 3: // Hard: 3-5 letters, 2 missing
+      return { missingLetters: 2, minLength: 3, maxLength: 5, label: "Hard" };
+    case 4: // Expert: 5-6 letters, 2 missing
+      return { missingLetters: 2, minLength: 5, maxLength: 6, label: "Expert" };
     default:
-      return { missingLetters: 1, label: "1 letter" };
+      return { missingLetters: 1, minLength: 2, maxLength: 4, label: "Easy" };
   }
 };
 
@@ -161,7 +160,7 @@ export const SpellingGameScreen = ({
   if (!currentWord) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-3 sm:px-4 overflow-x-hidden">
       {/* Hebrew toggle */}
       <div className="pt-4 flex justify-end">
         <button
@@ -190,18 +189,17 @@ export const SpellingGameScreen = ({
       {/* Difficulty selector */}
       <div className="mt-4 flex flex-col items-center gap-2">
         <p className="text-sm font-bold text-muted-foreground">Choose Difficulty</p>
-        <div className="flex gap-2 bg-muted/50 p-2 rounded-2xl">
+        <div className="flex flex-wrap justify-center gap-2 bg-muted/50 p-2 rounded-2xl max-w-xs sm:max-w-none">
           {[
             { level: 1, label: "Easy", icon: "🌟" },
             { level: 2, label: "Medium", icon: "⭐" },
             { level: 3, label: "Hard", icon: "🔥" },
             { level: 4, label: "Expert", icon: "💪" },
-            { level: 5, label: "Master", icon: "🏆" },
           ].map((d) => (
             <button
               key={d.level}
               onClick={() => handleDifficultyChange(d.level)}
-              className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-bold transition-all min-w-[60px] ${
+              className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-bold transition-all min-w-[55px] sm:min-w-[60px] ${
                 difficulty === d.level
                   ? "bg-primary text-primary-foreground shadow-button scale-105"
                   : "bg-card text-muted-foreground hover:bg-card/80 hover:scale-102"
@@ -242,12 +240,12 @@ export const SpellingGameScreen = ({
         </button>
       </div>
 
-      {/* Word display with blanks and check button */}
-      <div className="mt-6 relative">
-        <div className="flex items-center justify-center gap-3 max-w-lg mx-auto">
+      {/* Word display with blanks */}
+      <div className="mt-6">
+        <div className="flex flex-col items-center gap-3 max-w-sm sm:max-w-lg mx-auto">
           <div
             className={`
-              flex justify-center gap-2 min-h-[70px] p-3 bg-card rounded-2xl shadow-soft flex-1
+              flex justify-center flex-wrap gap-1.5 sm:gap-2 min-h-[60px] p-3 bg-card rounded-2xl shadow-soft w-full
               ${isCorrect === false ? "animate-shake border-2 border-destructive" : ""}
               ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
             `}
@@ -256,7 +254,7 @@ export const SpellingGameScreen = ({
               <div
                 key={index}
                 className={`
-                  w-12 h-12 md:w-14 md:h-14 rounded-xl text-2xl font-black flex items-center justify-center
+                  w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl text-xl sm:text-2xl font-black flex items-center justify-center
                   ${
                     puzzle.missingIndices.includes(index)
                       ? letter === "_"
@@ -273,32 +271,27 @@ export const SpellingGameScreen = ({
             ))}
           </div>
           
-          {/* Check button - next to word input */}
-          {isCorrect !== true && (
+          {/* Check/Next button - below word input */}
+          {isCorrect !== true ? (
             <button
               onClick={checkAnswer}
               disabled={userInput.length !== puzzle.missingIndices.length}
               className={`
-                w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all shadow-button
+                px-8 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
                 ${userInput.length === puzzle.missingIndices.length
                   ? "bg-accent text-accent-foreground hover:scale-105 active:scale-95"
                   : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
                 }
               `}
-              aria-label="Check answer"
             >
-              <Check className="h-7 w-7" />
+              Check
             </button>
-          )}
-          
-          {/* Next button - when correct */}
-          {isCorrect === true && (
+          ) : (
             <button
               onClick={nextWord}
-              className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all shadow-button"
-              aria-label="Next word"
+              className="px-8 py-3 rounded-2xl font-bold text-lg bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all shadow-button"
             >
-              <span className="text-2xl">→</span>
+              Next Word →
             </button>
           )}
         </div>
@@ -316,15 +309,15 @@ export const SpellingGameScreen = ({
       </div>
 
       {/* Letter keyboard */}
-      <div className="mt-4 flex flex-col items-center gap-1.5 max-w-lg mx-auto">
+      <div className="mt-4 flex flex-col items-center gap-1 sm:gap-1.5 max-w-sm sm:max-w-lg mx-auto px-1">
         {keyboardLayout === "abc" ? (
-          <div className="flex flex-wrap justify-center gap-1.5">
+          <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5">
             {ABC_LAYOUT.map((letter) => (
               <button
                 key={letter}
                 onClick={() => handleLetterClick(letter)}
                 disabled={isCorrect !== null}
-                className="w-11 h-11 md:w-12 md:h-12 rounded-xl text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
+                className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
               >
                 {letter}
               </button>
@@ -333,13 +326,13 @@ export const SpellingGameScreen = ({
         ) : (
           <>
             {QWERTY_LAYOUT.map((row, rowIndex) => (
-              <div key={rowIndex} className="flex justify-center gap-1.5">
+              <div key={rowIndex} className="flex justify-center gap-1 sm:gap-1.5">
                 {row.map((letter) => (
                   <button
                     key={letter}
                     onClick={() => handleLetterClick(letter)}
                     disabled={isCorrect !== null}
-                    className="w-11 h-11 md:w-12 md:h-12 rounded-xl text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
+                    className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
                   >
                     {letter}
                   </button>

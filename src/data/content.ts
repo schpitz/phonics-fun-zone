@@ -905,17 +905,24 @@ export const spellingWords: WordData[] = allSpellingWords.map(w => ({
   emoji: w.emoji,
 }));
 
-// Get spelling words by exact difficulty level
+// Get spelling words by difficulty level with word length filtering
 export const getSpellingWordsByDifficulty = (difficulty: number, count: number = 10): SpellingWord[] => {
-  // Filter by exact difficulty level (1-5)
-  const filtered = allSpellingWords.filter(w => w.difficulty === difficulty);
-  // If not enough words at exact level, include adjacent levels
-  if (filtered.length < count) {
-    const adjacent = allSpellingWords.filter(w => 
-      w.difficulty === difficulty - 1 || w.difficulty === difficulty + 1
-    );
-    return shuffleArray([...filtered, ...adjacent]).slice(0, count);
-  }
+  // Define word length ranges for each difficulty
+  const lengthConfig: Record<number, { min: number; max: number }> = {
+    1: { min: 2, max: 4 },  // Easy: 2-4 letters
+    2: { min: 4, max: 5 },  // Medium: 4-5 letters
+    3: { min: 3, max: 5 },  // Hard: 3-5 letters
+    4: { min: 5, max: 6 },  // Expert: 5-6 letters
+  };
+  
+  const config = lengthConfig[difficulty] || lengthConfig[1];
+  
+  // Filter by word length (not by difficulty property)
+  const filtered = allSpellingWords.filter(w => {
+    const len = w.english.length;
+    return len >= config.min && len <= config.max;
+  });
+  
   return shuffleArray(filtered).slice(0, count);
 };
 

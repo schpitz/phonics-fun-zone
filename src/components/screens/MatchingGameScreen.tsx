@@ -3,6 +3,7 @@ import { Shuffle, RotateCcw, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { getRandomMatchingPairs } from "@/data/content";
 import { useSpeech } from "@/hooks/useSpeech";
+import { CelebrationFeedback } from "../CelebrationFeedback";
 
 interface MatchingGameScreenProps {
   showHebrew: boolean;
@@ -125,6 +126,7 @@ export const MatchingGameScreen = ({
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord } = useSpeech();
 
   const config = difficultyConfig[difficulty];
@@ -197,6 +199,7 @@ export const MatchingGameScreen = ({
             )
           );
           setMatchedPairs((prev) => prev + 1);
+          setShowCelebration(true); // Show celebration on each match
 
           // Check if game is complete
           if (matchedPairs + 1 === config.pairs) {
@@ -225,6 +228,11 @@ export const MatchingGameScreen = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
+      {/* Celebration feedback */}
+      <CelebrationFeedback 
+        show={showCelebration} 
+        onComplete={() => setShowCelebration(false)} 
+      />
       {/* Hebrew toggle */}
       <div className="pt-4 flex justify-end">
         <button

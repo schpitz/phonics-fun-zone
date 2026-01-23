@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Volume2, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { getRandomWords, WordData } from "@/data/content";
+import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface WordsScreenProps {
@@ -9,16 +9,21 @@ interface WordsScreenProps {
   onToggleHebrew: () => void;
 }
 
-const categories = ["All", "Mario", "Sonic", "Paw Patrol", "Soccer", "Star Wars", "Family", "Body", "Home", "Animals", "Colors"];
-
 export const WordsScreen = ({
   showHebrew,
   onToggleHebrew,
 }: WordsScreenProps) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [displayedWords, setDisplayedWords] = useState<WordData[]>(() => getRandomWords(10));
+  const [displayedWords, setDisplayedWords] = useState<UnifiedWord[]>(() => 
+    vocabularyManager.getWordsForWordsScreen(undefined, 10)
+  );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const { speakWord, isSpeaking } = useSpeech();
+
+  // Get categories dynamically from vocabulary
+  const categories = useMemo(() => {
+    return ["All", ...vocabularyManager.getCategories()];
+  }, []);
 
   const currentWord = displayedWords[currentWordIndex];
 
@@ -30,7 +35,7 @@ export const WordsScreen = ({
 
   const handleGenerateMore = useCallback(() => {
     const category = selectedCategory === "All" ? undefined : selectedCategory;
-    const newWords = getRandomWords(10, category);
+    const newWords = vocabularyManager.getWordsForWordsScreen(category, 10);
     setDisplayedWords(newWords);
     setCurrentWordIndex(0);
   }, [selectedCategory]);
@@ -38,7 +43,7 @@ export const WordsScreen = ({
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     const cat = category === "All" ? undefined : category;
-    const newWords = getRandomWords(10, cat);
+    const newWords = vocabularyManager.getWordsForWordsScreen(cat, 10);
     setDisplayedWords(newWords);
     setCurrentWordIndex(0);
   };

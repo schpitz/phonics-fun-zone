@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Shuffle, RotateCcw, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { getRandomMatchingPairs } from "@/data/content";
+import { vocabularyManager } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 import { CelebrationFeedback } from "../CelebrationFeedback";
 
@@ -132,28 +132,28 @@ export const MatchingGameScreen = ({
   const config = difficultyConfig[difficulty];
 
   const initializeGame = useCallback(() => {
-    const selectedPairs = getRandomMatchingPairs(config.pairs);
+    const selectedWords = vocabularyManager.getWordsForMatching(config.pairs);
     
     const newCards: Card[] = [];
-    selectedPairs.forEach((pair, index) => {
+    selectedWords.forEach((word, index) => {
       // English card
       newCards.push({
         id: `en-${index}`,
-        content: pair.english,
+        content: word.english,
         type: "english",
         pairId: `pair-${index}`,
-        englishWord: pair.english,
+        englishWord: word.english,
         isFlipped: false,
         isMatched: false,
       });
       // Image card
       newCards.push({
         id: `img-${index}`,
-        content: pair.emoji,
-        imageUrl: characterImages[pair.english],
+        content: word.emoji,
+        imageUrl: characterImages[word.english],
         type: "image",
         pairId: `pair-${index}`,
-        englishWord: pair.english,
+        englishWord: word.english,
         isFlipped: false,
         isMatched: false,
       });

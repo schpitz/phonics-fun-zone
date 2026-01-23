@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Play, Shuffle, Volume2, Minus, Plus } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { getRandomSentences, SentenceData } from "@/data/content";
+import { vocabularyManager, SentenceData } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface SentencesScreenProps {
@@ -13,7 +13,9 @@ export const SentencesScreen = ({
   showHebrew,
   onToggleHebrew,
 }: SentencesScreenProps) => {
-  const [displayedSentences, setDisplayedSentences] = useState<SentenceData[]>(() => getRandomSentences(3));
+  const [displayedSentences, setDisplayedSentences] = useState<SentenceData[]>(() => 
+    vocabularyManager.getRandomSentences(3)
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speedMultiplier, setSpeedMultiplier] = useState(1.0);
   const { speakWord, speak, isSpeaking } = useSpeech();
@@ -35,7 +37,7 @@ export const SentencesScreen = ({
   };
 
   const handleGenerateMore = () => {
-    const newSentences = getRandomSentences(3);
+    const newSentences = vocabularyManager.getRandomSentences(3);
     setDisplayedSentences(newSentences);
     setCurrentIndex(0);
   };

@@ -624,6 +624,41 @@ class VocabularyManager {
 // ===== SINGLETON INSTANCE =====
 export const vocabularyManager = new VocabularyManager();
 
+// ===== LETTER DATA FOR ABC SCREEN =====
+export interface LetterData {
+  letter: string;
+  lowercase: string;
+}
+
+export const letters: LetterData[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(letter => ({
+  letter,
+  lowercase: letter.toLowerCase(),
+}));
+
+// Letter sounds for phonics
+export const letterSounds: Record<string, { sound: string; example: string; type: "short" | "long" | "consonant" }[]> = {
+  A: [
+    { sound: "/æ/", example: "apple", type: "short" },
+    { sound: "/eɪ/", example: "cake", type: "long" },
+  ],
+  E: [
+    { sound: "/ɛ/", example: "egg", type: "short" },
+    { sound: "/iː/", example: "tree", type: "long" },
+  ],
+  I: [
+    { sound: "/ɪ/", example: "fish", type: "short" },
+    { sound: "/aɪ/", example: "bike", type: "long" },
+  ],
+  O: [
+    { sound: "/ɒ/", example: "dog", type: "short" },
+    { sound: "/oʊ/", example: "bone", type: "long" },
+  ],
+  U: [
+    { sound: "/ʌ/", example: "cup", type: "short" },
+    { sound: "/juː/", example: "cute", type: "long" },
+  ],
+};
+
 // ===== ENCOURAGEMENTS =====
 export const encouragements = [
   "Great job! 🌟",

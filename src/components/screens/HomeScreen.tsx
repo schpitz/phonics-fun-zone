@@ -5,9 +5,10 @@ type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spellin
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
+  onSecretTap?: () => void;
 }
 
-export const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
+export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
       {/* Header */}
@@ -94,9 +95,12 @@ export const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         </div>
       </div>
 
-      {/* Fun footer */}
+      {/* Fun footer with secret admin tap */}
       <div className="mt-4 text-center">
-        <p className="text-base text-muted-foreground">
+        <p 
+          className="text-base text-muted-foreground cursor-default select-none"
+          onClick={onSecretTap}
+        >
           ⚽ With Mario, Sonic & Paw Patrol! 🐾
         </p>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { HomeScreen } from "@/components/screens/HomeScreen";
 import { LettersScreen } from "@/components/screens/LettersScreen";
@@ -6,12 +6,37 @@ import { WordsScreen } from "@/components/screens/WordsScreen";
 import { SentencesScreen } from "@/components/screens/SentencesScreen";
 import { MatchingGameScreen } from "@/components/screens/MatchingGameScreen";
 import { SpellingGameScreen } from "@/components/screens/SpellingGameScreen";
+import { AdminLogin } from "@/components/admin/AdminLogin";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 
 type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
   const [showHebrew, setShowHebrew] = useState(true);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  
+  // Secret admin access: triple-tap detection
+  const tapCountRef = useRef(0);
+  const tapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Check for existing admin session
+  useEffect(() => {
+    const session = localStorage.getItem("admin_session");
+    if (session) {
+      try {
+        const { expiry } = JSON.parse(session);
+        if (Date.now() < expiry) {
+          setIsAdminLoggedIn(true);
+        } else {
+          localStorage.removeItem("admin_session");
+        }
+      } catch {
+        localStorage.removeItem("admin_session");
+      }
+    }
+  }, []);
 
   // Initialize speech synthesis voices
   useEffect(() => {
@@ -22,14 +47,60 @@ const Index = () => {
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
 
+  // Secret admin access: detect 5 rapid taps on version text
+  const handleSecretTap = () => {
+    tapCountRef.current += 1;
+    
+    if (tapTimeoutRef.current) {
+      clearTimeout(tapTimeoutRef.current);
+    }
+    
+    if (tapCountRef.current >= 5) {
+      tapCountRef.current = 0;
+      setShowAdminLogin(true);
+    } else {
+      tapTimeoutRef.current = setTimeout(() => {
+        tapCountRef.current = 0;
+      }, 1000);
+    }
+  };
+
   const handleToggleHebrew = () => {
     setShowHebrew((prev) => !prev);
   };
 
+  const handleAdminLogin = () => {
+    setIsAdminLoggedIn(true);
+    setShowAdminLogin(false);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
+  };
+
+  // Show admin screens
+  if (showAdminLogin && !isAdminLoggedIn) {
+    return (
+      <AdminLogin 
+        onLogin={handleAdminLogin} 
+        onBack={() => setShowAdminLogin(false)} 
+      />
+    );
+  }
+
+  if (isAdminLoggedIn) {
+    return (
+      <AdminPanel 
+        onLogout={handleAdminLogout} 
+        onBack={() => setIsAdminLoggedIn(false)} 
+      />
+    );
+  }
+
   const renderScreen = () => {
     switch (currentScreen) {
       case "home":
-        return <HomeScreen onNavigate={setCurrentScreen} />;
+        return <HomeScreen onNavigate={setCurrentScreen} onSecretTap={handleSecretTap} />;
       case "letters":
         return (
           <LettersScreen
@@ -66,7 +137,7 @@ const Index = () => {
           />
         );
       default:
-        return <HomeScreen onNavigate={setCurrentScreen} />;
+        return <HomeScreen onNavigate={setCurrentScreen} onSecretTap={handleSecretTap} />;
     }
   };
 

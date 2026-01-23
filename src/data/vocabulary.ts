@@ -879,7 +879,24 @@ class VocabularyManager {
       const storedSentences = localStorage.getItem(SENTENCES_STORAGE_KEY);
       
       if (storedVocab) {
-        this.vocabulary = JSON.parse(storedVocab);
+        const existingVocab: UnifiedWord[] = JSON.parse(storedVocab);
+        
+        // Check if we have new default words to add
+        const existingEnglishWords = new Set(existingVocab.map(w => w.english.toLowerCase()));
+        const newWords = defaultVocabulary.filter(w => !existingEnglishWords.has(w.english.toLowerCase()));
+        
+        if (newWords.length > 0) {
+          // Add new default words to existing vocabulary
+          const newWordsWithIds = newWords.map(word => ({
+            ...word,
+            id: generateId(),
+          }));
+          this.vocabulary = [...existingVocab, ...newWordsWithIds];
+          this.saveVocabulary();
+          console.log(`Added ${newWords.length} new words to vocabulary`);
+        } else {
+          this.vocabulary = existingVocab;
+        }
       } else {
         // Initialize with default vocabulary
         this.vocabulary = defaultVocabulary.map(word => ({

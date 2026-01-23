@@ -254,33 +254,46 @@ export const SpellingGameScreen = ({
       {/* Word display with blanks */}
       <div className="mt-6">
         <div className="flex flex-col items-center gap-3 max-w-sm sm:max-w-lg mx-auto">
-          <div
-            className={`
-              flex justify-center flex-wrap gap-1.5 sm:gap-2 min-h-[60px] p-3 bg-card rounded-2xl shadow-soft w-full
-              ${isCorrect === false ? "animate-shake border-2 border-destructive" : ""}
-              ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
-            `}
-          >
-            {getDisplayWord().map((letter, index) => (
+          {(() => {
+            const wordLength = getDisplayWord().length;
+            // Dynamically calculate letter box size based on word length
+            const getLetterBoxSize = () => {
+              if (wordLength <= 4) return "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-2xl sm:text-3xl";
+              if (wordLength <= 6) return "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-xl sm:text-2xl";
+              if (wordLength <= 8) return "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-lg sm:text-xl";
+              return "w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-base sm:text-lg";
+            };
+            
+            return (
               <div
-                key={index}
                 className={`
-                  w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl text-xl sm:text-2xl font-black flex items-center justify-center
-                  ${
-                    puzzle.missingIndices.includes(index)
-                      ? letter === "_"
-                        ? "bg-muted border-2 border-dashed border-primary text-muted-foreground"
-                        : isCorrect === true
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                  }
+                  flex justify-center flex-wrap gap-1 sm:gap-1.5 min-h-[60px] p-3 bg-card rounded-2xl shadow-soft w-full
+                  ${isCorrect === false ? "animate-shake border-2 border-destructive" : ""}
+                  ${isCorrect === true ? "border-2 border-accent shadow-glow-accent" : ""}
                 `}
               >
-                {letter}
+                {getDisplayWord().map((letter, index) => (
+                  <div
+                    key={index}
+                    className={`
+                      ${getLetterBoxSize()} rounded-xl font-black flex items-center justify-center shrink-0
+                      ${
+                        puzzle.missingIndices.includes(index)
+                          ? letter === "_"
+                            ? "bg-muted border-2 border-dashed border-primary text-muted-foreground"
+                            : isCorrect === true
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground"
+                      }
+                    `}
+                  >
+                    {letter}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            );
+          })()}
           
           {/* Check/Next button - below word input */}
           {isCorrect !== true ? (

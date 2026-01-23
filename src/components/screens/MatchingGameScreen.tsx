@@ -310,23 +310,25 @@ export const MatchingGameScreen = ({
           const hasMultipleWords = card.content.includes(" ");
           const words = card.content.split(" ");
           
-          // Dynamic font sizing - maximize size while fitting
+          // Dynamic font sizing - maximize size to fill the card
           const getTextStyle = (text: string, isMultiWord: boolean) => {
             if (isMultiWord) {
-              // For multi-word: show on 2 lines, larger font
+              // For multi-word: show on 2 lines with larger fonts
               const longestWord = Math.max(...words.map(w => w.length));
-              if (longestWord <= 4) return "text-base sm:text-lg md:text-xl";
-              if (longestWord <= 6) return "text-sm sm:text-base md:text-lg";
+              if (longestWord <= 3) return "text-lg sm:text-xl md:text-2xl";
+              if (longestWord <= 5) return "text-base sm:text-lg md:text-xl";
+              if (longestWord <= 7) return "text-sm sm:text-base md:text-lg";
               return "text-xs sm:text-sm md:text-base";
             }
-            // Single word: maximize font size based on length
+            // Single word: maximize font size - be aggressive
             const len = text.length;
-            if (len <= 3) return "text-xl sm:text-2xl md:text-3xl";
-            if (len <= 4) return "text-lg sm:text-xl md:text-2xl";
-            if (len <= 5) return "text-base sm:text-lg md:text-xl";
-            if (len <= 6) return "text-sm sm:text-base md:text-lg";
-            if (len <= 8) return "text-xs sm:text-sm md:text-base";
-            return "text-[10px] sm:text-xs md:text-sm";
+            if (len <= 3) return "text-2xl sm:text-3xl md:text-4xl";
+            if (len <= 4) return "text-xl sm:text-2xl md:text-3xl";
+            if (len <= 5) return "text-lg sm:text-xl md:text-2xl";
+            if (len <= 6) return "text-base sm:text-lg md:text-xl";
+            if (len <= 7) return "text-sm sm:text-base md:text-lg";
+            if (len <= 9) return "text-xs sm:text-sm md:text-base";
+            return "text-[11px] sm:text-xs md:text-sm";
           };
           
           return (
@@ -336,7 +338,7 @@ export const MatchingGameScreen = ({
               disabled={card.isFlipped || card.isMatched || isChecking}
               className={`
                 aspect-square rounded-2xl font-black
-                transition-all duration-300 transform flex items-center justify-center p-1.5
+                transition-all duration-300 transform flex items-center justify-center p-1
                 ${
                   card.isMatched
                     ? "bg-accent text-accent-foreground scale-95 opacity-60"
@@ -353,7 +355,6 @@ export const MatchingGameScreen = ({
                     alt={card.englishWord}
                     className="w-full h-full object-cover rounded-xl"
                     onError={(e) => {
-                      // Fallback to emoji if image fails to load
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.nextElementSibling?.classList.remove('hidden');
                     }}
@@ -361,13 +362,13 @@ export const MatchingGameScreen = ({
                 ) : card.type === "image" ? (
                   <span className="text-4xl sm:text-5xl md:text-6xl">{card.content}</span>
                 ) : hasMultipleWords ? (
-                  <span className={`${getTextStyle(card.content, true)} font-black leading-tight text-center flex flex-col gap-0`}>
+                  <span className={`${getTextStyle(card.content, true)} font-black leading-none text-center flex flex-col`}>
                     {words.slice(0, 2).map((word, i) => (
                       <span key={i}>{word}</span>
                     ))}
                   </span>
                 ) : (
-                  <span className={`${getTextStyle(card.content, false)} font-black text-center break-keep`}>
+                  <span className={`${getTextStyle(card.content, false)} font-black text-center whitespace-nowrap`}>
                     {card.content}
                   </span>
                 )

@@ -306,18 +306,28 @@ export const MatchingGameScreen = ({
         style={{ gridTemplateColumns: `repeat(${config.cols}, minmax(0, 1fr))` }}
       >
         {cards.map((card) => {
-          // Calculate font size based on word length for text cards
-          const getTextFontSize = (text: string) => {
-            const len = text.length;
-            if (len <= 4) return "text-lg md:text-xl";
-            if (len <= 6) return "text-base md:text-lg";
-            if (len <= 8) return "text-sm md:text-base";
-            return "text-xs md:text-sm";
-          };
-          
           // Check if word contains multiple words (spaces)
           const hasMultipleWords = card.content.includes(" ");
           const words = card.content.split(" ");
+          
+          // Dynamic font sizing - maximize size while fitting
+          const getTextStyle = (text: string, isMultiWord: boolean) => {
+            if (isMultiWord) {
+              // For multi-word: show on 2 lines, larger font
+              const longestWord = Math.max(...words.map(w => w.length));
+              if (longestWord <= 4) return "text-base sm:text-lg md:text-xl";
+              if (longestWord <= 6) return "text-sm sm:text-base md:text-lg";
+              return "text-xs sm:text-sm md:text-base";
+            }
+            // Single word: maximize font size based on length
+            const len = text.length;
+            if (len <= 3) return "text-xl sm:text-2xl md:text-3xl";
+            if (len <= 4) return "text-lg sm:text-xl md:text-2xl";
+            if (len <= 5) return "text-base sm:text-lg md:text-xl";
+            if (len <= 6) return "text-sm sm:text-base md:text-lg";
+            if (len <= 8) return "text-xs sm:text-sm md:text-base";
+            return "text-[10px] sm:text-xs md:text-sm";
+          };
           
           return (
             <button
@@ -325,8 +335,8 @@ export const MatchingGameScreen = ({
               onClick={() => handleCardClick(card)}
               disabled={card.isFlipped || card.isMatched || isChecking}
               className={`
-                aspect-square rounded-2xl font-bold
-                transition-all duration-300 transform flex items-center justify-center p-3
+                aspect-square rounded-2xl font-black
+                transition-all duration-300 transform flex items-center justify-center p-1.5
                 ${
                   card.isMatched
                     ? "bg-accent text-accent-foreground scale-95 opacity-60"
@@ -349,22 +359,24 @@ export const MatchingGameScreen = ({
                     }}
                   />
                 ) : card.type === "image" ? (
-                  <span className="text-5xl md:text-6xl">{card.content}</span>
+                  <span className="text-4xl sm:text-5xl md:text-6xl">{card.content}</span>
                 ) : hasMultipleWords ? (
-                  <span className={`${getTextFontSize(card.content)} font-bold leading-tight text-center flex flex-col`}>
+                  <span className={`${getTextStyle(card.content, true)} font-black leading-tight text-center flex flex-col gap-0`}>
                     {words.slice(0, 2).map((word, i) => (
                       <span key={i}>{word}</span>
                     ))}
                   </span>
                 ) : (
-                  <span className={`${getTextFontSize(card.content)} font-bold px-1`}>{card.content}</span>
+                  <span className={`${getTextStyle(card.content, false)} font-black text-center break-keep`}>
+                    {card.content}
+                  </span>
                 )
               ) : (
-                <span className="text-4xl md:text-5xl">?</span>
+                <span className="text-3xl sm:text-4xl md:text-5xl">?</span>
               )}
               {/* Hidden emoji fallback */}
               {card.type === "image" && (
-                <span className="hidden text-5xl md:text-6xl">{card.content}</span>
+                <span className="hidden text-4xl sm:text-5xl md:text-6xl">{card.content}</span>
               )}
             </button>
           );

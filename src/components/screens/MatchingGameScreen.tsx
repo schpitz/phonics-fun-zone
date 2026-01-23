@@ -305,49 +305,70 @@ export const MatchingGameScreen = ({
         className={`mt-6 grid gap-2 md:gap-3 max-w-lg mx-auto relative`}
         style={{ gridTemplateColumns: `repeat(${config.cols}, minmax(0, 1fr))` }}
       >
-        {cards.map((card) => (
-          <button
-            key={card.id}
-            onClick={() => handleCardClick(card)}
-            disabled={card.isFlipped || card.isMatched || isChecking}
-            className={`
-              aspect-square rounded-2xl font-bold text-base md:text-lg
-              transition-all duration-300 transform flex items-center justify-center p-2
-              ${
-                card.isMatched
-                  ? "bg-accent text-accent-foreground scale-95 opacity-60"
-                  : card.isFlipped
-                  ? "bg-primary text-primary-foreground shadow-glow-primary scale-105"
-                  : "bg-secondary text-secondary-foreground hover:scale-105 shadow-button active:translate-y-1 active:shadow-none"
-              }
-            `}
-          >
-            {card.isFlipped || card.isMatched ? (
-              card.type === "image" && card.imageUrl ? (
-                <img 
-                  src={card.imageUrl} 
-                  alt={card.englishWord}
-                  className="w-full h-full object-cover rounded-xl"
-                  onError={(e) => {
-                    // Fallback to emoji if image fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-              ) : card.type === "image" ? (
-                <span className="text-5xl md:text-6xl">{card.content}</span>
+        {cards.map((card) => {
+          // Calculate font size based on word length for text cards
+          const getTextFontSize = (text: string) => {
+            const len = text.length;
+            if (len <= 4) return "text-lg md:text-xl";
+            if (len <= 6) return "text-base md:text-lg";
+            if (len <= 8) return "text-sm md:text-base";
+            return "text-xs md:text-sm";
+          };
+          
+          // Check if word contains multiple words (spaces)
+          const hasMultipleWords = card.content.includes(" ");
+          const words = card.content.split(" ");
+          
+          return (
+            <button
+              key={card.id}
+              onClick={() => handleCardClick(card)}
+              disabled={card.isFlipped || card.isMatched || isChecking}
+              className={`
+                aspect-square rounded-2xl font-bold
+                transition-all duration-300 transform flex items-center justify-center p-3
+                ${
+                  card.isMatched
+                    ? "bg-accent text-accent-foreground scale-95 opacity-60"
+                    : card.isFlipped
+                    ? "bg-primary text-primary-foreground shadow-glow-primary scale-105"
+                    : "bg-secondary text-secondary-foreground hover:scale-105 shadow-button active:translate-y-1 active:shadow-none"
+                }
+              `}
+            >
+              {card.isFlipped || card.isMatched ? (
+                card.type === "image" && card.imageUrl ? (
+                  <img 
+                    src={card.imageUrl} 
+                    alt={card.englishWord}
+                    className="w-full h-full object-cover rounded-xl"
+                    onError={(e) => {
+                      // Fallback to emoji if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : card.type === "image" ? (
+                  <span className="text-5xl md:text-6xl">{card.content}</span>
+                ) : hasMultipleWords ? (
+                  <span className={`${getTextFontSize(card.content)} font-bold leading-tight text-center flex flex-col`}>
+                    {words.slice(0, 2).map((word, i) => (
+                      <span key={i}>{word}</span>
+                    ))}
+                  </span>
+                ) : (
+                  <span className={`${getTextFontSize(card.content)} font-bold px-1`}>{card.content}</span>
+                )
               ) : (
-                <span className="text-sm md:text-base font-bold px-1">{card.content}</span>
-              )
-            ) : (
-              <span className="text-4xl md:text-5xl">?</span>
-            )}
-            {/* Hidden emoji fallback */}
-            {card.type === "image" && (
-              <span className="hidden text-5xl md:text-6xl">{card.content}</span>
-            )}
-          </button>
-        ))}
+                <span className="text-4xl md:text-5xl">?</span>
+              )}
+              {/* Hidden emoji fallback */}
+              {card.type === "image" && (
+                <span className="hidden text-5xl md:text-6xl">{card.content}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Controls */}

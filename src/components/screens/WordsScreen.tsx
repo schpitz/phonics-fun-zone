@@ -128,20 +128,44 @@ export const WordsScreen = ({
         </h3>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-lg mx-auto">
-          {displayedWords.map((word, index) => (
-            <GameButton
-              key={`${word.english}-${index}`}
-              variant={index === currentWordIndex ? "primary" : "word"}
-              size="lg"
-              onClick={() => {
-                setCurrentWordIndex(index);
-                speakWord(word.english);
-              }}
-              className="text-xl py-5 px-4"
-            >
-              <span>{word.emoji} {word.english}</span>
-            </GameButton>
-          ))}
+          {displayedWords.map((word, index) => {
+            // Calculate font size based on word length
+            const getTextFontSize = (text: string) => {
+              const len = text.length;
+              if (len <= 5) return "text-xl";
+              if (len <= 7) return "text-lg";
+              if (len <= 10) return "text-base";
+              return "text-sm";
+            };
+            
+            // Check if word contains multiple words (spaces)
+            const hasMultipleWords = word.english.includes(" ");
+            const words = word.english.split(" ");
+            
+            return (
+              <GameButton
+                key={`${word.english}-${index}`}
+                variant={index === currentWordIndex ? "primary" : "word"}
+                size="lg"
+                onClick={() => {
+                  setCurrentWordIndex(index);
+                  speakWord(word.english);
+                }}
+                className={`${getTextFontSize(word.english)} py-5 px-3`}
+              >
+                {hasMultipleWords ? (
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>{word.emoji}</span>
+                    {words.slice(0, 2).map((w, i) => (
+                      <span key={i}>{w}</span>
+                    ))}
+                  </span>
+                ) : (
+                  <span>{word.emoji} {word.english}</span>
+                )}
+              </GameButton>
+            );
+          })}
         </div>
       </div>
     </div>

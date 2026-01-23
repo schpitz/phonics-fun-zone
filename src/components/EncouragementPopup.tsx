@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getRandomEncouragement } from "@/data/content";
+import { getRandomEncouragement } from "@/data/vocabulary";
 
 interface EncouragementPopupProps {
   show: boolean;

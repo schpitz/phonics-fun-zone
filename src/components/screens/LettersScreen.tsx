@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Volume2, ArrowLeft, ArrowRight, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { letters, getWordsForLetter, letterSounds } from "@/data/content";
+import { vocabularyManager, letters, letterSounds } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 
 interface LettersScreenProps {
@@ -14,8 +14,10 @@ export const LettersScreen = ({
   onToggleHebrew,
 }: LettersScreenProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentWords, setCurrentWords] = useState(() => getWordsForLetter(letters[0].letter, 10));
-  const { speakLetter, speakWord, isSpeaking } = useSpeech();
+  const [currentWords, setCurrentWords] = useState(() => 
+    vocabularyManager.getWordsForLetter(letters[0].letter, 10)
+  );
+  const { speakWord, isSpeaking } = useSpeech();
 
   const currentLetter = letters[currentIndex];
   const currentSounds = letterSounds[currentLetter.letter] || [];
@@ -54,25 +56,25 @@ export const LettersScreen = ({
   };
 
   const handleShuffle = useCallback(() => {
-    const newWords = getWordsForLetter(currentLetter.letter, 10);
+    const newWords = vocabularyManager.getWordsForLetter(currentLetter.letter, 10);
     setCurrentWords(newWords);
   }, [currentLetter.letter]);
 
   const goNext = () => {
     const nextIndex = (currentIndex + 1) % letters.length;
     setCurrentIndex(nextIndex);
-    setCurrentWords(getWordsForLetter(letters[nextIndex].letter, 10));
+    setCurrentWords(vocabularyManager.getWordsForLetter(letters[nextIndex].letter, 10));
   };
 
   const goPrev = () => {
     const prevIndex = (currentIndex - 1 + letters.length) % letters.length;
     setCurrentIndex(prevIndex);
-    setCurrentWords(getWordsForLetter(letters[prevIndex].letter, 10));
+    setCurrentWords(vocabularyManager.getWordsForLetter(letters[prevIndex].letter, 10));
   };
 
   const goToLetter = (index: number) => {
     setCurrentIndex(index);
-    setCurrentWords(getWordsForLetter(letters[index].letter, 10));
+    setCurrentWords(vocabularyManager.getWordsForLetter(letters[index].letter, 10));
   };
 
   return (
@@ -196,34 +198,36 @@ export const LettersScreen = ({
         </div>
 
         <div className="flex flex-col gap-2 max-w-sm mx-auto">
-          {currentWords.map((wordData, index) => (
-            <GameButton
-              key={`${wordData.english}-${index}`}
-              variant="word"
-              size="lg"
-              onClick={() => handlePlayWord(wordData.english)}
-              className="w-full justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <Volume2 className="h-5 w-5 text-primary" />
-                <span className="text-xl">{highlightLetter(wordData.english, currentLetter.letter)}</span>
-                {wordData.startsWithUpper !== undefined && (
+          {currentWords.map((wordData, index) => {
+            const startsWithUpper = wordData.english[0] === wordData.english[0].toUpperCase() &&
+              wordData.english[0].toUpperCase() === currentLetter.letter;
+            return (
+              <GameButton
+                key={`${wordData.english}-${index}`}
+                variant="word"
+                size="lg"
+                onClick={() => handlePlayWord(wordData.english)}
+                className="w-full justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <Volume2 className="h-5 w-5 text-primary" />
+                  <span className="text-xl">{highlightLetter(wordData.english, currentLetter.letter)}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                    wordData.startsWithUpper 
+                    startsWithUpper 
                       ? "bg-primary/20 text-primary" 
                       : "bg-secondary/50 text-secondary-foreground"
                   }`}>
-                    {wordData.startsWithUpper ? "A" : "a"}
+                    {startsWithUpper ? "A" : "a"}
+                  </span>
+                </div>
+                {showHebrew && (
+                  <span className="text-lg text-muted-foreground" dir="rtl">
+                    {wordData.hebrew}
                   </span>
                 )}
-              </div>
-              {showHebrew && (
-                <span className="text-lg text-muted-foreground" dir="rtl">
-                  {wordData.hebrew}
-                </span>
-              )}
-            </GameButton>
-          ))}
+              </GameButton>
+            );
+          })}
         </div>
       </div>
 

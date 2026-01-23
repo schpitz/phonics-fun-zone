@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Shuffle, Volume2, Keyboard } from "lucide-react";
 import { GameButton } from "../ui/game-button";
-import { getSpellingWordsByDifficulty, SpellingWord } from "@/data/content";
+import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 import { CelebrationFeedback } from "../CelebrationFeedback";
 
@@ -50,7 +50,7 @@ export const SpellingGameScreen = ({
   onToggleHebrew,
 }: SpellingGameScreenProps) => {
   const [difficulty, setDifficulty] = useState(1);
-  const [wordList, setWordList] = useState<SpellingWord[]>([]);
+  const [wordList, setWordList] = useState<UnifiedWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [userInput, setUserInput] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -66,28 +66,28 @@ export const SpellingGameScreen = ({
     if (!currentWord) return { display: [], missingIndices: [], letters: [] };
 
     const word = currentWord.english.toUpperCase();
-    const letters = word.split("");
+    const wordLetters = word.split("");
     // Missing letters = difficulty level, but capped at half the word length
     const numMissing = Math.min(
       difficultyConfig.missingLetters,
-      Math.max(1, Math.floor(letters.length / 2))
+      Math.max(1, Math.floor(wordLetters.length / 2))
     );
 
     // Pick random indices to hide
-    const indices = letters.map((_, i) => i);
+    const indices = wordLetters.map((_, i) => i);
     const missingIndices = shuffleArray(indices)
       .slice(0, numMissing)
       .sort((a, b) => a - b);
 
-    const display = letters.map((letter, i) =>
+    const display = wordLetters.map((letter, i) =>
       missingIndices.includes(i) ? "_" : letter
     );
 
-    return { display, missingIndices, letters };
+    return { display, missingIndices, letters: wordLetters };
   }, [currentWord, difficultyConfig.missingLetters]);
 
   const loadWords = useCallback(() => {
-    const words = getSpellingWordsByDifficulty(difficulty, 10);
+    const words = vocabularyManager.getWordsForSpelling(difficulty, 10);
     setWordList(words);
     setCurrentWordIndex(0);
     setUserInput([]);

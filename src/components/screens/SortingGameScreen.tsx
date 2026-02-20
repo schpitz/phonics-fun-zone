@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Shuffle, Trophy, ArrowDownToLine } from "lucide-react";
+import { Shuffle, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -159,7 +159,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
   };
 
   const handleBasketTap = (cat: string) => {
-    speakWord(cat);
+    speakWord(cat); // Only speak, no sorting
   };
 
   if (categories.length === 0) {
@@ -187,7 +187,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
         </p>
       </div>
 
-      {/* Difficulty + controls */}
+      {/* Difficulty */}
       <div className="flex justify-center items-center gap-2 mb-3">
         <GameButton
           variant={difficulty === "easy" ? "primary" : "ghost"}
@@ -202,9 +202,6 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           onClick={() => setDifficulty("hard")}
         >
           Hard (3)
-        </GameButton>
-        <GameButton variant="ghost" size="sm" onClick={startGame}>
-          <Shuffle className="h-4 w-4" />
         </GameButton>
       </div>
 
@@ -234,7 +231,6 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           <p className="text-sm text-muted-foreground mb-6">
             Mistakes: {mistakes}
           </p>
-          {/* Show what ended up in each basket */}
           <div className={`grid gap-3 mb-6 ${categories.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
             {categories.map(cat => (
               <div key={cat} className="bg-card rounded-2xl p-3 border-2 border-border">
@@ -254,22 +250,16 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
       ) : currentItem ? (
         /* Active game */
         <div className="max-w-md mx-auto">
-          {/* Current word card */}
+          {/* Draggable word card */}
           <div
-            className="bg-card rounded-3xl shadow-lg border-4 border-primary/30 p-6 mb-4 text-center cursor-grab active:cursor-grabbing select-none touch-manipulation"
+            className="bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-5 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
             draggable
             onDragStart={handleDragStart}
             onTouchStart={handleTouchStart}
             onClick={handleWordTap}
           >
-            <div className="text-5xl mb-2">{currentItem.word.emoji}</div>
+            <div className="text-5xl mb-1">{currentItem.word.emoji}</div>
             <div className="text-2xl font-black text-foreground">{currentItem.word.english}</div>
-            {showHebrew && (
-              <div className="text-lg text-muted-foreground mt-1">{currentItem.word.hebrew}</div>
-            )}
-            <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
-              <ArrowDownToLine className="h-3 w-3" /> Tap a basket or drag me!
-            </p>
           </div>
 
           {/* Baskets */}
@@ -278,35 +268,54 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
               const isFeedback = feedback?.basket === cat;
               const isCorrectFeedback = isFeedback && feedback?.correct;
               const isWrongFeedback = isFeedback && !feedback?.correct;
+              const contents = basketContents[cat] || [];
 
               return (
-                <button
+                <div
                   key={cat}
                   className={`
-                    relative rounded-2xl border-4 p-4 min-h-[100px] flex flex-col items-center justify-center gap-2
-                    transition-all duration-200 touch-manipulation
-                    ${draggingOver === cat
-                      ? "border-primary bg-primary/10 scale-105"
-                      : isCorrectFeedback
-                        ? "border-accent bg-accent/10 scale-105"
-                        : isWrongFeedback
-                          ? "border-destructive bg-destructive/10 animate-shake"
-                          : "border-border bg-card hover:border-primary/50 hover:bg-primary/5"
-                    }
+                    relative flex flex-col transition-all duration-200 touch-manipulation
                   `}
-                  onClick={() => {
-                    handleBasketTap(cat);
-                    handleSort(cat);
-                  }}
                   onDragOver={(e) => handleDragOver(e, cat)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, cat)}
                 >
-                  <span className="text-lg font-black text-foreground">{cat}</span>
-                  <div className="flex flex-wrap gap-0.5 justify-center">
-                    {(basketContents[cat] || []).map(w => (
-                      <span key={w.id} className="text-sm">{w.emoji}</span>
-                    ))}
+                  {/* Basket label */}
+                  <button
+                    className="text-sm font-black text-foreground bg-muted rounded-t-xl px-3 py-1.5 text-center border-2 border-b-0 border-border"
+                    onClick={() => handleBasketTap(cat)}
+                  >
+                    {cat}
+                  </button>
+                  {/* Basket body */}
+                  <div
+                    className={`
+                      rounded-b-2xl rounded-t-none border-2 min-h-[90px] p-2 flex flex-col items-center justify-start
+                      bg-[repeating-linear-gradient(0deg,transparent,transparent_14px,hsl(var(--border)/0.4)_14px,hsl(var(--border)/0.4)_15px)]
+                      ${draggingOver === cat
+                        ? "border-primary bg-primary/10 scale-105 shadow-[inset_0_0_20px_hsl(var(--primary)/0.15)]"
+                        : isCorrectFeedback
+                          ? "border-accent bg-accent/10 scale-105"
+                          : isWrongFeedback
+                            ? "border-destructive bg-destructive/10 animate-shake"
+                            : "border-border bg-card/60"
+                      }
+                      transition-all duration-200
+                    `}
+                  >
+                    {contents.length === 0 && !isFeedback && (
+                      <span className="text-xs text-muted-foreground/50 mt-4 italic">Drop here</span>
+                    )}
+                    <div className="flex flex-wrap gap-1 justify-center mt-1">
+                      {contents.map(w => (
+                        <span
+                          key={w.id}
+                          className="inline-flex items-center gap-0.5 bg-muted/80 rounded-lg px-1.5 py-0.5 text-xs font-bold text-foreground"
+                        >
+                          {w.emoji} {w.english}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   {isCorrectFeedback && (
                     <span className="absolute -top-2 -right-2 text-2xl animate-bounce">✅</span>
@@ -314,9 +323,16 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                   {isWrongFeedback && (
                     <span className="absolute -top-2 -right-2 text-2xl">❌</span>
                   )}
-                </button>
+                </div>
               );
             })}
+          </div>
+
+          {/* Shuffle button below baskets */}
+          <div className="flex justify-center mt-6">
+            <GameButton variant="ghost" size="sm" onClick={startGame}>
+              <Shuffle className="h-4 w-4 mr-1" /> New Round
+            </GameButton>
           </div>
         </div>
       ) : null}

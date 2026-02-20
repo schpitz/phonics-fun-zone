@@ -24,9 +24,9 @@ interface Card {
 type Difficulty = "easy" | "medium" | "hard";
 
 const difficultyConfig: Record<Difficulty, { pairs: number; cols: number; label: string }> = {
-  easy: { pairs: 6, cols: 3, label: "Easy (3×4)" },
-  medium: { pairs: 8, cols: 4, label: "Medium (4×4)" },
-  hard: { pairs: 12, cols: 4, label: "Hard (4×6)" },
+  easy: { pairs: 8, cols: 4, label: "Easy (4×4)" },
+  medium: { pairs: 12, cols: 5, label: "Medium (5×5)" },
+  hard: { pairs: 18, cols: 6, label: "Hard (6×6)" },
 };
 
 // Character images mapping - using placeholder images that represent the characters

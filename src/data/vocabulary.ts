@@ -1134,64 +1134,273 @@ const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting'>[] = [
 
 // ===== DEFAULT SENTENCES DATA =====
 const defaultSentences: Omit<SentenceData, 'id'>[] = [
-  // Mario sentences
-  { english: "Mario jumps high", hebrew: "מריו קופץ גבוה", words: ["Mario", "jumps", "high"] },
-  { english: "Luigi is tall", hebrew: "לואיג'י גבוה", words: ["Luigi", "is", "tall"] },
-  { english: "Peach is a princess", hebrew: "פיץ' היא נסיכה", words: ["Peach", "is", "a", "princess"] },
-  { english: "Yoshi is green", hebrew: "יושי ירוק", words: ["Yoshi", "is", "green"] },
-  { english: "Mario saves Peach", hebrew: "מריו מציל את פיץ'", words: ["Mario", "saves", "Peach"] },
-  { english: "Bowser is big", hebrew: "באוזר גדול", words: ["Bowser", "is", "big"] },
-  { english: "I love Mario", hebrew: "אני אוהב את מריו", words: ["I", "love", "Mario"] },
-  
-  // Sonic sentences
-  { english: "Sonic runs fast", hebrew: "סוניק רץ מהר", words: ["Sonic", "runs", "fast"] },
-  { english: "Sonic is blue", hebrew: "סוניק כחול", words: ["Sonic", "is", "blue"] },
-  { english: "Sonic gets rings", hebrew: "סוניק אוסף טבעות", words: ["Sonic", "gets", "rings"] },
-  { english: "Eggman is bad", hebrew: "אגמן רע", words: ["Eggman", "is", "bad"] },
-  { english: "Tails is smart", hebrew: "טיילס חכם", words: ["Tails", "is", "smart"] },
-  { english: "I like Sonic", hebrew: "אני אוהב סוניק", words: ["I", "like", "Sonic"] },
-  
-  // Paw Patrol sentences
-  { english: "Chase helps pups", hebrew: "צ'ייס עוזר לגורים", words: ["Chase", "helps", "pups"] },
-  { english: "Marshall is a dog", hebrew: "מרשל הוא כלב", words: ["Marshall", "is", "a", "dog"] },
-  { english: "Skye can fly", hebrew: "סקיי יכולה לעוף", words: ["Skye", "can", "fly"] },
-  { english: "Paw Patrol helps", hebrew: "מפרץ ההרפתקאות עוזר", words: ["Paw", "Patrol", "helps"] },
-  { english: "Rubble digs fast", hebrew: "ראבל חופר מהר", words: ["Rubble", "digs", "fast"] },
-  { english: "Rocky recycles", hebrew: "רוקי ממחזר", words: ["Rocky", "recycles"] },
-  { english: "Zuma loves water", hebrew: "זומה אוהב מים", words: ["Zuma", "loves", "water"] },
-  
-  // Soccer sentences
-  { english: "I like soccer", hebrew: "אני אוהב כדורגל", words: ["I", "like", "soccer"] },
-  { english: "Kick the ball", hebrew: "בעט בכדור", words: ["Kick", "the", "ball"] },
-  { english: "We win the game", hebrew: "אנחנו מנצחים במשחק", words: ["We", "win", "the", "game"] },
-  { english: "I play soccer", hebrew: "אני משחק כדורגל", words: ["I", "play", "soccer"] },
-  { english: "Goal! We win!", hebrew: "גול! ניצחנו!", words: ["Goal!", "We", "win!"] },
-  { english: "Pass the ball", hebrew: "העבר את הכדור", words: ["Pass", "the", "ball"] },
-  { english: "The team plays well", hebrew: "הקבוצה משחקת טוב", words: ["The", "team", "plays", "well"] },
-  
-  // Family sentences
+  // === Family ===
   { english: "I love Mom", hebrew: "אני אוהב את אמא", words: ["I", "love", "Mom"] },
   { english: "Dad helps me", hebrew: "אבא עוזר לי", words: ["Dad", "helps", "me"] },
   { english: "My sister is nice", hebrew: "האחות שלי נחמדה", words: ["My", "sister", "is", "nice"] },
   { english: "My brother plays", hebrew: "האח שלי משחק", words: ["My", "brother", "plays"] },
   { english: "Grandma bakes cake", hebrew: "סבתא אופה עוגה", words: ["Grandma", "bakes", "cake"] },
   { english: "I love my family", hebrew: "אני אוהב את המשפחה שלי", words: ["I", "love", "my", "family"] },
-  
-  // Daily life sentences
+  { english: "My baby laughs", hebrew: "התינוק שלי צוחק", words: ["My", "baby", "laughs"] },
+  { english: "Grandpa reads books", hebrew: "סבא קורא ספרים", words: ["Grandpa", "reads", "books"] },
+  { english: "My uncle is funny", hebrew: "הדוד שלי מצחיק", words: ["My", "uncle", "is", "funny"] },
+  { english: "My aunt sings well", hebrew: "הדודה שלי שרה יפה", words: ["My", "aunt", "sings", "well"] },
+
+  // === Daily Life ===
   { english: "I am happy", hebrew: "אני שמח", words: ["I", "am", "happy"] },
   { english: "This is fun", hebrew: "זה כיף", words: ["This", "is", "fun"] },
   { english: "I love to play", hebrew: "אני אוהב לשחק", words: ["I", "love", "to", "play"] },
   { english: "You are awesome", hebrew: "אתה מדהים", words: ["You", "are", "awesome"] },
   { english: "I like to read", hebrew: "אני אוהב לקרוא", words: ["I", "like", "to", "read"] },
-  { english: "The sun is hot", hebrew: "השמש חמה", words: ["The", "sun", "is", "hot"] },
   { english: "Good morning", hebrew: "בוקר טוב", words: ["Good", "morning"] },
   { english: "Good night", hebrew: "לילה טוב", words: ["Good", "night"] },
   { english: "I go to school", hebrew: "אני הולך לבית ספר", words: ["I", "go", "to", "school"] },
+  { english: "I drink water", hebrew: "אני שותה מים", words: ["I", "drink", "water"] },
+  { english: "I eat breakfast", hebrew: "אני אוכל ארוחת בוקר", words: ["I", "eat", "breakfast"] },
+  { english: "We play outside", hebrew: "אנחנו משחקים בחוץ", words: ["We", "play", "outside"] },
+  { english: "I brush my teeth", hebrew: "אני מצחצח שיניים", words: ["I", "brush", "my", "teeth"] },
+  { english: "Time to sleep", hebrew: "הגיע זמן לישון", words: ["Time", "to", "sleep"] },
+  { english: "I take a bath", hebrew: "אני מתרחץ", words: ["I", "take", "a", "bath"] },
+  { english: "Let us go home", hebrew: "בואו נלך הביתה", words: ["Let", "us", "go", "home"] },
+
+  // === Animals ===
   { english: "The dog runs", hebrew: "הכלב רץ", words: ["The", "dog", "runs"] },
   { english: "The cat sleeps", hebrew: "החתול ישן", words: ["The", "cat", "sleeps"] },
   { english: "Birds can fly", hebrew: "ציפורים יכולות לעוף", words: ["Birds", "can", "fly"] },
-  { english: "I drink water", hebrew: "אני שותה מים", words: ["I", "drink", "water"] },
+  { english: "The fish swims fast", hebrew: "הדג שוחה מהר", words: ["The", "fish", "swims", "fast"] },
+  { english: "The horse runs fast", hebrew: "הסוס רץ מהר", words: ["The", "horse", "runs", "fast"] },
+  { english: "The rabbit hops", hebrew: "הארנב קופץ", words: ["The", "rabbit", "hops"] },
+  { english: "The frog jumps high", hebrew: "הצפרדע קופצת גבוה", words: ["The", "frog", "jumps", "high"] },
+  { english: "The lion roars loud", hebrew: "האריה שואג בקול", words: ["The", "lion", "roars", "loud"] },
+  { english: "The monkey climbs trees", hebrew: "הקוף מטפס על עצים", words: ["The", "monkey", "climbs", "trees"] },
+  { english: "The snake is long", hebrew: "הנחש ארוך", words: ["The", "snake", "is", "long"] },
+  { english: "The bear is big", hebrew: "הדוב גדול", words: ["The", "bear", "is", "big"] },
+  { english: "The duck swims", hebrew: "הברווז שוחה", words: ["The", "duck", "swims"] },
+  { english: "The cow gives milk", hebrew: "הפרה נותנת חלב", words: ["The", "cow", "gives", "milk"] },
+  { english: "The pig is pink", hebrew: "החזיר ורוד", words: ["The", "pig", "is", "pink"] },
+  { english: "The turtle is slow", hebrew: "הצב איטי", words: ["The", "turtle", "is", "slow"] },
+  { english: "The elephant is huge", hebrew: "הפיל ענק", words: ["The", "elephant", "is", "huge"] },
+  { english: "The penguin is cute", hebrew: "הפינגווין חמוד", words: ["The", "penguin", "is", "cute"] },
+  { english: "The parrot talks", hebrew: "התוכי מדבר", words: ["The", "parrot", "talks"] },
+  { english: "The owl sees well", hebrew: "הינשוף רואה טוב", words: ["The", "owl", "sees", "well"] },
+
+  // === Food ===
+  { english: "I like pizza", hebrew: "אני אוהב פיצה", words: ["I", "like", "pizza"] },
+  { english: "The apple is red", hebrew: "התפוח אדום", words: ["The", "apple", "is", "red"] },
+  { english: "I eat rice", hebrew: "אני אוכל אורז", words: ["I", "eat", "rice"] },
+  { english: "The cake is sweet", hebrew: "העוגה מתוקה", words: ["The", "cake", "is", "sweet"] },
+  { english: "I drink milk", hebrew: "אני שותה חלב", words: ["I", "drink", "milk"] },
+  { english: "The banana is yellow", hebrew: "הבננה צהובה", words: ["The", "banana", "is", "yellow"] },
+  { english: "I want ice cream", hebrew: "אני רוצה גלידה", words: ["I", "want", "ice", "cream"] },
+  { english: "The soup is hot", hebrew: "המרק חם", words: ["The", "soup", "is", "hot"] },
+  { english: "I like cheese", hebrew: "אני אוהב גבינה", words: ["I", "like", "cheese"] },
+  { english: "The bread is fresh", hebrew: "הלחם טרי", words: ["The", "bread", "is", "fresh"] },
+  { english: "I eat a sandwich", hebrew: "אני אוכל כריך", words: ["I", "eat", "a", "sandwich"] },
+  { english: "The grapes are purple", hebrew: "הענבים סגולים", words: ["The", "grapes", "are", "purple"] },
+  { english: "I like cookies", hebrew: "אני אוהב עוגיות", words: ["I", "like", "cookies"] },
+
+  // === Colors ===
   { english: "The sky is blue", hebrew: "השמיים כחולים", words: ["The", "sky", "is", "blue"] },
+  { english: "The sun is yellow", hebrew: "השמש צהובה", words: ["The", "sun", "is", "yellow"] },
+  { english: "The grass is green", hebrew: "הדשא ירוק", words: ["The", "grass", "is", "green"] },
+  { english: "Roses are red", hebrew: "ורדים אדומים", words: ["Roses", "are", "red"] },
+  { english: "Snow is white", hebrew: "שלג לבן", words: ["Snow", "is", "white"] },
+  { english: "The night is dark", hebrew: "הלילה חשוך", words: ["The", "night", "is", "dark"] },
+  { english: "I see a rainbow", hebrew: "אני רואה קשת", words: ["I", "see", "a", "rainbow"] },
+  { english: "My shirt is orange", hebrew: "החולצה שלי כתומה", words: ["My", "shirt", "is", "orange"] },
+
+  // === Weather ===
+  { english: "The sun is hot", hebrew: "השמש חמה", words: ["The", "sun", "is", "hot"] },
+  { english: "It is raining", hebrew: "יורד גשם", words: ["It", "is", "raining"] },
+  { english: "The wind blows hard", hebrew: "הרוח נושבת חזק", words: ["The", "wind", "blows", "hard"] },
+  { english: "I see snow", hebrew: "אני רואה שלג", words: ["I", "see", "snow"] },
+  { english: "The clouds are gray", hebrew: "העננים אפורים", words: ["The", "clouds", "are", "gray"] },
+  { english: "It is very cold", hebrew: "מאוד קר", words: ["It", "is", "very", "cold"] },
+  { english: "It is warm today", hebrew: "חם היום", words: ["It", "is", "warm", "today"] },
+  { english: "I like sunny days", hebrew: "אני אוהב ימים שמשיים", words: ["I", "like", "sunny", "days"] },
+  { english: "Thunder is loud", hebrew: "רעם חזק", words: ["Thunder", "is", "loud"] },
+
+  // === School ===
+  { english: "I read a book", hebrew: "אני קורא ספר", words: ["I", "read", "a", "book"] },
+  { english: "I write my name", hebrew: "אני כותב את שמי", words: ["I", "write", "my", "name"] },
+  { english: "The teacher is kind", hebrew: "המורה נחמדה", words: ["The", "teacher", "is", "kind"] },
+  { english: "I count to ten", hebrew: "אני סופר עד עשר", words: ["I", "count", "to", "ten"] },
+  { english: "I draw a picture", hebrew: "אני מצייר תמונה", words: ["I", "draw", "a", "picture"] },
+  { english: "I like math", hebrew: "אני אוהב חשבון", words: ["I", "like", "math"] },
+  { english: "We learn at school", hebrew: "אנחנו לומדים בבית ספר", words: ["We", "learn", "at", "school"] },
+  { english: "I use a pencil", hebrew: "אני משתמש בעיפרון", words: ["I", "use", "a", "pencil"] },
+  { english: "I open my backpack", hebrew: "אני פותח את התרמיל", words: ["I", "open", "my", "backpack"] },
+  { english: "I sit at desk", hebrew: "אני יושב ליד השולחן", words: ["I", "sit", "at", "desk"] },
+
+  // === Body ===
+  { english: "I clap my hands", hebrew: "אני מוחא כפיים", words: ["I", "clap", "my", "hands"] },
+  { english: "I see with eyes", hebrew: "אני רואה בעיניים", words: ["I", "see", "with", "eyes"] },
+  { english: "I hear a sound", hebrew: "אני שומע צליל", words: ["I", "hear", "a", "sound"] },
+  { english: "My nose smells food", hebrew: "האף שלי מריח אוכל", words: ["My", "nose", "smells", "food"] },
+  { english: "I kick with legs", hebrew: "אני בועט ברגליים", words: ["I", "kick", "with", "legs"] },
+  { english: "My head is round", hebrew: "הראש שלי עגול", words: ["My", "head", "is", "round"] },
+
+  // === Clothes ===
+  { english: "I wear my shoes", hebrew: "אני נועל נעליים", words: ["I", "wear", "my", "shoes"] },
+  { english: "My hat is blue", hebrew: "הכובע שלי כחול", words: ["My", "hat", "is", "blue"] },
+  { english: "I put on socks", hebrew: "אני שם גרביים", words: ["I", "put", "on", "socks"] },
+  { english: "The jacket is warm", hebrew: "המעיל חם", words: ["The", "jacket", "is", "warm"] },
+  { english: "I like my dress", hebrew: "אני אוהבת את השמלה", words: ["I", "like", "my", "dress"] },
+  { english: "My gloves are red", hebrew: "הכפפות שלי אדומות", words: ["My", "gloves", "are", "red"] },
+  { english: "I zip my coat", hebrew: "אני סוגר את המעיל", words: ["I", "zip", "my", "coat"] },
+
+  // === Sports ===
+  { english: "I like soccer", hebrew: "אני אוהב כדורגל", words: ["I", "like", "soccer"] },
+  { english: "Kick the ball", hebrew: "בעט בכדור", words: ["Kick", "the", "ball"] },
+  { english: "We win the game", hebrew: "אנחנו מנצחים במשחק", words: ["We", "win", "the", "game"] },
+  { english: "I play soccer", hebrew: "אני משחק כדורגל", words: ["I", "play", "soccer"] },
+  { english: "Pass the ball", hebrew: "העבר את הכדור", words: ["Pass", "the", "ball"] },
+  { english: "The team plays well", hebrew: "הקבוצה משחקת טוב", words: ["The", "team", "plays", "well"] },
+  { english: "I can swim fast", hebrew: "אני יכול לשחות מהר", words: ["I", "can", "swim", "fast"] },
+  { english: "I ride my bike", hebrew: "אני רוכב על אופניים", words: ["I", "ride", "my", "bike"] },
+  { english: "I throw the ball", hebrew: "אני זורק את הכדור", words: ["I", "throw", "the", "ball"] },
+  { english: "I catch the ball", hebrew: "אני תופס את הכדור", words: ["I", "catch", "the", "ball"] },
+  { english: "I run very fast", hebrew: "אני רץ מאוד מהר", words: ["I", "run", "very", "fast"] },
+  { english: "I jump so high", hebrew: "אני קופץ כל כך גבוה", words: ["I", "jump", "so", "high"] },
+
+  // === Nature ===
+  { english: "The flower is pretty", hebrew: "הפרח יפה", words: ["The", "flower", "is", "pretty"] },
+  { english: "The tree is tall", hebrew: "העץ גבוה", words: ["The", "tree", "is", "tall"] },
+  { english: "The river is long", hebrew: "הנהר ארוך", words: ["The", "river", "is", "long"] },
+  { english: "The mountain is big", hebrew: "ההר גדול", words: ["The", "mountain", "is", "big"] },
+  { english: "I plant a seed", hebrew: "אני שותל זרע", words: ["I", "plant", "a", "seed"] },
+  { english: "The leaf is green", hebrew: "העלה ירוק", words: ["The", "leaf", "is", "green"] },
+  { english: "I see the moon", hebrew: "אני רואה את הירח", words: ["I", "see", "the", "moon"] },
+  { english: "Stars shine at night", hebrew: "כוכבים זורחים בלילה", words: ["Stars", "shine", "at", "night"] },
+  { english: "The lake is calm", hebrew: "האגם שקט", words: ["The", "lake", "is", "calm"] },
+  { english: "The forest is big", hebrew: "היער גדול", words: ["The", "forest", "is", "big"] },
+
+  // === Vehicles ===
+  { english: "The car is fast", hebrew: "המכונית מהירה", words: ["The", "car", "is", "fast"] },
+  { english: "The bus is big", hebrew: "האוטובוס גדול", words: ["The", "bus", "is", "big"] },
+  { english: "The train goes far", hebrew: "הרכבת נוסעת רחוק", words: ["The", "train", "goes", "far"] },
+  { english: "I ride the bike", hebrew: "אני רוכב על אופניים", words: ["I", "ride", "the", "bike"] },
+  { english: "The plane flies high", hebrew: "המטוס עף גבוה", words: ["The", "plane", "flies", "high"] },
+  { english: "The boat sails away", hebrew: "הסירה מפליגה", words: ["The", "boat", "sails", "away"] },
+  { english: "The truck is heavy", hebrew: "המשאית כבדה", words: ["The", "truck", "is", "heavy"] },
+
+  // === Home & Objects ===
+  { english: "I open the door", hebrew: "אני פותח את הדלת", words: ["I", "open", "the", "door"] },
+  { english: "The lamp is bright", hebrew: "המנורה בהירה", words: ["The", "lamp", "is", "bright"] },
+  { english: "I sit on chair", hebrew: "אני יושב על כיסא", words: ["I", "sit", "on", "chair"] },
+  { english: "The table is big", hebrew: "השולחן גדול", words: ["The", "table", "is", "big"] },
+  { english: "I watch the clock", hebrew: "אני מסתכל על השעון", words: ["I", "watch", "the", "clock"] },
+  { english: "The window is open", hebrew: "החלון פתוח", words: ["The", "window", "is", "open"] },
+  { english: "I close the door", hebrew: "אני סוגר את הדלת", words: ["I", "close", "the", "door"] },
+  { english: "The bed is soft", hebrew: "המיטה רכה", words: ["The", "bed", "is", "soft"] },
+  { english: "I look at mirror", hebrew: "אני מסתכל במראה", words: ["I", "look", "at", "mirror"] },
+
+  // === Places ===
+  { english: "I go to park", hebrew: "אני הולך לפארק", words: ["I", "go", "to", "park"] },
+  { english: "The beach is fun", hebrew: "חוף הים כיף", words: ["The", "beach", "is", "fun"] },
+  { english: "I visit the zoo", hebrew: "אני מבקר בגן חיות", words: ["I", "visit", "the", "zoo"] },
+  { english: "The library is quiet", hebrew: "הספרייה שקטה", words: ["The", "library", "is", "quiet"] },
+  { english: "I swim at pool", hebrew: "אני שוחה בבריכה", words: ["I", "swim", "at", "pool"] },
+  { english: "The garden is green", hebrew: "הגינה ירוקה", words: ["The", "garden", "is", "green"] },
+  { english: "I play at park", hebrew: "אני משחק בפארק", words: ["I", "play", "at", "park"] },
+
+  // === Actions ===
+  { english: "I sing a song", hebrew: "אני שר שיר", words: ["I", "sing", "a", "song"] },
+  { english: "I dance with friends", hebrew: "אני רוקד עם חברים", words: ["I", "dance", "with", "friends"] },
+  { english: "I paint a picture", hebrew: "אני מצייר תמונה", words: ["I", "paint", "a", "picture"] },
+  { english: "I climb the tree", hebrew: "אני מטפס על העץ", words: ["I", "climb", "the", "tree"] },
+  { english: "I cook with Mom", hebrew: "אני מבשל עם אמא", words: ["I", "cook", "with", "Mom"] },
+  { english: "I wash my hands", hebrew: "אני שוטף ידיים", words: ["I", "wash", "my", "hands"] },
+  { english: "I build a tower", hebrew: "אני בונה מגדל", words: ["I", "build", "a", "tower"] },
+  { english: "I share my toys", hebrew: "אני משתף את הצעצועים", words: ["I", "share", "my", "toys"] },
+  { english: "I help my friend", hebrew: "אני עוזר לחבר שלי", words: ["I", "help", "my", "friend"] },
+  { english: "I push the swing", hebrew: "אני דוחף את הנדנדה", words: ["I", "push", "the", "swing"] },
+  { english: "I pull the rope", hebrew: "אני מושך את החבל", words: ["I", "pull", "the", "rope"] },
+  { english: "I laugh out loud", hebrew: "אני צוחק בקול", words: ["I", "laugh", "out", "loud"] },
+  { english: "I hug my mom", hebrew: "אני מחבק את אמא", words: ["I", "hug", "my", "mom"] },
+  { english: "I wave goodbye", hebrew: "אני מנופף לשלום", words: ["I", "wave", "goodbye"] },
+
+  // === Numbers & Math ===
+  { english: "I count the stars", hebrew: "אני סופר כוכבים", words: ["I", "count", "the", "stars"] },
+  { english: "Two plus two", hebrew: "שתיים ועוד שתיים", words: ["Two", "plus", "two"] },
+  { english: "I have five fingers", hebrew: "יש לי חמש אצבעות", words: ["I", "have", "five", "fingers"] },
+  { english: "There are three cats", hebrew: "יש שלוש חתולים", words: ["There", "are", "three", "cats"] },
+
+  // === Emotions & Adjectives ===
+  { english: "I feel happy today", hebrew: "אני מרגיש שמח היום", words: ["I", "feel", "happy", "today"] },
+  { english: "She is very brave", hebrew: "היא מאוד אמיצה", words: ["She", "is", "very", "brave"] },
+  { english: "He is so strong", hebrew: "הוא כל כך חזק", words: ["He", "is", "so", "strong"] },
+  { english: "The baby is cute", hebrew: "התינוק חמוד", words: ["The", "baby", "is", "cute"] },
+  { english: "I am very tired", hebrew: "אני מאוד עייף", words: ["I", "am", "very", "tired"] },
+  { english: "This is so funny", hebrew: "זה כל כך מצחיק", words: ["This", "is", "so", "funny"] },
+  { english: "I am not scared", hebrew: "אני לא פוחד", words: ["I", "am", "not", "scared"] },
+  { english: "I feel very proud", hebrew: "אני מרגיש גאה מאוד", words: ["I", "feel", "very", "proud"] },
+  { english: "The room is quiet", hebrew: "החדר שקט", words: ["The", "room", "is", "quiet"] },
+  { english: "I am so excited", hebrew: "אני כל כך נרגש", words: ["I", "am", "so", "excited"] },
+
+  // === Time ===
+  { english: "Today is Monday", hebrew: "היום יום שני", words: ["Today", "is", "Monday"] },
+  { english: "It is morning now", hebrew: "עכשיו בוקר", words: ["It", "is", "morning", "now"] },
+  { english: "Tomorrow is sunny", hebrew: "מחר יהיה שמשי", words: ["Tomorrow", "is", "sunny"] },
+  { english: "Yesterday was fun", hebrew: "אתמול היה כיף", words: ["Yesterday", "was", "fun"] },
+  { english: "It is lunch time", hebrew: "זה זמן צהריים", words: ["It", "is", "lunch", "time"] },
+
+  // === Music ===
+  { english: "I play the piano", hebrew: "אני מנגן פסנתר", words: ["I", "play", "the", "piano"] },
+  { english: "I bang the drum", hebrew: "אני מתופף", words: ["I", "bang", "the", "drum"] },
+  { english: "The music is loud", hebrew: "המוזיקה חזקה", words: ["The", "music", "is", "loud"] },
+  { english: "I love to sing", hebrew: "אני אוהב לשיר", words: ["I", "love", "to", "sing"] },
+
+  // === Insects & Bugs ===
+  { english: "The bee makes honey", hebrew: "הדבורה מייצרת דבש", words: ["The", "bee", "makes", "honey"] },
+  { english: "The butterfly is pretty", hebrew: "הפרפר יפה", words: ["The", "butterfly", "is", "pretty"] },
+  { english: "The ant is small", hebrew: "הנמלה קטנה", words: ["The", "ant", "is", "small"] },
+  { english: "The spider spins webs", hebrew: "העכביש טווה רשתות", words: ["The", "spider", "spins", "webs"] },
+
+  // === Sea Animals ===
+  { english: "The whale is huge", hebrew: "הלווייתן ענק", words: ["The", "whale", "is", "huge"] },
+  { english: "The dolphin jumps", hebrew: "הדולפין קופץ", words: ["The", "dolphin", "jumps"] },
+  { english: "The shark swims fast", hebrew: "הכריש שוחה מהר", words: ["The", "shark", "swims", "fast"] },
+  { english: "The crab walks sideways", hebrew: "הסרטן הולך הצידה", words: ["The", "crab", "walks", "sideways"] },
+
+  // === Shapes ===
+  { english: "The ball is round", hebrew: "הכדור עגול", words: ["The", "ball", "is", "round"] },
+  { english: "The box is square", hebrew: "הקופסה מרובעת", words: ["The", "box", "is", "square"] },
+  { english: "I draw a circle", hebrew: "אני מצייר עיגול", words: ["I", "draw", "a", "circle"] },
+  { english: "Stars have five points", hebrew: "לכוכבים חמש קודקודים", words: ["Stars", "have", "five", "points"] },
+
+  // === Garden ===
+  { english: "I water the plants", hebrew: "אני משקה צמחים", words: ["I", "water", "the", "plants"] },
+  { english: "The roses smell nice", hebrew: "הורדים מריחים יפה", words: ["The", "roses", "smell", "nice"] },
+  { english: "I dig the soil", hebrew: "אני חופר באדמה", words: ["I", "dig", "the", "soil"] },
+  { english: "The grass is soft", hebrew: "הדשא רך", words: ["The", "grass", "is", "soft"] },
+
+  // === Technology ===
+  { english: "I use a computer", hebrew: "אני משתמש במחשב", words: ["I", "use", "a", "computer"] },
+  { english: "The screen is bright", hebrew: "המסך בהיר", words: ["The", "screen", "is", "bright"] },
+  { english: "I take a photo", hebrew: "אני מצלם תמונה", words: ["I", "take", "a", "photo"] },
+
+  // === Countries & World ===
+  { english: "The world is big", hebrew: "העולם גדול", words: ["The", "world", "is", "big"] },
+  { english: "I love Israel", hebrew: "אני אוהב את ישראל", words: ["I", "love", "Israel"] },
+  { english: "The map shows countries", hebrew: "המפה מראה מדינות", words: ["The", "map", "shows", "countries"] },
+
+  // === Mixed / Fun ===
+  { english: "I blow a bubble", hebrew: "אני מנפח בועה", words: ["I", "blow", "a", "bubble"] },
+  { english: "The kite flies high", hebrew: "העפיפון עף גבוה", words: ["The", "kite", "flies", "high"] },
+  { english: "I slide down fast", hebrew: "אני מחליק מהר", words: ["I", "slide", "down", "fast"] },
+  { english: "I hide behind tree", hebrew: "אני מתחבא מאחורי עץ", words: ["I", "hide", "behind", "tree"] },
+  { english: "We play tag", hebrew: "אנחנו משחקים תופסת", words: ["We", "play", "tag"] },
+  { english: "I build with blocks", hebrew: "אני בונה עם קוביות", words: ["I", "build", "with", "blocks"] },
+  { english: "I fly a kite", hebrew: "אני מעיף עפיפון", words: ["I", "fly", "a", "kite"] },
+  { english: "The puzzle is hard", hebrew: "הפאזל קשה", words: ["The", "puzzle", "is", "hard"] },
+  { english: "I love my pet", hebrew: "אני אוהב את חיית המחמד", words: ["I", "love", "my", "pet"] },
+  { english: "My toy is new", hebrew: "הצעצוע שלי חדש", words: ["My", "toy", "is", "new"] },
+  { english: "I make a wish", hebrew: "אני מבקש משאלה", words: ["I", "make", "a", "wish"] },
+  { english: "I found a shell", hebrew: "מצאתי צדף", words: ["I", "found", "a", "shell"] },
+  { english: "The balloon is big", hebrew: "הבלון גדול", words: ["The", "balloon", "is", "big"] },
+  { english: "I play in sand", hebrew: "אני משחק בחול", words: ["I", "play", "in", "sand"] },
+  { english: "I skip with joy", hebrew: "אני מדלג בשמחה", words: ["I", "skip", "with", "joy"] },
 ];
 
 // ===== STORAGE KEYS =====

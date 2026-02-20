@@ -1461,7 +1461,18 @@ class VocabularyManager {
       }
 
       if (storedSentences) {
-        this.sentences = JSON.parse(storedSentences);
+        const existingSentences: SentenceData[] = JSON.parse(storedSentences);
+        // Auto-merge new default sentences
+        const existingEnglish = new Set(existingSentences.map(s => s.english.toLowerCase()));
+        const newSentences = defaultSentences.filter(s => !existingEnglish.has(s.english.toLowerCase()));
+        if (newSentences.length > 0) {
+          const newWithIds = newSentences.map(s => ({ ...s, id: generateId() }));
+          this.sentences = [...existingSentences, ...newWithIds];
+          this.saveSentences();
+          console.log(`Added ${newSentences.length} new sentences`);
+        } else {
+          this.sentences = existingSentences;
+        }
       } else {
         // Initialize with default sentences
         this.sentences = defaultSentences.map(sentence => ({

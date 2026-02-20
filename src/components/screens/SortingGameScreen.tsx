@@ -114,7 +114,6 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     if (feedbackTimeout.current) clearTimeout(feedbackTimeout.current);
     feedbackTimeout.current = setTimeout(() => {
       setFeedback(null);
-      setShowCelebration(false);
       if (correct) {
         const nextIndex = currentIndex + 1;
         if (nextIndex >= items.length) {
@@ -124,6 +123,11 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
         }
       }
     }, correct ? 800 : 600);
+
+    // Dismiss celebration independently after 1.5s
+    if (correct) {
+      setTimeout(() => setShowCelebration(false), 1500);
+    }
   }, [currentItem, currentIndex, items.length, gameComplete, playSuccess, playError]);
 
   // Drag handlers
@@ -252,14 +256,14 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
         <div className="max-w-md mx-auto">
           {/* Draggable word card */}
           <div
-            className="bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-5 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
+            className="max-w-[200px] mx-auto bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-4 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
             draggable
             onDragStart={handleDragStart}
             onTouchStart={handleTouchStart}
             onClick={handleWordTap}
           >
             <div className="text-5xl mb-1">{currentItem.word.emoji}</div>
-            <div className="text-2xl font-black text-foreground">{currentItem.word.english}</div>
+            <div className="text-xl font-black text-foreground">{currentItem.word.english}</div>
           </div>
 
           {/* Baskets */}
@@ -282,7 +286,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                 >
                   {/* Basket label */}
                   <button
-                    className="text-sm font-black text-foreground bg-muted rounded-t-xl px-3 py-1.5 text-center border-2 border-b-0 border-border"
+                    className="text-base font-black text-foreground bg-muted rounded-t-xl px-3 py-2 text-center border-2 border-b-0 border-border"
                     onClick={() => handleBasketTap(cat)}
                   >
                     {cat}
@@ -310,9 +314,9 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                       {contents.map(w => (
                         <span
                           key={w.id}
-                          className="inline-flex items-center gap-0.5 bg-muted/80 rounded-lg px-1.5 py-0.5 text-xs font-bold text-foreground"
+                          className="inline-flex items-center bg-muted/80 rounded-lg px-2 py-0.5 text-sm font-bold text-foreground"
                         >
-                          {w.emoji} {w.english}
+                          {w.english}
                         </span>
                       ))}
                     </div>

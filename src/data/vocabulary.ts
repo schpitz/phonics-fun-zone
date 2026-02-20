@@ -12,6 +12,7 @@ export interface UnifiedWord {
   enabledForABC: boolean;
   enabledForWords: boolean;
   enabledForMatching: boolean;
+  enabledForSorting: boolean;
   enabledForSpelling: boolean;
 }
 
@@ -53,7 +54,8 @@ export const FRANCHISE_CATEGORIES = ["Mario", "Sonic", "Paw Patrol", "Star Wars"
 // ===== DEFAULT VOCABULARY DATA =====
 // This is the initial word bank - can be extended via admin panel
 
-const defaultVocabulary: Omit<UnifiedWord, 'id'>[] = [
+// enabledForSorting defaults to enabledForMatching if not explicitly set
+const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting'>[] = [
   // ===== MARIO CHARACTERS =====
   { english: "Mario", hebrew: "מריו", category: "Mario", emoji: "🍄", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "Luigi", hebrew: "לואיג'י", category: "Mario", emoji: "💚", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
@@ -892,18 +894,29 @@ class VocabularyManager {
           // Add new default words to existing vocabulary
           const newWordsWithIds = newWords.map(word => ({
             ...word,
+            enabledForSorting: word.enabledForMatching,
             id: generateId(),
           }));
-          this.vocabulary = [...existingVocab, ...newWordsWithIds];
+          // Migrate existing words that lack enabledForSorting
+          const migratedExisting = existingVocab.map(w => ({
+            ...w,
+            enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+          }));
+          this.vocabulary = [...migratedExisting, ...newWordsWithIds];
           this.saveVocabulary();
           console.log(`Added ${newWords.length} new words to vocabulary`);
         } else {
-          this.vocabulary = existingVocab;
+          // Migrate existing words that lack enabledForSorting
+          this.vocabulary = existingVocab.map(w => ({
+            ...w,
+            enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+          }));
         }
       } else {
         // Initialize with default vocabulary
         this.vocabulary = defaultVocabulary.map(word => ({
           ...word,
+          enabledForSorting: word.enabledForMatching,
           id: generateId(),
         }));
         this.saveVocabulary();
@@ -923,6 +936,7 @@ class VocabularyManager {
       console.error('Error loading vocabulary from storage:', error);
       this.vocabulary = defaultVocabulary.map(word => ({
         ...word,
+        enabledForSorting: word.enabledForMatching,
         id: generateId(),
       }));
       this.sentences = defaultSentences.map(sentence => ({
@@ -1030,6 +1044,7 @@ class VocabularyManager {
   resetToDefaults(): void {
     this.vocabulary = defaultVocabulary.map(word => ({
       ...word,
+      enabledForSorting: word.enabledForMatching,
       id: generateId(),
     }));
     this.sentences = defaultSentences.map(sentence => ({
@@ -1064,6 +1079,11 @@ class VocabularyManager {
   getWordsForMatching(count: number = 6): UnifiedWord[] {
     const filtered = this.vocabulary.filter(w => w.enabledForMatching);
     return shuffleArray(filtered).slice(0, count);
+  }
+
+  // For Sorting screen - get words enabled for sorting
+  getWordsForSorting(): UnifiedWord[] {
+    return this.vocabulary.filter(w => w.enabledForSorting);
   }
 
   // For Spelling screen - get words by difficulty

@@ -29,82 +29,66 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
         <span>🔵</span>
       </div>
 
-      {/* Main menu buttons */}
-      <div className="flex flex-col gap-3 max-w-sm mx-auto">
+      {/* Game tiles grid */}
+      <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
         <GameButton
           variant="primary"
           size="lg"
           onClick={() => onNavigate("letters")}
-          className="w-full justify-start gap-4"
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
         >
-          <Sparkles className="h-7 w-7" />
-          <div className="text-left">
-            <div className="text-xl">Letters A-Z</div>
-            <div className="text-xs opacity-80 font-normal">Learn the alphabet</div>
-          </div>
+          <Sparkles className="h-8 w-8" />
+          <div className="text-base font-bold">ABC</div>
         </GameButton>
 
         <GameButton
           variant="secondary"
           size="lg"
           onClick={() => onNavigate("words")}
-          className="w-full justify-start gap-4"
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
         >
-          <BookOpen className="h-7 w-7" />
-          <div className="text-left">
-            <div className="text-xl">Words</div>
-            <div className="text-xs opacity-80 font-normal">Practice vocabulary</div>
-          </div>
+          <BookOpen className="h-8 w-8" />
+          <div className="text-base font-bold">Words</div>
         </GameButton>
 
         <GameButton
           variant="accent"
           size="lg"
           onClick={() => onNavigate("sentences")}
-          className="w-full justify-start gap-4"
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
         >
-          <MessageSquare className="h-7 w-7" />
-          <div className="text-left">
-            <div className="text-xl">Sentences</div>
-            <div className="text-xs opacity-80 font-normal">Read along!</div>
-          </div>
+          <MessageSquare className="h-8 w-8" />
+          <div className="text-base font-bold">Read</div>
         </GameButton>
 
-        <div className="grid grid-cols-2 gap-3">
-          <GameButton
-            variant="highlight"
-            size="lg"
-            onClick={() => onNavigate("matching")}
-            className="w-full flex-col gap-1 py-4"
-          >
-            <Puzzle className="h-7 w-7" />
-            <div className="text-lg">Match</div>
-            <div className="text-xs opacity-80 font-normal">Find pairs</div>
-          </GameButton>
+        <GameButton
+          variant="highlight"
+          size="lg"
+          onClick={() => onNavigate("matching")}
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
+        >
+          <Puzzle className="h-8 w-8" />
+          <div className="text-base font-bold">Match</div>
+        </GameButton>
 
-          <GameButton
-            variant="success"
-            size="lg"
-            onClick={() => onNavigate("spelling")}
-            className="w-full flex-col gap-1 py-4"
-          >
-            <PenTool className="h-7 w-7" />
-            <div className="text-lg">Spell</div>
-            <div className="text-xs opacity-80 font-normal">Build words</div>
-          </GameButton>
-        </div>
+        <GameButton
+          variant="success"
+          size="lg"
+          onClick={() => onNavigate("spelling")}
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
+        >
+          <PenTool className="h-8 w-8" />
+          <div className="text-base font-bold">Spell</div>
+        </GameButton>
 
         <GameButton
           variant="secondary"
           size="lg"
           onClick={() => onNavigate("sorting")}
-          className="w-full justify-start gap-4"
+          className="w-full flex-col gap-1.5 py-5 aspect-square"
         >
-          <ArrowDownToLine className="h-7 w-7" />
-          <div className="text-left">
-            <div className="text-xl">Sort</div>
-            <div className="text-xs opacity-80 font-normal">Sort words into groups</div>
-          </div>
+          <ArrowDownToLine className="h-8 w-8" />
+          <div className="text-base font-bold">Sort</div>
         </GameButton>
       </div>
 

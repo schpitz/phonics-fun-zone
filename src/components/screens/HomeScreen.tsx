@@ -75,7 +75,7 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
             variant="highlight"
             size="lg"
             onClick={() => onNavigate("matching")}
-            className="w-full flex-col gap-2 py-4"
+            className="w-full flex-col gap-2 py-4 h-auto"
           >
             <Puzzle className="h-7 w-7" />
             <div className="text-xl">Match</div>
@@ -85,7 +85,7 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
             variant="success"
             size="lg"
             onClick={() => onNavigate("spelling")}
-            className="w-full flex-col gap-2 py-4"
+            className="w-full flex-col gap-2 py-4 h-auto"
           >
             <PenTool className="h-7 w-7" />
             <div className="text-xl">Spell</div>
@@ -95,7 +95,7 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
             variant="secondary"
             size="lg"
             onClick={() => onNavigate("sorting")}
-            className="w-full flex-col gap-2 py-4"
+            className="w-full flex-col gap-2 py-4 h-auto"
           >
             <ArrowDownToLine className="h-7 w-7" />
             <div className="text-xl">Sort</div>

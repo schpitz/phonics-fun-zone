@@ -142,7 +142,7 @@ export const LettersScreen = ({
                 variant="accent"
                 size="sm"
                 onClick={() => handlePlaySound(soundData.example)}
-                className="flex-col py-2 px-4"
+                className="flex-col py-3 px-4 h-auto min-h-[2.5rem]"
               >
                 <span className="text-lg font-bold">{soundData.sound}</span>
                 <span className="text-xs opacity-80">

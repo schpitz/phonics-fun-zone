@@ -6,10 +6,11 @@ import { WordsScreen } from "@/components/screens/WordsScreen";
 import { SentencesScreen } from "@/components/screens/SentencesScreen";
 import { MatchingGameScreen } from "@/components/screens/MatchingGameScreen";
 import { SpellingGameScreen } from "@/components/screens/SpellingGameScreen";
+import { SortingGameScreen } from "@/components/screens/SortingGameScreen";
 import { AdminLogin } from "@/components/admin/AdminLogin";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
@@ -132,6 +133,13 @@ const Index = () => {
       case "spelling":
         return (
           <SpellingGameScreen
+            showHebrew={showHebrew}
+            onToggleHebrew={handleToggleHebrew}
+          />
+        );
+      case "sorting":
+        return (
+          <SortingGameScreen
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
           />

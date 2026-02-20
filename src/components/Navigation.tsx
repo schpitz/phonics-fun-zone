@@ -1,7 +1,7 @@
-import { BookOpen, Sparkles, MessageSquare, Home, Puzzle, PenTool } from "lucide-react";
+import { BookOpen, Sparkles, MessageSquare, Home, Puzzle, PenTool, ArrowDownToLine } from "lucide-react";
 import { GameButton } from "./ui/game-button";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting";
 
 interface NavigationProps {
   currentScreen: Screen;
@@ -16,6 +16,7 @@ export const Navigation = ({ currentScreen, onNavigate }: NavigationProps) => {
     { screen: "sentences" as Screen, icon: MessageSquare, label: "Read" },
     { screen: "matching" as Screen, icon: Puzzle, label: "Match" },
     { screen: "spelling" as Screen, icon: PenTool, label: "Spell" },
+    { screen: "sorting" as Screen, icon: ArrowDownToLine, label: "Sort" },
   ];
 
   return (

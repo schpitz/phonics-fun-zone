@@ -108,7 +108,7 @@ export const SentencesScreen = ({
                 disabled={isSpeaking}
                 className={`text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200
                   ${currentWordIndex === index
-                    ? "bg-primary text-primary-foreground scale-110 animate-word-highlight"
+                    ? "bg-success text-success-foreground scale-110 animate-word-highlight"
                     : "text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
                   }`}
               >

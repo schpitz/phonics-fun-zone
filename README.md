@@ -1,18 +1,18 @@
 # 🎓 ABC Fun - Learn English!
 
-A colorful, interactive English learning web app designed for kids (ages 7-9). Built as a Progressive Web App (PWA) so it can be installed on any device.
+A colorful, interactive English learning web app designed for kids (ages up to 10). Built as a Progressive Web App (PWA) so it can be installed on any device.
 
 ![ABC Fun](public/icon-512.png)
 
 ## ✨ Features
 
 - **Letters A-Z** — Learn the alphabet with audio pronunciation
-- **Words** — Explore 500+ vocabulary words with Hebrew translations and emojis
-- **Sentences** — Read along with highlighted word-by-word playback
+- **Words** — Explore 1,000+ vocabulary words across 25+ categories with Hebrew translations and emojis
+- **Sentences** — Read along with 200 sentences and synchronized word-by-word highlighting
 - **Matching Game** — Find English-Hebrew word pairs
 - **Spelling Game** — Build words letter by letter
 - **Sorting Game** — Sort words into the correct category
-- **Text-to-Speech** — Native browser speech for all content
+- **Text-to-Speech** — Native browser speech with adjustable speed for all content
 - **Admin Panel** — Hidden admin access (5-tap secret) to manage vocabulary and sentences
 - **PWA** — Installable on mobile & desktop, works offline
 
@@ -28,7 +28,7 @@ Displays the 26 letters of the English alphabet as tappable buttons. Selecting a
 Browse vocabulary by category (Animals, Food, Colors, etc.). Each word card shows the English word, Hebrew translation, and emoji. Tapping a card speaks the word. Words are filtered by `enabledForWords`.
 
 ### Sentences
-Read-along mode with pre-configured sentences. Words are highlighted one-by-one as the sentence is spoken. Sentences are managed via the admin panel.
+Read-along mode with 200 pre-configured sentences (3–5 words each). Words are highlighted in gold/yellow one-by-one in sync with audio playback. Speed is adjustable (0.5x–2x). Sentences dynamically scale to fit on a single line. Sentences are managed via the admin panel.
 
 ### Matching Game
 A memory-style card game. Cards are laid out in a grid — half show English words, half show their Hebrew translations. Players flip two cards at a time to find matching pairs. Words are filtered by `enabledForMatching`. Franchise categories (Mario, Sonic, Paw Patrol, Star Wars) are disabled by default.

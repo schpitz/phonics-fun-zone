@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { Shuffle, Volume2, Keyboard, Undo2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { CelebrationFeedback } from "../CelebrationFeedback";
 
 interface SpellingGameScreenProps {
@@ -57,28 +58,10 @@ export const SpellingGameScreen = ({
   const [keyboardLayout, setKeyboardLayout] = useState<"abc" | "qwerty">("abc");
   const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord } = useSpeech();
-  const errorAudioRef = useRef<AudioContext | null>(null);
+  const { playSuccess, playError } = useSoundEffects();
 
   const currentWord = wordList[currentWordIndex];
   const difficultyConfig = getDifficultyConfig(difficulty);
-
-  // Play error beep sound
-  const playErrorSound = useCallback(() => {
-    try {
-      const ctx = errorAudioRef.current || new AudioContext();
-      errorAudioRef.current = ctx;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 300;
-      osc.type = "square";
-      gain.gain.value = 0.15;
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      osc.stop(ctx.currentTime + 0.4);
-    } catch {}
-  }, []);
 
   // Compute unlocked letters for Easy/Medium
   const unlockedLetters = useMemo(() => {
@@ -156,10 +139,11 @@ export const SpellingGameScreen = ({
     if (isAllCorrect) {
       setIsCorrect(true);
       setShowCelebration(true);
+      playSuccess();
       speakWord(currentWord.english);
     } else {
       setIsCorrect(false);
-      playErrorSound();
+      playError();
       // Speak the correct word so user hears it
       setTimeout(() => speakWord(currentWord.english), 300);
       setTimeout(() => setIsCorrect(null), 1500);

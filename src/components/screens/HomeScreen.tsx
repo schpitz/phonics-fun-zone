@@ -73,32 +73,32 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
         <div className="grid grid-cols-3 gap-3">
           <GameButton
             variant="highlight"
-            size="default"
+            size="lg"
             onClick={() => onNavigate("matching")}
-            className="w-full flex-col gap-1 py-3"
+            className="w-full flex-col gap-2 py-4"
           >
-            <Puzzle className="h-5 w-5" />
-            <div className="text-sm">Match</div>
+            <Puzzle className="h-7 w-7" />
+            <div className="text-xl">Match</div>
           </GameButton>
 
           <GameButton
             variant="success"
-            size="default"
+            size="lg"
             onClick={() => onNavigate("spelling")}
-            className="w-full flex-col gap-1 py-3"
+            className="w-full flex-col gap-2 py-4"
           >
-            <PenTool className="h-5 w-5" />
-            <div className="text-sm">Spell</div>
+            <PenTool className="h-7 w-7" />
+            <div className="text-xl">Spell</div>
           </GameButton>
 
           <GameButton
             variant="secondary"
-            size="default"
+            size="lg"
             onClick={() => onNavigate("sorting")}
-            className="w-full flex-col gap-1 py-3"
+            className="w-full flex-col gap-2 py-4"
           >
-            <ArrowDownToLine className="h-5 w-5" />
-            <div className="text-sm">Sort</div>
+            <ArrowDownToLine className="h-7 w-7" />
+            <div className="text-xl">Sort</div>
           </GameButton>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { Shuffle, Volume2, Keyboard } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
@@ -57,9 +57,42 @@ export const SpellingGameScreen = ({
   const [keyboardLayout, setKeyboardLayout] = useState<"abc" | "qwerty">("abc");
   const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord } = useSpeech();
+  const errorAudioRef = useRef<AudioContext | null>(null);
 
   const currentWord = wordList[currentWordIndex];
   const difficultyConfig = getDifficultyConfig(difficulty);
+
+  // Play error beep sound
+  const playErrorSound = useCallback(() => {
+    try {
+      const ctx = errorAudioRef.current || new AudioContext();
+      errorAudioRef.current = ctx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 300;
+      osc.type = "square";
+      gain.gain.value = 0.15;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {}
+  }, []);
+
+  // Compute unlocked letters for Easy/Medium
+  const unlockedLetters = useMemo(() => {
+    if (!currentWord || difficulty > 2) return null; // null = all unlocked
+    const word = currentWord.english.toUpperCase();
+    const correctLetters = new Set(word.split(""));
+    const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const wrongLetters = allLetters.filter((l) => !correctLetters.has(l));
+    const maxUnlocked = difficulty === 1 ? 5 : 10;
+    // Start with correct letters, then fill with random wrong ones
+    const needed = Math.max(0, maxUnlocked - correctLetters.size);
+    const shuffledWrong = shuffleArray(wrongLetters).slice(0, needed);
+    return new Set([...correctLetters, ...shuffledWrong]);
+  }, [currentWord, difficulty]);
 
   // Generate word puzzle with missing letters based on difficulty
   const puzzle = useMemo(() => {
@@ -126,7 +159,10 @@ export const SpellingGameScreen = ({
       speakWord(currentWord.english);
     } else {
       setIsCorrect(false);
-      setTimeout(() => setIsCorrect(null), 1000);
+      playErrorSound();
+      // Speak the correct word so user hears it
+      setTimeout(() => speakWord(currentWord.english), 300);
+      setTimeout(() => setIsCorrect(null), 1500);
       setUserInput([]);
     }
   };
@@ -199,24 +235,24 @@ export const SpellingGameScreen = ({
       {/* Difficulty selector */}
       <div className="mt-4 flex flex-col items-center gap-2">
         <p className="text-sm font-bold text-muted-foreground">Choose Difficulty</p>
-        <div className="flex flex-wrap justify-center gap-2 bg-muted/50 p-2 rounded-2xl max-w-sm sm:max-w-none">
+        <div className="flex justify-center gap-1.5 bg-muted/50 p-2 rounded-2xl w-full max-w-md">
           {[
             { level: 1, label: "Easy", icon: "🌟" },
-            { level: 2, label: "Medium", icon: "⭐" },
+            { level: 2, label: "Med", icon: "⭐" },
             { level: 3, label: "Hard", icon: "🔥" },
-            { level: 4, label: "Expert", icon: "💪" },
-            { level: 5, label: "Master", icon: "🏆" },
+            { level: 4, label: "Pro", icon: "💪" },
+            { level: 5, label: "Max", icon: "🏆" },
           ].map((d) => (
             <button
               key={d.level}
               onClick={() => handleDifficultyChange(d.level)}
-              className={`flex flex-col items-center px-3 py-2 rounded-xl text-xs font-bold transition-all min-w-[55px] sm:min-w-[60px] ${
+              className={`flex flex-col items-center flex-1 py-1.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all ${
                 difficulty === d.level
                   ? "bg-primary text-primary-foreground shadow-button scale-105"
-                  : "bg-card text-muted-foreground hover:bg-card/80 hover:scale-102"
+                  : "bg-card text-muted-foreground hover:bg-card/80"
               }`}
             >
-              <span className="text-lg">{d.icon}</span>
+              <span className="text-sm sm:text-lg">{d.icon}</span>
               <span>{d.label}</span>
             </button>
           ))}
@@ -336,31 +372,45 @@ export const SpellingGameScreen = ({
       <div className="mt-4 flex flex-col items-center gap-1 sm:gap-1.5 max-w-sm sm:max-w-lg mx-auto px-1">
         {keyboardLayout === "abc" ? (
           <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5">
-            {ABC_LAYOUT.map((letter) => (
-              <button
-                key={letter}
-                onClick={() => handleLetterClick(letter)}
-                disabled={isCorrect !== null}
-                className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
-              >
-                {letter}
-              </button>
-            ))}
+            {ABC_LAYOUT.map((letter) => {
+              const locked = unlockedLetters !== null && !unlockedLetters.has(letter);
+              return (
+                <button
+                  key={letter}
+                  onClick={() => handleLetterClick(letter)}
+                  disabled={isCorrect !== null || locked}
+                  className={`w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold shadow-button transition-all ${
+                    locked
+                      ? "bg-muted text-muted-foreground/30 cursor-not-allowed shadow-none"
+                      : "bg-secondary text-secondary-foreground hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none disabled:opacity-50"
+                  }`}
+                >
+                  {letter}
+                </button>
+              );
+            })}
           </div>
         ) : (
           <>
             {QWERTY_LAYOUT.map((row, rowIndex) => (
               <div key={rowIndex} className="flex justify-center gap-1 sm:gap-1.5">
-                {row.map((letter) => (
-                  <button
-                    key={letter}
-                    onClick={() => handleLetterClick(letter)}
-                    disabled={isCorrect !== null}
-                    className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold bg-secondary text-secondary-foreground shadow-button hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
-                  >
-                    {letter}
-                  </button>
-                ))}
+                {row.map((letter) => {
+                  const locked = unlockedLetters !== null && !unlockedLetters.has(letter);
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => handleLetterClick(letter)}
+                      disabled={isCorrect !== null || locked}
+                      className={`w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold shadow-button transition-all ${
+                        locked
+                          ? "bg-muted text-muted-foreground/30 cursor-not-allowed shadow-none"
+                          : "bg-secondary text-secondary-foreground hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none disabled:opacity-50"
+                      }`}
+                    >
+                      {letter}
+                    </button>
+                  );
+                })}
               </div>
             ))}
           </>

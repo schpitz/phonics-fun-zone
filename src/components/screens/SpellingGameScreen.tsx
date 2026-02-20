@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { Shuffle, Volume2, Keyboard } from "lucide-react";
+import { Shuffle, Volume2, Keyboard, Undo2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -332,34 +332,35 @@ export const SpellingGameScreen = ({
           })()}
           
           {/* Check/Undo/Next buttons */}
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center items-center gap-3">
             {isCorrect !== true ? (
               <>
-                <button
-                  onClick={handleBackspace}
-                  disabled={userInput.length === 0 || isCorrect !== null}
-                  className={`
-                    px-6 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
-                    ${userInput.length > 0 && isCorrect === null
-                      ? "bg-secondary text-secondary-foreground hover:scale-105 active:scale-95"
-                      : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
-                    }
-                  `}
-                >
-                  Undo
-                </button>
                 <button
                   onClick={checkAnswer}
                   disabled={userInput.length !== puzzle.missingIndices.length}
                   className={`
-                    px-8 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
+                    px-10 py-3 rounded-2xl font-bold text-xl transition-all shadow-button
                     ${userInput.length === puzzle.missingIndices.length
                       ? "bg-accent text-accent-foreground hover:scale-105 active:scale-95"
                       : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
                     }
                   `}
                 >
-                  Check
+                  Check ✓
+                </button>
+                <button
+                  onClick={handleBackspace}
+                  disabled={userInput.length === 0 || isCorrect !== null}
+                  className={`
+                    w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-button
+                    ${userInput.length > 0 && isCorrect === null
+                      ? "bg-secondary text-secondary-foreground hover:scale-105 active:scale-95"
+                      : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
+                    }
+                  `}
+                  aria-label="Undo"
+                >
+                  <Undo2 className="h-5 w-5" />
                 </button>
               </>
             ) : (

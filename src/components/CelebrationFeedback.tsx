@@ -46,6 +46,11 @@ export const CelebrationFeedback = ({ show, onComplete }: CelebrationFeedbackPro
         clearTimeout(fadeTimer);
         clearTimeout(hideTimer);
       };
+    } else {
+      // When show becomes false, hide immediately
+      setIsFading(true);
+      const t = setTimeout(() => setIsVisible(false), 300);
+      return () => clearTimeout(t);
     }
   }, [show, onComplete]);
 

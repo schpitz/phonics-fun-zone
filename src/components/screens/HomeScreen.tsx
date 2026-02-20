@@ -1,7 +1,7 @@
-import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool } from "lucide-react";
+import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool, ArrowDownToLine } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting";
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -93,6 +93,19 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
             <div className="text-xs opacity-80 font-normal">Build words</div>
           </GameButton>
         </div>
+
+        <GameButton
+          variant="secondary"
+          size="lg"
+          onClick={() => onNavigate("sorting")}
+          className="w-full justify-start gap-4"
+        >
+          <ArrowDownToLine className="h-7 w-7" />
+          <div className="text-left">
+            <div className="text-xl">Sort</div>
+            <div className="text-xs opacity-80 font-normal">Sort words into groups</div>
+          </div>
+        </GameButton>
       </div>
 
       {/* Fun footer with secret admin tap */}

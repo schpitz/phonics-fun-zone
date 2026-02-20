@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Play, Shuffle, Volume2, Minus, Plus } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, SentenceData } from "@/data/vocabulary";
@@ -98,19 +98,20 @@ export const SentencesScreen = ({
 
       {/* Sentence display */}
       <div className="mt-6 flex flex-col items-center relative">
-        <div className="bg-card rounded-3xl p-6 md:p-8 shadow-soft max-w-lg w-full relative">
-          {/* Words - clickable individually */}
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-6">
+        <div className="bg-card rounded-3xl p-4 md:p-6 shadow-soft max-w-2xl w-full relative">
+          {/* Words - clickable individually, single row */}
+          <div className="flex flex-nowrap justify-center gap-1 md:gap-2 mb-6">
             {currentSentence.words.map((word, index) => (
               <button
                 key={index}
                 onClick={() => handleWordClick(word)}
                 disabled={isSpeaking}
-                className={`text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200
+                className={`font-bold py-2 px-2 md:px-3 rounded-xl transition-all duration-200 whitespace-nowrap
                   ${currentWordIndex === index
                     ? "bg-success text-success-foreground scale-110 animate-word-highlight"
                     : "text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
                   }`}
+                style={{ fontSize: `clamp(1.1rem, ${Math.min(2.5, 8 / currentSentence.words.length)}rem, 2.5rem)` }}
               >
                 {word}
               </button>

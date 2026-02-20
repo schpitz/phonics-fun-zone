@@ -2,7 +2,7 @@
 
 ## Overview
 
-Single-page React application with client-side routing, no backend. All data is stored in `localStorage` via a vocabulary manager class. The app is structured around six learning screens accessed through a bottom navigation bar.
+Single-page React application with client-side routing, no backend. All data is stored in `localStorage` via a vocabulary manager class. The app is structured around seven learning screens accessed through a bottom navigation bar.
 
 ## Directory Structure
 
@@ -15,24 +15,26 @@ src/
 │   ├── Index.tsx             # Main page — screen state machine + admin gate
 │   └── NotFound.tsx
 ├── components/
-│   ├── Navigation.tsx        # Fixed bottom nav bar (6 tabs)
+│   ├── Navigation.tsx        # Fixed bottom nav bar (7 tabs)
 │   ├── screens/
 │   │   ├── HomeScreen.tsx    # Landing menu with secret admin tap
 │   │   ├── LettersScreen.tsx # A-Z alphabet learning
 │   │   ├── WordsScreen.tsx   # Vocabulary cards with categories
 │   │   ├── SentencesScreen.tsx # Read-along with word highlighting
 │   │   ├── MatchingGameScreen.tsx # Memory-style pair matching
-│   │   └── SpellingGameScreen.tsx # Letter-by-letter word building
+│   │   ├── SpellingGameScreen.tsx # Letter-by-letter word building
+│   │   └── SortingGameScreen.tsx  # Category-based word sorting
 │   ├── admin/
 │   │   ├── AdminLogin.tsx    # Credentials gate (hardcoded, localStorage session)
 │   │   ├── AdminPanel.tsx    # Tabbed manager (Words / Sentences)
-│   │   ├── VocabularyManager.tsx # CRUD for words
+│   │   ├── VocabularyManager.tsx # CRUD for words + per-screen toggles
 │   │   └── SentencesManager.tsx  # CRUD for sentences
 │   └── ui/                  # shadcn/ui primitives + custom game-button
 ├── data/
 │   └── vocabulary.ts         # Unified data layer (see below)
 └── hooks/
     ├── useSpeech.ts          # Web Speech API wrapper
+    ├── useSoundEffects.ts    # Game sound effects
     ├── use-mobile.tsx        # Viewport detection
     └── use-toast.ts          # Toast hook
 ```
@@ -41,20 +43,22 @@ src/
 
 ### 1. Screen State Machine (`Index.tsx`)
 
-Navigation uses a `useState<Screen>` instead of URL routes. All six screens (`home`, `letters`, `words`, `sentences`, `matching`, `spelling`) render inside the same `/` route. The admin flow short-circuits rendering when `showAdminLogin` or `isAdminLoggedIn` is true.
+Navigation uses a `useState<Screen>` instead of URL routes. All seven screens (`home`, `letters`, `words`, `sentences`, `matching`, `spelling`, `sorting`) render inside the same `/` route. The admin flow short-circuits rendering when `showAdminLogin` or `isAdminLoggedIn` is true.
 
 ### 2. Unified Vocabulary System (`vocabulary.ts`)
 
 Single source of truth for all words. Key design:
 
-- **`UnifiedWord` interface**: Each word has `english`, `hebrew`, `category`, `emoji`, `difficulty` (1-5), `vowelType`, and four boolean flags (`enabledForABC`, `enabledForWords`, `enabledForMatching`, `enabledForSpelling`) controlling which screens display it.
+- **`UnifiedWord` interface**: Each word has `english`, `hebrew`, `category`, `emoji`, `difficulty` (1-5), `vowelType`, and five boolean flags (`enabledForABC`, `enabledForWords`, `enabledForMatching`, `enabledForSpelling`, `enabledForSorting`) controlling which screens display it.
+- **`FRANCHISE_CATEGORIES`**: Categories like "Mario", "Sonic", "Paw Patrol", and "Star Wars" are grouped as franchise categories. Words in these categories have `enabledForMatching` and `enabledForSorting` set to `false` by default to keep game content focused on general vocabulary.
 - **`VocabularyManager` class**: Singleton that handles:
   - Loading/saving to `localStorage`
   - Auto-merging new default words into existing saved data (so updates ship without losing user edits)
+  - Auto-migrating new flags (e.g. `enabledForSorting`) from existing flags on first load
   - Filtering words by screen, category, or difficulty
   - CRUD for sentences
   - Shuffling utilities
-- **~500 default words** across categories: Animals, Food, Colors, Body, Family, Numbers, Sports, Nature, Objects, Clothes, Places, Vehicles, Technology, Countries.
+- **~500 default words** across categories: Animals, Food, Colors, Body, Family, Numbers, Sports, Nature, Objects, Clothes, Places, Vehicles, Technology, Countries, Mario, Sonic, Paw Patrol, Star Wars.
 
 ### 3. Text-to-Speech (`useSpeech.ts`)
 
@@ -68,12 +72,13 @@ Wraps the Web Speech API with:
 - **Access**: Hidden behind 5-tap detection on home screen footer
 - **Auth**: Hardcoded credentials with 1-hour `localStorage` session, 5-attempt lockout
 - **Management**: Full CRUD for vocabulary words and sentences via `VocabularyManager`
+- **Per-screen toggles**: Each word can be individually enabled/disabled for ABC, Words, Match, Spell, and Sort screens
 
 ### 5. Styling
 
 - **Design tokens** defined as CSS variables in `index.css` (HSL format)
 - **Tailwind semantic classes** (`bg-primary`, `text-foreground`, etc.) — no raw colors in components
-- **`GameButton`** custom variant component extending shadcn Button with kid-friendly sizes and color variants (`primary`, `secondary`, `accent`, `highlight`, `success`, `ghost`)
+- **`GameButton`** custom variant component with kid-friendly sizes and color variants (`primary`, `secondary`, `accent`, `highlight`, `success`, `ghost`, `outline`, `word`, `letter`)
 - **Animations**: CSS keyframes (`float`, `bounce`, `glow`) defined in `index.css` and `tailwind.config.ts`
 
 ### 6. PWA
@@ -93,7 +98,7 @@ defaultVocabulary (hardcoded ~500 words)
 VocabularyManager.loadFromStorage()
         │
         ├── localStorage empty? → use defaults
-        └── localStorage has data? → merge new defaults in
+        └── localStorage has data? → merge new defaults + migrate new flags
         │
         ▼
   this.vocabulary (runtime array)
@@ -109,4 +114,4 @@ VocabularyManager.loadFromStorage()
 
 **Sentences**: Add entries to the `defaultSentences` array. Same auto-merge behavior.
 
-**New Screen**: Add to the `Screen` type in `Index.tsx`, create component in `screens/`, add to `renderScreen()` switch, add nav item in `Navigation.tsx`.
+**New Screen**: Add to the `Screen` type in `Index.tsx`, create component in `screens/`, add to `renderScreen()` switch, add nav item in `Navigation.tsx`. Add a corresponding `enabledFor*` flag to `UnifiedWord` and update the admin `VocabularyManager` to include a toggle.

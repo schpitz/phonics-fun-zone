@@ -63,24 +63,26 @@ export const WordsScreen = ({
         </button>
       </div>
 
-      {/* Category selector */}
-      <div className="mt-4 flex flex-wrap gap-2 justify-center">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => handleCategoryChange(category)}
-            className={`
-              px-4 py-2 rounded-xl text-sm font-bold transition-all
-              ${
-                selectedCategory === category
-                  ? "bg-secondary text-secondary-foreground shadow-button"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }
-            `}
+      {/* Category selector dropdown */}
+      <div className="mt-4 flex justify-center">
+        <div className="relative">
+          <select
+            value={selectedCategory}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            className="appearance-none bg-card text-foreground border-2 border-primary rounded-xl px-5 py-2.5 pr-10 text-sm font-bold shadow-soft cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {category}
-          </button>
-        ))}
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category === "All" ? "📚 All Categories" : category}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 10 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m1 1 4 4 4-4" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       {/* Main word display */}

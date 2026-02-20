@@ -3,6 +3,7 @@ import { Shuffle, RotateCcw, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { CelebrationFeedback } from "../CelebrationFeedback";
 
 interface MatchingGameScreenProps {
@@ -129,6 +130,7 @@ export const MatchingGameScreen = ({
   const [gameComplete, setGameComplete] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord } = useSpeech();
+  const { playSuccess } = useSoundEffects();
 
   const config = difficultyConfig[difficulty];
 
@@ -200,7 +202,8 @@ export const MatchingGameScreen = ({
             )
           );
           setMatchedPairs((prev) => prev + 1);
-          setShowCelebration(true); // Show celebration on each match
+          setShowCelebration(true);
+          playSuccess();
 
           // Check if game is complete
           if (matchedPairs + 1 === config.pairs) {

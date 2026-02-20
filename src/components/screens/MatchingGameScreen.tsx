@@ -21,12 +21,13 @@ interface Card {
   isMatched: boolean;
 }
 
-type Difficulty = "easy" | "medium" | "hard";
+type Difficulty = "easy" | "medium" | "hard" | "expert";
 
 const difficultyConfig: Record<Difficulty, { pairs: number; cols: number; label: string }> = {
   easy: { pairs: 8, cols: 4, label: "Easy (4×4)" },
-  medium: { pairs: 12, cols: 5, label: "Medium (5×5)" },
-  hard: { pairs: 18, cols: 6, label: "Hard (6×6)" },
+  medium: { pairs: 10, cols: 5, label: "Medium (4×5)" },
+  hard: { pairs: 12, cols: 6, label: "Hard (4×6)" },
+  expert: { pairs: 15, cols: 6, label: "Expert (5×6)" },
 };
 
 // Character images mapping - using placeholder images that represent the characters

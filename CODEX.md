@@ -53,18 +53,21 @@ Single source of truth for all words. Key design:
 - **`FRANCHISE_CATEGORIES`**: Categories like "Mario", "Sonic", "Paw Patrol", and "Star Wars" are grouped as franchise categories. Words in these categories have `enabledForMatching` and `enabledForSorting` set to `false` by default to keep game content focused on general vocabulary.
 - **`VocabularyManager` class**: Singleton that handles:
   - Loading/saving to `localStorage`
-  - Auto-merging new default words into existing saved data (so updates ship without losing user edits)
+  - Auto-merging new default words and sentences into existing saved data (so updates ship without losing user edits)
   - Auto-migrating new flags (e.g. `enabledForSorting`) from existing flags on first load
   - Filtering words by screen, category, or difficulty
   - CRUD for sentences
   - Shuffling utilities
-- **~500 default words** across categories: Animals, Food, Colors, Body, Family, Numbers, Sports, Nature, Objects, Clothes, Places, Vehicles, Technology, Countries, Mario, Sonic, Paw Patrol, Star Wars.
+- **~1,000 default words** across 25+ categories: Animals, Food, Colors, Body, Family, Numbers, Sports, Nature, Objects, Clothes, Places, Vehicles, Technology, Countries, Weather, School, Music, Time, Actions, Shapes, Insects, Sea Animals, Birds, Adjectives, Garden, Soccer, Mario, Sonic, Paw Patrol, Star Wars.
+- **~200 default sentences** across 20+ topics, each 3–5 words long, with synchronized word-by-word highlighting during playback.
 
 ### 3. Text-to-Speech (`useSpeech.ts`)
 
 Wraps the Web Speech API with:
 - Preferred voice selection (Samantha, Google US English, Microsoft Zira)
 - Separate rate settings for letters (0.55), words (0.55), and sentences (0.5)
+- Adjustable speed multiplier (0.5x–2x) for sentence playback
+- Word-by-word tracking via `onboundary` events for synchronized highlighting
 - Speaking state tracking for UI feedback
 
 ### 4. Admin System
@@ -92,7 +95,8 @@ Configured via `vite-plugin-pwa` in `vite.config.ts`:
 ## Data Flow
 
 ```
-defaultVocabulary (hardcoded ~500 words)
+defaultVocabulary (hardcoded ~1,000 words)
+defaultSentences  (hardcoded ~200 sentences)
         │
         ▼
 VocabularyManager.loadFromStorage()
@@ -101,11 +105,13 @@ VocabularyManager.loadFromStorage()
         └── localStorage has data? → merge new defaults + migrate new flags
         │
         ▼
-  this.vocabulary (runtime array)
+  this.vocabulary / this.sentences (runtime arrays)
         │
         ├── getWordsForScreen(screen) → filtered words
+        ├── getAllSentences() / getRandomSentences(n)
         ├── addWord() / updateWord() / deleteWord()
-        └── saveVocabulary() → localStorage
+        ├── addSentence() / updateSentence() / deleteSentence()
+        └── saveVocabulary() / saveSentences() → localStorage
 ```
 
 ## Adding New Content

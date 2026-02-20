@@ -1,73 +1,57 @@
-# Welcome to your Lovable project
+# 🎓 ABC Fun - Learn English!
 
-## Project info
+A colorful, interactive English learning web app designed for kids (ages 7-9). Built as a Progressive Web App (PWA) so it can be installed on any device.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![ABC Fun](public/icon-512.png)
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+- **Letters A-Z** — Learn the alphabet with audio pronunciation
+- **Words** — Explore 500+ vocabulary words with Hebrew translations and emojis
+- **Sentences** — Read along with highlighted word-by-word playback
+- **Matching Game** — Find English-Hebrew word pairs
+- **Spelling Game** — Build words letter by letter
+- **Text-to-Speech** — Native browser speech for all content
+- **Admin Panel** — Hidden admin access (5-tap secret) to manage vocabulary and sentences
+- **PWA** — Installable on mobile & desktop, works offline
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## 🚀 Getting Started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to the project
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🛠 Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 18 + TypeScript |
+| Build | Vite |
+| Styling | Tailwind CSS + shadcn/ui |
+| Speech | Web Speech API |
+| PWA | vite-plugin-pwa + Workbox |
+| Routing | React Router DOM |
 
-**Use GitHub Codespaces**
+## 📱 Installation
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Since this is a PWA, users can install it directly from Chrome:
+- **Desktop**: Click the install icon in the address bar
+- **Mobile**: Tap "Add to Home Screen" from the browser menu
 
-## What technologies are used for this project?
+## 🔐 Admin Access
 
-This project is built with:
+Tap the footer text on the home screen **5 times rapidly** to reveal the admin login. From there you can add, edit, or remove vocabulary words and sentences.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📄 License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private project.

@@ -31,16 +31,16 @@ export const CelebrationFeedback = ({ show, onComplete }: CelebrationFeedbackPro
       setIsVisible(true);
       setIsFading(false);
 
-      // Start fading after 2 seconds
+      // Start fading after 1.5 seconds
       const fadeTimer = setTimeout(() => {
         setIsFading(true);
-      }, 2000);
+      }, 1500);
 
-      // Hide completely after 2.5 seconds
+      // Hide completely after 2 seconds
       const hideTimer = setTimeout(() => {
         setIsVisible(false);
         onComplete?.();
-      }, 2500);
+      }, 2000);
 
       return () => {
         clearTimeout(fadeTimer);

@@ -2,9 +2,10 @@ import { useCallback, useRef, useState } from "react";
 
 export const useSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState<number | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const speak = useCallback((text: string, rate: number = 0.6) => {
+  const speak = useCallback((text: string, rate: number = 0.6, trackWords: boolean = false) => {
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
@@ -29,13 +30,44 @@ export const useSpeech = () => {
 
     utteranceRef.current = utterance;
     setIsSpeaking(true);
+    if (trackWords) {
+      setCurrentWordIndex(0);
+      // Use boundary event to track which word is being spoken
+      const words = text.split(/\s+/);
+      // Build char offset map for each word
+      const wordStarts: number[] = [];
+      let offset = 0;
+      for (const w of words) {
+        wordStarts.push(offset);
+        offset += w.length + 1; // +1 for space
+      }
+
+      utterance.onboundary = (event) => {
+        if (event.name === "word") {
+          const charIndex = event.charIndex;
+          // Find which word this charIndex falls into
+          let idx = 0;
+          for (let i = wordStarts.length - 1; i >= 0; i--) {
+            if (charIndex >= wordStarts[i]) {
+              idx = i;
+              break;
+            }
+          }
+          setCurrentWordIndex(idx);
+        }
+      };
+    } else {
+      setCurrentWordIndex(null);
+    }
 
     utterance.onend = () => {
       setIsSpeaking(false);
+      setCurrentWordIndex(null);
     };
 
     utterance.onerror = () => {
       setIsSpeaking(false);
+      setCurrentWordIndex(null);
     };
 
     window.speechSynthesis.speak(utterance);
@@ -65,5 +97,6 @@ export const useSpeech = () => {
     speakSentence,
     stop,
     isSpeaking,
+    currentWordIndex,
   };
 };

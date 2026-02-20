@@ -18,7 +18,7 @@ export const SentencesScreen = ({
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speedMultiplier, setSpeedMultiplier] = useState(1.0);
-  const { speakWord, speak, isSpeaking } = useSpeech();
+  const { speakWord, speak, isSpeaking, currentWordIndex } = useSpeech();
 
   const currentSentence = displayedSentences[currentIndex];
 
@@ -26,9 +26,9 @@ export const SentencesScreen = ({
   const baseRate = 0.5;
   const actualRate = baseRate * speedMultiplier;
 
-  // Play the whole sentence smoothly
+  // Play the whole sentence smoothly with word tracking
   const playSentence = useCallback(() => {
-    speak(currentSentence.english, actualRate);
+    speak(currentSentence.english, actualRate, true);
   }, [currentSentence, speak, actualRate]);
 
   // Click individual word to hear it
@@ -106,7 +106,11 @@ export const SentencesScreen = ({
                 key={index}
                 onClick={() => handleWordClick(word)}
                 disabled={isSpeaking}
-                className="text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200 text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
+                className={`text-3xl md:text-4xl font-bold py-2 px-4 rounded-xl transition-all duration-200
+                  ${currentWordIndex === index
+                    ? "bg-primary text-primary-foreground scale-110 animate-word-highlight"
+                    : "text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
+                  }`}
               >
                 {word}
               </button>

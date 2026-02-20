@@ -57,7 +57,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     // Pick random categories that have enough words
     const allWords = vocabularyManager.getAllWords();
     const validCategories = SORTABLE_CATEGORIES.filter(cat => {
-      const count = allWords.filter(w => w.category === cat && w.enabledForWords).length;
+      const count = allWords.filter(w => w.category === cat && w.enabledForSorting).length;
       return count >= wordsPerCategory;
     });
 
@@ -67,7 +67,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     // Get words for each category
     const wordPool: SortItem[] = [];
     chosen.forEach(cat => {
-      const catWords = allWords.filter(w => w.category === cat && w.enabledForWords);
+      const catWords = allWords.filter(w => w.category === cat && w.enabledForSorting);
       const picked = shuffleArray(catWords).slice(0, wordsPerCategory);
       picked.forEach(w => wordPool.push({ word: w, sorted: false }));
     });

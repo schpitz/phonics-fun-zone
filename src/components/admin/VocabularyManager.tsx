@@ -51,6 +51,7 @@ export const VocabularyManager = () => {
     enabledForABC: true,
     enabledForWords: true,
     enabledForMatching: true,
+    enabledForSorting: true,
     enabledForSpelling: true,
   });
 
@@ -78,6 +79,7 @@ export const VocabularyManager = () => {
       enabledForABC: true,
       enabledForWords: true,
       enabledForMatching: true,
+      enabledForSorting: true,
       enabledForSpelling: true,
     });
     setEditingWord(null);
@@ -100,6 +102,7 @@ export const VocabularyManager = () => {
       enabledForABC: word.enabledForABC,
       enabledForWords: word.enabledForWords,
       enabledForMatching: word.enabledForMatching,
+      enabledForSorting: word.enabledForSorting,
       enabledForSpelling: word.enabledForSpelling,
     });
     setIsDialogOpen(true);
@@ -155,7 +158,7 @@ export const VocabularyManager = () => {
   return (
     <div className="space-y-4">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <div className="bg-card rounded-lg border p-3 text-center">
           <div className="text-2xl font-bold text-primary">{words.length}</div>
           <div className="text-xs text-muted-foreground">Total Words</div>
@@ -175,6 +178,12 @@ export const VocabularyManager = () => {
             {words.filter(w => w.enabledForMatching).length}
           </div>
           <div className="text-xs text-muted-foreground">For Matching</div>
+        </div>
+        <div className="bg-card rounded-lg border p-3 text-center">
+          <div className="text-2xl font-bold text-amber-600">
+            {words.filter(w => w.enabledForSorting).length}
+          </div>
+          <div className="text-xs text-muted-foreground">For Sorting</div>
         </div>
       </div>
 
@@ -254,6 +263,7 @@ export const VocabularyManager = () => {
                       {word.enabledForABC && <Badge variant="outline" className="px-1">ABC</Badge>}
                       {word.enabledForWords && <Badge variant="outline" className="px-1">Words</Badge>}
                       {word.enabledForMatching && <Badge variant="outline" className="px-1">Match</Badge>}
+                      {word.enabledForSorting && <Badge variant="outline" className="px-1">Sort</Badge>}
                       {word.enabledForSpelling && <Badge variant="outline" className="px-1">Spell</Badge>}
                     </div>
                   </TableCell>
@@ -410,7 +420,7 @@ export const VocabularyManager = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="matching" className="text-sm">Match Screen</Label>
+                  <Label htmlFor="matching" className="text-sm">Match Game</Label>
                   <Switch
                     id="matching"
                     checked={formData.enabledForMatching}
@@ -418,7 +428,15 @@ export const VocabularyManager = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="spelling" className="text-sm">Spell Screen</Label>
+                  <Label htmlFor="sorting" className="text-sm">Sort Game</Label>
+                  <Switch
+                    id="sorting"
+                    checked={formData.enabledForSorting}
+                    onCheckedChange={(v) => setFormData({ ...formData, enabledForSorting: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="spelling" className="text-sm">Spell Game</Label>
                   <Switch
                     id="spelling"
                     checked={formData.enabledForSpelling}

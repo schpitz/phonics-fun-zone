@@ -331,29 +331,46 @@ export const SpellingGameScreen = ({
             );
           })()}
           
-          {/* Check/Next button - below word input */}
-          {isCorrect !== true ? (
-            <button
-              onClick={checkAnswer}
-              disabled={userInput.length !== puzzle.missingIndices.length}
-              className={`
-                px-8 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
-                ${userInput.length === puzzle.missingIndices.length
-                  ? "bg-accent text-accent-foreground hover:scale-105 active:scale-95"
-                  : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
-                }
-              `}
-            >
-              Check
-            </button>
-          ) : (
-            <button
-              onClick={nextWord}
-              className="px-8 py-3 rounded-2xl font-bold text-lg bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all shadow-button"
-            >
-              Next Word →
-            </button>
-          )}
+          {/* Check/Undo/Next buttons */}
+          <div className="flex justify-center gap-3">
+            {isCorrect !== true ? (
+              <>
+                <button
+                  onClick={handleBackspace}
+                  disabled={userInput.length === 0 || isCorrect !== null}
+                  className={`
+                    px-6 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
+                    ${userInput.length > 0 && isCorrect === null
+                      ? "bg-secondary text-secondary-foreground hover:scale-105 active:scale-95"
+                      : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
+                    }
+                  `}
+                >
+                  Undo
+                </button>
+                <button
+                  onClick={checkAnswer}
+                  disabled={userInput.length !== puzzle.missingIndices.length}
+                  className={`
+                    px-8 py-3 rounded-2xl font-bold text-lg transition-all shadow-button
+                    ${userInput.length === puzzle.missingIndices.length
+                      ? "bg-accent text-accent-foreground hover:scale-105 active:scale-95"
+                      : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
+                    }
+                  `}
+                >
+                  Check
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={nextWord}
+                className="px-8 py-3 rounded-2xl font-bold text-lg bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all shadow-button"
+              >
+                Next Word →
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -393,7 +410,7 @@ export const SpellingGameScreen = ({
         ) : (
           <>
             {QWERTY_LAYOUT.map((row, rowIndex) => (
-              <div key={rowIndex} className="flex justify-center gap-1 sm:gap-1.5">
+              <div key={rowIndex} className="flex justify-center gap-[3px] sm:gap-1.5">
                 {row.map((letter) => {
                   const locked = unlockedLetters !== null && !unlockedLetters.has(letter);
                   return (
@@ -401,7 +418,7 @@ export const SpellingGameScreen = ({
                       key={letter}
                       onClick={() => handleLetterClick(letter)}
                       disabled={isCorrect !== null || locked}
-                      className={`w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-base sm:text-lg font-bold shadow-button transition-all ${
+                      className={`w-[30px] h-[34px] sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg sm:rounded-xl text-sm sm:text-lg font-bold shadow-button transition-all ${
                         locked
                           ? "bg-muted text-muted-foreground/30 cursor-not-allowed shadow-none"
                           : "bg-secondary text-secondary-foreground hover:scale-105 hover:bg-secondary/80 active:translate-y-1 active:shadow-none disabled:opacity-50"

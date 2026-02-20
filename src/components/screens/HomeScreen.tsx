@@ -70,42 +70,37 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
           </div>
         </GameButton>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <GameButton
             variant="highlight"
-            size="lg"
+            size="default"
             onClick={() => onNavigate("matching")}
-            className="w-full flex-col gap-1 py-4"
+            className="w-full flex-col gap-1 py-3"
           >
-            <Puzzle className="h-7 w-7" />
-            <div className="text-lg">Match</div>
-            <div className="text-xs opacity-80 font-normal">Find pairs</div>
+            <Puzzle className="h-5 w-5" />
+            <div className="text-sm">Match</div>
           </GameButton>
 
           <GameButton
             variant="success"
-            size="lg"
+            size="default"
             onClick={() => onNavigate("spelling")}
-            className="w-full flex-col gap-1 py-4"
+            className="w-full flex-col gap-1 py-3"
           >
-            <PenTool className="h-7 w-7" />
-            <div className="text-lg">Spell</div>
-            <div className="text-xs opacity-80 font-normal">Build words</div>
+            <PenTool className="h-5 w-5" />
+            <div className="text-sm">Spell</div>
+          </GameButton>
+
+          <GameButton
+            variant="secondary"
+            size="default"
+            onClick={() => onNavigate("sorting")}
+            className="w-full flex-col gap-1 py-3"
+          >
+            <ArrowDownToLine className="h-5 w-5" />
+            <div className="text-sm">Sort</div>
           </GameButton>
         </div>
-
-        <GameButton
-          variant="secondary"
-          size="lg"
-          onClick={() => onNavigate("sorting")}
-          className="w-full justify-start gap-4"
-        >
-          <ArrowDownToLine className="h-7 w-7" />
-          <div className="text-left">
-            <div className="text-xl">Sort</div>
-            <div className="text-xs opacity-80 font-normal">Sort words into groups</div>
-          </div>
-        </GameButton>
       </div>
 
       {/* Fun footer with secret admin tap */}

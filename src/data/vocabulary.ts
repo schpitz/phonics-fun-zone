@@ -47,42 +47,45 @@ const shuffleArray = <T>(array: T[]): T[] => {
   return shuffled;
 };
 
+// Franchise/fictional categories that should not appear in the matching game
+export const FRANCHISE_CATEGORIES = ["Mario", "Sonic", "Paw Patrol", "Star Wars"];
+
 // ===== DEFAULT VOCABULARY DATA =====
 // This is the initial word bank - can be extended via admin panel
 
 const defaultVocabulary: Omit<UnifiedWord, 'id'>[] = [
   // ===== MARIO CHARACTERS =====
-  { english: "Mario", hebrew: "מריו", category: "Mario", emoji: "🍄", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Luigi", hebrew: "לואיג'י", category: "Mario", emoji: "💚", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Peach", hebrew: "פיץ'", category: "Mario", emoji: "👸", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Bowser", hebrew: "באוזר", category: "Mario", emoji: "🐢", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Yoshi", hebrew: "יושי", category: "Mario", emoji: "🦎", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Toad", hebrew: "טואד", category: "Mario", emoji: "🍄", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Goomba", hebrew: "גומבה", category: "Mario", emoji: "🟤", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Koopa", hebrew: "קופה", category: "Mario", emoji: "🐢", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Rosalina", hebrew: "רוזלינה", category: "Mario", emoji: "⭐", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Daisy", hebrew: "דייזי", category: "Mario", emoji: "🌼", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Mario", hebrew: "מריו", category: "Mario", emoji: "🍄", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Luigi", hebrew: "לואיג'י", category: "Mario", emoji: "💚", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Peach", hebrew: "פיץ'", category: "Mario", emoji: "👸", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Bowser", hebrew: "באוזר", category: "Mario", emoji: "🐢", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Yoshi", hebrew: "יושי", category: "Mario", emoji: "🦎", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Toad", hebrew: "טואד", category: "Mario", emoji: "🍄", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Goomba", hebrew: "גומבה", category: "Mario", emoji: "🟤", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Koopa", hebrew: "קופה", category: "Mario", emoji: "🐢", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Rosalina", hebrew: "רוזלינה", category: "Mario", emoji: "⭐", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Daisy", hebrew: "דייזי", category: "Mario", emoji: "🌼", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
 
   // ===== SONIC CHARACTERS =====
-  { english: "Sonic", hebrew: "סוניק", category: "Sonic", emoji: "🦔", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Tails", hebrew: "טיילס", category: "Sonic", emoji: "🦊", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Knuckles", hebrew: "נאקלס", category: "Sonic", emoji: "👊", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Shadow", hebrew: "שאדו", category: "Sonic", emoji: "🖤", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Eggman", hebrew: "אגמן", category: "Sonic", emoji: "🥚", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Amy", hebrew: "איימי", category: "Sonic", emoji: "🩷", difficulty: 2, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Rouge", hebrew: "רוז'", category: "Sonic", emoji: "🦇", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Silver", hebrew: "סילבר", category: "Sonic", emoji: "🤍", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Sonic", hebrew: "סוניק", category: "Sonic", emoji: "🦔", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Tails", hebrew: "טיילס", category: "Sonic", emoji: "🦊", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Knuckles", hebrew: "נאקלס", category: "Sonic", emoji: "👊", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Shadow", hebrew: "שאדו", category: "Sonic", emoji: "🖤", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Eggman", hebrew: "אגמן", category: "Sonic", emoji: "🥚", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Amy", hebrew: "איימי", category: "Sonic", emoji: "🩷", difficulty: 2, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Rouge", hebrew: "רוז'", category: "Sonic", emoji: "🦇", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Silver", hebrew: "סילבר", category: "Sonic", emoji: "🤍", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
 
   // ===== PAW PATROL =====
-  { english: "Chase", hebrew: "צ'ייס", category: "Paw Patrol", emoji: "🐕", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Marshall", hebrew: "מרשל", category: "Paw Patrol", emoji: "🚒", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Skye", hebrew: "סקיי", category: "Paw Patrol", emoji: "🚁", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Rubble", hebrew: "ראבל", category: "Paw Patrol", emoji: "🚜", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Rocky", hebrew: "רוקי", category: "Paw Patrol", emoji: "♻️", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Zuma", hebrew: "זומה", category: "Paw Patrol", emoji: "🌊", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Everest", hebrew: "אוורסט", category: "Paw Patrol", emoji: "❄️", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Tracker", hebrew: "טראקר", category: "Paw Patrol", emoji: "🌴", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Ryder", hebrew: "ריידר", category: "Paw Patrol", emoji: "👦", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Chase", hebrew: "צ'ייס", category: "Paw Patrol", emoji: "🐕", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Marshall", hebrew: "מרשל", category: "Paw Patrol", emoji: "🚒", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Skye", hebrew: "סקיי", category: "Paw Patrol", emoji: "🚁", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Rubble", hebrew: "ראבל", category: "Paw Patrol", emoji: "🚜", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Rocky", hebrew: "רוקי", category: "Paw Patrol", emoji: "♻️", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Zuma", hebrew: "זומה", category: "Paw Patrol", emoji: "🌊", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Everest", hebrew: "אוורסט", category: "Paw Patrol", emoji: "❄️", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Tracker", hebrew: "טראקר", category: "Paw Patrol", emoji: "🌴", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Ryder", hebrew: "ריידר", category: "Paw Patrol", emoji: "👦", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
 
   // ===== SOCCER/FOOTBALL TERMS =====
   { english: "Ball", hebrew: "כדור", category: "Soccer", emoji: "⚽", difficulty: 3, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
@@ -250,16 +253,16 @@ const defaultVocabulary: Omit<UnifiedWord, 'id'>[] = [
   { english: "Ship", hebrew: "ספינה", category: "Vehicles", emoji: "🚢", difficulty: 3, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
 
   // ===== STAR WARS =====
-  { english: "Jedi", hebrew: "ג'דיי", category: "Star Wars", emoji: "⚔️", difficulty: 3, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Yoda", hebrew: "יודה", category: "Star Wars", emoji: "🧙", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Luke", hebrew: "לוק", category: "Star Wars", emoji: "👨", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Vader", hebrew: "ויידר", category: "Star Wars", emoji: "🖤", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Leia", hebrew: "ליאה", category: "Star Wars", emoji: "👸", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Force", hebrew: "הכוח", category: "Star Wars", emoji: "✨", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Lightsaber", hebrew: "חרב אור", category: "Star Wars", emoji: "⚔️", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Droid", hebrew: "דרואיד", category: "Star Wars", emoji: "🤖", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Grogu", hebrew: "גרוגו", category: "Star Wars", emoji: "👶", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Mandalorian", hebrew: "מנדלוריאן", category: "Star Wars", emoji: "🪖", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Jedi", hebrew: "ג'דיי", category: "Star Wars", emoji: "⚔️", difficulty: 3, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Yoda", hebrew: "יודה", category: "Star Wars", emoji: "🧙", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Luke", hebrew: "לוק", category: "Star Wars", emoji: "👨", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Vader", hebrew: "ויידר", category: "Star Wars", emoji: "🖤", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Leia", hebrew: "ליאה", category: "Star Wars", emoji: "👸", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Force", hebrew: "הכוח", category: "Star Wars", emoji: "✨", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Lightsaber", hebrew: "חרב אור", category: "Star Wars", emoji: "⚔️", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Droid", hebrew: "דרואיד", category: "Star Wars", emoji: "🤖", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Grogu", hebrew: "גרוגו", category: "Star Wars", emoji: "👶", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Mandalorian", hebrew: "מנדלוריאן", category: "Star Wars", emoji: "🪖", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
 
   // ===== SIMPLE WORDS (for spelling) =====
   { english: "Go", hebrew: "ללכת", category: "Basic", emoji: "🚶", difficulty: 1, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },

@@ -1,7 +1,7 @@
 import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool, ArrowDownToLine, Blocks, Ear } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting" | "builder" | "listening";
+import type { Screen } from "@/data/screens";
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;

@@ -64,24 +64,25 @@ export const CelebrationFeedback = ({ show, onComplete }: CelebrationFeedbackPro
         ${isFading ? 'opacity-0' : 'opacity-100'}
       `}
     >
-      {/* Confetti-like particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute animate-bounce"
-            style={{
-              left: `${10 + (i * 7)}%`,
-              top: `${20 + Math.random() * 30}%`,
-              animationDelay: `${i * 0.1}s`,
-              animationDuration: `${0.5 + Math.random() * 0.5}s`,
-            }}
-          >
-            <span className="text-3xl sm:text-4xl">
+      {/* Confetti burst from the center */}
+      <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+        {[...Array(18)].map((_, i) => {
+          const angle = (i / 18) * Math.PI * 2;
+          const dist = 140 + (i % 3) * 50;
+          return (
+            <span
+              key={i}
+              className="absolute text-3xl sm:text-4xl animate-confetti-burst"
+              style={{
+                ["--dx" as string]: `${Math.cos(angle) * dist}px`,
+                ["--dy" as string]: `${Math.sin(angle) * dist}px`,
+                animationDelay: `${(i % 4) * 0.04}s`,
+              }}
+            >
               {['⭐', '🌟', '✨', '💫', '🎉', '🎊'][i % 6]}
             </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Main celebration message */}

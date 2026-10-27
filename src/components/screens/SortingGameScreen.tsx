@@ -47,7 +47,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
   const [draggingOver, setDraggingOver] = useState<string | null>(null);
 
   const { speakWord } = useSpeech();
-  const { playSuccess, playError } = useSoundEffects();
+  const { playSuccess, playError, playFanfare } = useSoundEffects();
   const feedbackTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const basketCount = difficulty === "easy" ? 2 : 3;
@@ -130,41 +130,50 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     }
   }, [currentItem, currentIndex, items.length, gameComplete, playSuccess, playError]);
 
-  // Drag handlers
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData("text/plain", "word");
+  // Pointer drag (works for mouse + touch). A short tap without movement = hear the word.
+  const dragRef = useRef<{ startX: number; startY: number; moved: boolean } | null>(null);
+  const [ghost, setGhost] = useState<{ x: number; y: number } | null>(null);
+
+  const basketAt = (x: number, y: number) =>
+    (document.elementFromPoint(x, y)?.closest("[data-basket]") as HTMLElement | null)?.dataset.basket ?? null;
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, moved: false };
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   };
 
-  const handleDragOver = (e: React.DragEvent, cat: string) => {
-    e.preventDefault();
-    setDraggingOver(cat);
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 8) d.moved = true;
+    if (d.moved) {
+      setGhost({ x: e.clientX, y: e.clientY });
+      setDraggingOver(basketAt(e.clientX, e.clientY));
+    }
   };
 
-  const handleDragLeave = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setGhost(null);
     setDraggingOver(null);
+    if (!d) return;
+    if (!d.moved) {
+      if (currentItem) speakWord(currentItem.word.english);
+      return;
+    }
+    const cat = basketAt(e.clientX, e.clientY);
+    if (cat) handleSort(cat);
   };
 
-  const handleDrop = (e: React.DragEvent, cat: string) => {
-    e.preventDefault();
-    setDraggingOver(null);
+  // Tap-to-sort: tapping a basket puts the current word in it
+  const handleBasketTap = (cat: string) => {
     handleSort(cat);
   };
 
-  // Touch drag state
-  const touchRef = useRef<{ startX: number; startY: number } | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    touchRef.current = { startX: t.clientX, startY: t.clientY };
-  };
-
-  const handleWordTap = () => {
-    if (currentItem) speakWord(currentItem.word.english);
-  };
-
-  const handleBasketTap = (cat: string) => {
-    speakWord(cat); // Only speak, no sorting
-  };
+  useEffect(() => {
+    if (gameComplete) playFanfare();
+  }, [gameComplete, playFanfare]);
 
   if (categories.length === 0) {
     return (
@@ -187,7 +196,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           Sort It! 🗂️
         </h1>
         <p className="text-sm text-muted-foreground font-semibold">
-          Put each word in the right basket!
+          Tap the right basket (or drag the card)!
         </p>
       </div>
 
@@ -257,14 +266,25 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           {/* Draggable word card */}
           <div
             className="max-w-[200px] mx-auto bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-4 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
-            draggable
-            onDragStart={handleDragStart}
-            onTouchStart={handleTouchStart}
-            onClick={handleWordTap}
+            style={{ touchAction: "none" }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={() => { dragRef.current = null; setGhost(null); setDraggingOver(null); }}
           >
-            <div className="text-5xl mb-1">{currentItem.word.emoji}</div>
+            <div key={currentIndex} className="text-5xl mb-1 animate-bounce-in">{currentItem.word.emoji}</div>
             <div className="text-xl font-black text-foreground">{currentItem.word.english}</div>
           </div>
+
+          {ghost && (
+            <div
+              className="fixed z-50 pointer-events-none -translate-x-1/2 -translate-y-1/2 bg-card rounded-2xl border-2 border-primary shadow-lg px-4 py-2 text-center opacity-90"
+              style={{ left: ghost.x, top: ghost.y }}
+            >
+              <div className="text-3xl">{currentItem.word.emoji}</div>
+              <div className="text-base font-black text-foreground">{currentItem.word.english}</div>
+            </div>
+          )}
 
           {/* Baskets */}
           <div className={`grid gap-3 ${categories.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
@@ -280,16 +300,18 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                   className={`
                     relative flex flex-col transition-all duration-200 touch-manipulation
                   `}
-                  onDragOver={(e) => handleDragOver(e, cat)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, cat)}
+                  data-basket={cat}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleBasketTap(cat)}
                 >
                   {/* Basket label */}
                   <button
                     className="text-base font-black text-foreground bg-muted rounded-t-xl px-3 py-2 text-center border-2 border-b-0 border-border"
-                    onClick={() => handleBasketTap(cat)}
+                    onClick={(e) => { e.stopPropagation(); speakWord(cat); }}
+                    aria-label={`Hear ${cat}`}
                   >
-                    {cat}
+                    🔊 {cat}
                   </button>
                   {/* Basket body */}
                   <div
@@ -299,7 +321,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                       ${draggingOver === cat
                         ? "border-primary bg-primary/10 scale-105 shadow-[inset_0_0_20px_hsl(var(--primary)/0.15)]"
                         : isCorrectFeedback
-                          ? "border-accent bg-accent/10 scale-105"
+                          ? "border-accent bg-accent/10 animate-wiggle"
                           : isWrongFeedback
                             ? "border-destructive bg-destructive/10 animate-shake"
                             : "border-border bg-card/60"
@@ -308,7 +330,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                     `}
                   >
                     {contents.length === 0 && !isFeedback && (
-                      <span className="text-xs text-muted-foreground/50 mt-4 italic">Drop here</span>
+                      <span className="text-xs text-muted-foreground/50 mt-4 italic">Tap here</span>
                     )}
                     <div className="flex flex-wrap gap-1 justify-center mt-1">
                       {contents.map(w => (

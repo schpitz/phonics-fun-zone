@@ -127,3 +127,9 @@ VocabularyManager.loadFromStorage()
 - Difficulty rules live in `src/data/gameRules.ts` (tested in `src/test/newGames.test.ts`).
 - Shared UI: `LevelSelector.tsx`, `HebrewToggle.tsx`.
 - Data: `UnifiedWord.enabledForListening` (migrated from `enabledForMatching`), `SentenceData.enabledForBuilder` (missing = true). Helpers `getWordsForListening`, `getDistractors`/`pickDistractors`, `getSentencesByLength`, `findWord`.
+
+## Navigation & UX (update)
+- Bottom bar has 5 tabs: Home, ABC, Words, Read, Games. `src/data/screens.ts` defines the `Screen` type and `GAME_SCREENS`; the Games tab opens `GamesScreen` (hub) and stays highlighted inside any game.
+- Sort: tap a basket to sort the current word (tap-to-sort); dragging the card with finger/mouse also works (pointer events). Tapping the 🔊 basket label only speaks its name.
+- Words: Grid / Flashcards toggle. `Flashcards.tsx` = flip card (front picture + English, back Hebrew + category), swipe or arrows, "I know it" progress dots.
+- `useSoundEffects`: `playSuccess` (arpeggio), `playError` (soft boing), `playPop`, `playFanfare` (round complete). Celebration uses a center confetti burst, still auto-hides within 2s.

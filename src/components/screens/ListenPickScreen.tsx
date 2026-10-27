@@ -57,10 +57,16 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
     return () => clearTimeout(t);
   }, [target, speakWord]);
 
+  useEffect(() => {
+    if (!isSpeaking) setPlaying(null);
+  }, [isSpeaking]);
+
   const startRound = useCallback((lvl: ThreeLevel) => {
     setRound(buildRound(lvl));
     setIndex(0);
     setWrongIds([]);
+    setLastWrong(null);
+    setPlaying(null);
     setSolved(false);
   }, []);
 
@@ -80,13 +86,22 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
         setShowCelebration(false);
         setSolved(false);
         setWrongIds([]);
+        setLastWrong(null);
+        setPlaying(null);
         if (index + 1 < round.length) setIndex(index + 1);
         else startRound(level);
       }, 1800);
     } else {
       playError();
       setWrongIds((p) => [...p, w.id]);
-      setTimeout(() => speakWord(target.english), 400);
+      setLastWrong(w);
+      setPlaying("wrong");
+      speakWord(w.english);
+      // After the clicked word finishes, replay the quiz word
+      setTimeout(() => {
+        setPlaying("target");
+        speakWord(target.english);
+      }, 2500);
     }
   };
 

@@ -127,24 +127,30 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
             <GameButton
               variant="accent"
               size="xl"
-              onClick={() => speakWord(target.english)}
-              className="glow-accent rounded-full h-24 w-24 p-0"
+              onClick={() => {
+                setPlaying("target");
+                speakWord(target.english);
+              }}
+              className={`glow-accent rounded-full h-24 w-24 p-0 transition-all ${playing === "target" ? "ring-8 ring-success/60 scale-110 animate-pulse" : ""}`}
               aria-label="Hear the word"
             >
               <Volume2 className="h-12 w-12" />
             </GameButton>
-            {wrongIds.length > 0 && (
-              <div className="flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 border-accent">
+            {lastWrong && (
+              <div className={`flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 transition-all ${playing === "wrong" ? "border-success ring-4 ring-success/50 scale-105" : "border-accent"}`}>
                 <button
-                  onClick={() => speakWord(target.english)}
+                  onClick={() => {
+                    setPlaying("wrong");
+                    speakWord(lastWrong.english);
+                  }}
                   className="flex items-center gap-2 text-2xl font-black text-foreground hover:scale-105 transition-transform"
-                  aria-label="Hear the word again"
+                  aria-label="Hear the picked word"
                 >
-                  {target.english}
-                  <Volume2 className="h-6 w-6 text-accent" />
+                  {lastWrong.english}
+                  <Volume2 className={`h-6 w-6 ${playing === "wrong" ? "text-success animate-pulse" : "text-accent"}`} />
                 </button>
                 {showHebrew && (
-                  <p className="text-lg text-muted-foreground font-bold" dir="rtl">{target.hebrew}</p>
+                  <p className="text-lg text-muted-foreground font-bold" dir="rtl">{lastWrong.hebrew}</p>
                 )}
               </div>
             )}

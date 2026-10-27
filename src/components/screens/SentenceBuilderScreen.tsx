@@ -39,7 +39,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
   const [checked, setChecked] = useState<boolean[] | null>(null);
   const [solved, setSolved] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const { speakWord, speak } = useSpeech();
+  const { speakWord, speak, speechProps } = useSpeech();
   const { playSuccess, playError } = useSoundEffects();
 
   const cfg = getBuilderConfig(level);
@@ -94,7 +94,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
 
   const addTile = (t: Tile) => {
     if (solved) return;
-    speakWord(t.text.replace(/[!.,?]/g, ""));
+    speakWord(t.text.replace(/[!.,?]/g, ""), `tile-${t.id}`);
     setChecked(null);
     setPlaced((p) => [...p, t]);
   };
@@ -140,14 +140,14 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
       if (!d) return;
       if (!d.moved) {
         if (d.from === "bank") addTile(d.tile);
-        else speakWord(d.tile.text.replace(/[!.,?]/g, ""));
+        else speakWord(d.tile.text.replace(/[!.,?]/g, ""), `tile-${d.tile.id}`);
         return;
       }
       const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
       const zone = el?.closest("[data-drop]")?.getAttribute("data-drop");
       const slotAttr = el?.closest("[data-slot]")?.getAttribute("data-slot");
       if (zone === "answer") {
-        speakWord(d.tile.text.replace(/[!.,?]/g, ""));
+        speakWord(d.tile.text.replace(/[!.,?]/g, ""), `tile-${d.tile.id}`);
         setChecked(null);
         setPlaced((p) => {
           const list = d.from === "answer" ? p.filter((_, i) => i !== d.index) : [...p];
@@ -190,7 +190,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
       setSolved(true);
       playSuccess();
       setShowCelebration(true);
-      speak(spoken, 0.5);
+      speak(spoken, 0.5, false, "builder-answer");
       setTimeout(() => {
         setShowCelebration(false);
         if (index + 1 < sentences.length) setIndex(index + 1);
@@ -199,7 +199,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
     } else {
       setChecked(marks);
       playError();
-      if (spoken) setTimeout(() => speak(spoken, 0.5), 450);
+      if (spoken) setTimeout(() => speak(spoken, 0.5, false, "builder-answer"), 450);
     }
   };
 
@@ -225,7 +225,8 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
             <GameButton
               variant="accent"
               size="lg"
-              onClick={() => speak(sentence.english, 0.5)}
+              {...speechProps("builder-hint")}
+              onClick={() => speak(sentence.english, 0.5, false, "builder-hint")}
               className="rounded-full h-16 w-16 p-0 glow-accent"
               aria-label="Hear the sentence"
             >
@@ -238,6 +239,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
 
           {/* Answer row */}
           <div
+            {...speechProps("builder-answer")}
             data-drop="answer"
             className={`mt-5 min-h-[5rem] bg-card rounded-3xl p-3 shadow-soft border-4 border-dashed flex flex-wrap justify-center items-center gap-2 transition-all
               ${solved ? "border-success" : dropSlot !== null ? "border-accent ring-4 ring-accent/40" : "border-border"}`}
@@ -250,6 +252,8 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
                   {dropSlot === i && <span className="w-2 h-12 rounded-full bg-accent animate-pulse" />}
                   <span data-slot={i} className="flex flex-col items-center gap-1">
                     <button
+                      {...speechProps(`tile-${t.id}`)}
+                      onClick={() => { if (i < lockedCount || solved) speakWord(t.text, `tile-${t.id}`); }}
                       onPointerDown={(e) => startDrag(e, t, "answer", i)}
                       style={{ touchAction: "none" }}
                       className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
@@ -286,6 +290,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
             {available.map((t) => (
               <button
                 key={t.id}
+                {...speechProps(`tile-${t.id}`)}
                 onPointerDown={(e) => startDrag(e, t, "bank", -1)}
                 style={{ touchAction: "none" }}
                 className={`cursor-grab select-none rounded-2xl font-black bg-card text-foreground shadow-button border-2 border-border hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 ${tileSize}`}

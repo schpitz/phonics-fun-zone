@@ -15,7 +15,7 @@ export const Flashcards = ({ words, showHebrew }: FlashcardsProps) => {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [known, setKnown] = useState<Set<string>>(new Set());
-  const { speakWord } = useSpeech();
+  const { speakWord, speechProps } = useSpeech();
   const { playPop, playFanfare } = useSoundEffects();
   const swipeX = useRef<number | null>(null);
 
@@ -34,7 +34,7 @@ export const Flashcards = ({ words, showHebrew }: FlashcardsProps) => {
     setIndex(next);
     setFlipped(false);
     playPop();
-    speakWord(words[next].english);
+    speakWord(words[next].english, "flashcard");
   };
 
   const toggleKnown = () => {
@@ -65,6 +65,7 @@ export const Flashcards = ({ words, showHebrew }: FlashcardsProps) => {
       </div>
 
       <div
+        {...speechProps("flashcard")}
         className="w-[280px] h-[340px] [perspective:1000px] cursor-pointer select-none"
         style={{ touchAction: "pan-y" }}
         onClick={() => { setFlipped((f) => !f); playPop(); }}
@@ -104,7 +105,7 @@ export const Flashcards = ({ words, showHebrew }: FlashcardsProps) => {
         <GameButton variant="ghost" size="sm" className="px-2" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous">
           <ChevronLeft className="h-8 w-8" />
         </GameButton>
-        <GameButton variant="primary" size="sm" className="px-4" onClick={() => speakWord(word.english)} aria-label="Hear word">
+        <GameButton variant="primary" size="sm" className="px-4" {...speechProps("flashcard-audio")} onClick={() => speakWord(word.english, "flashcard-audio")} aria-label="Hear word">
           <Volume2 className="h-7 w-7" />
         </GameButton>
         <GameButton variant={isKnown ? "success" : "ghost"} size="sm" onClick={toggleKnown} className="gap-1 px-3">

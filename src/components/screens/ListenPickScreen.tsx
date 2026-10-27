@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Volume2, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
@@ -41,6 +41,14 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
   const [showCelebration, setShowCelebration] = useState(false);
   const { speakWord, isSpeaking } = useSpeech();
   const { playSuccess, playError } = useSoundEffects();
+  const replayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearReplay = () => {
+    if (replayTimer.current) {
+      clearTimeout(replayTimer.current);
+      replayTimer.current = null;
+    }
+  };
 
   const cfg = getListenConfig(level);
   const target = round[index];

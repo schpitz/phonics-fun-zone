@@ -35,9 +35,11 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
   const [round, setRound] = useState<UnifiedWord[]>(() => buildRound(1));
   const [index, setIndex] = useState(0);
   const [wrongIds, setWrongIds] = useState<string[]>([]);
+  const [lastWrong, setLastWrong] = useState<UnifiedWord | null>(null);
+  const [playing, setPlaying] = useState<"wrong" | "target" | null>(null);
   const [solved, setSolved] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const { speakWord } = useSpeech();
+  const { speakWord, isSpeaking } = useSpeech();
   const { playSuccess, playError } = useSoundEffects();
 
   const cfg = getListenConfig(level);

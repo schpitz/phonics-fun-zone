@@ -243,32 +243,33 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
               return (
                 <span key={`${t.id}-${i}`} className="contents">
                   {dropSlot === i && <span className="w-2 h-12 rounded-full bg-accent animate-pulse" />}
-                  <button
-                    data-slot={i}
-                    onPointerDown={(e) => startDrag(e, t, "answer", i)}
-                    style={{ touchAction: "none" }}
-                    className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
-                      ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
-                  >
-                    <span className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
+                  <span data-slot={i} className="flex flex-col items-center gap-1">
+                    <button
+                      onPointerDown={(e) => startDrag(e, t, "answer", i)}
+                      style={{ touchAction: "none" }}
+                      className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
+                        ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
+                    >
+                      {i >= lockedCount && !solved && (
+                        <span
+                          role="button"
+                          aria-label="Remove word"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeTile(i);
+                          }}
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-sm font-black flex items-center justify-center shadow-soft cursor-pointer hover:scale-110"
+                        >
+                          ×
+                        </span>
+                      )}
+                      {t.text}
+                    </button>
+                    <span className="h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
                       {i + 1}
                     </span>
-                    {i >= lockedCount && !solved && (
-                      <span
-                        role="button"
-                        aria-label="Remove word"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeTile(i);
-                        }}
-                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-sm font-black flex items-center justify-center shadow-soft cursor-pointer hover:scale-110"
-                      >
-                        ×
-                      </span>
-                    )}
-                    {t.text}
-                  </button>
+                  </span>
                 </span>
               );
             })}

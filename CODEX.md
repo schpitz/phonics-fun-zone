@@ -121,3 +121,9 @@ VocabularyManager.loadFromStorage()
 **Sentences**: Add entries to the `defaultSentences` array. Same auto-merge behavior.
 
 **New Screen**: Add to the `Screen` type in `Index.tsx`, create component in `screens/`, add to `renderScreen()` switch, add nav item in `Navigation.tsx`. Add a corresponding `enabledFor*` flag to `UnifiedWord` and update the admin `VocabularyManager` to include a toggle.
+
+## Sentence Builder & Listen & Pick
+- Screens: `SentenceBuilderScreen.tsx`, `ListenPickScreen.tsx` (screen ids `builder`, `listening`).
+- Difficulty rules live in `src/data/gameRules.ts` (tested in `src/test/newGames.test.ts`).
+- Shared UI: `LevelSelector.tsx`, `HebrewToggle.tsx`.
+- Data: `UnifiedWord.enabledForListening` (migrated from `enabledForMatching`), `SentenceData.enabledForBuilder` (missing = true). Helpers `getWordsForListening`, `getDistractors`/`pickDistractors`, `getSentencesByLength`, `findWord`.

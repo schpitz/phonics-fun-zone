@@ -84,3 +84,17 @@ Tap the footer text on the home screen **5 times rapidly** to reveal the admin l
 ## 📄 License
 
 Private project.
+
+## 🧱 Sentence Builder
+Tap mixed-up word tiles in the right order to build a sentence from the sentence bank. A speaker button plays the full sentence; the Hebrew toggle shows the translation. Tapping a tile says the word; tap a placed tile to return it; Undo removes the last one. A wrong Check plays an error sound, reads the sentence aloud, and colors correct/incorrect positions.
+- **Easy**: 3-word sentences, first word pre-placed, picture hints on tiles.
+- **Medium**: 4-word sentences, picture hints.
+- **Hard**: 5-word sentences plus 2 extra wrong tiles from the vocabulary, no pictures.
+Rounds have 5 sentences. Admins can exclude a sentence via "Use in Sentence Builder".
+
+## 👂 Listen & Pick
+The app speaks a word (auto-played and via the speaker button); the child taps the matching picture. Wrong taps fade the card, replay the word and highlight the answer. Rounds have 10 words.
+- **Easy**: 3 pictures, difficulty 1–2 words, distractors from other categories.
+- **Medium**: 4 pictures, difficulty up to 3, distractors from any category.
+- **Hard**: 6 pictures, all words, distractors from the same category.
+Uses words with `enabledForListening` (admin "Listen & Pick" toggle; defaults to the Match setting).

@@ -4,6 +4,7 @@ import { GameButton } from "@/components/ui/game-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ export const SentencesManager = () => {
     english: "",
     hebrew: "",
     words: "",
+    enabledForBuilder: true,
   });
 
   const filteredSentences = useMemo(() => {
@@ -53,6 +55,7 @@ export const SentencesManager = () => {
       english: "",
       hebrew: "",
       words: "",
+      enabledForBuilder: true,
     });
     setEditingSentence(null);
   };
@@ -68,6 +71,7 @@ export const SentencesManager = () => {
       english: sentence.english,
       hebrew: sentence.hebrew,
       words: sentence.words.join(", "),
+      enabledForBuilder: sentence.enabledForBuilder !== false,
     });
     setIsDialogOpen(true);
   };
@@ -100,6 +104,7 @@ export const SentencesManager = () => {
       english: formData.english.trim(),
       hebrew: formData.hebrew.trim(),
       words: wordsArray,
+      enabledForBuilder: formData.enabledForBuilder,
     };
 
     if (editingSentence) {
@@ -271,6 +276,14 @@ export const SentencesManager = () => {
               <p className="text-xs text-muted-foreground">
                 Each word will be highlighted during read-along
               </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="builder" className="text-sm">Use in Sentence Builder</Label>
+              <Switch
+                id="builder"
+                checked={formData.enabledForBuilder}
+                onCheckedChange={(v) => setFormData({ ...formData, enabledForBuilder: v })}
+              />
             </div>
           </div>
 

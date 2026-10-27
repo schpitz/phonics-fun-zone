@@ -13,6 +13,7 @@ export interface UnifiedWord {
   enabledForWords: boolean;
   enabledForMatching: boolean;
   enabledForSorting: boolean;
+  enabledForListening: boolean;
   enabledForSpelling: boolean;
 }
 
@@ -21,7 +22,34 @@ export interface SentenceData {
   english: string;
   hebrew: string;
   words: string[];
+  enabledForBuilder?: boolean;
 }
+
+export const normalizeToken = (t: string): string =>
+  t.toLowerCase().replace(/[^a-z0-9' -]/g, "").trim();
+
+// Pick wrong options: sameCategory true = same category, false = other categories, null = any
+export const pickDistractors = (
+  target: UnifiedWord,
+  pool: UnifiedWord[],
+  count: number,
+  sameCategory: boolean | null
+): UnifiedWord[] => {
+  const base = pool.filter(
+    w => w.id !== target.id && w.english.toLowerCase() !== target.english.toLowerCase() && w.emoji !== target.emoji
+  );
+  const preferred = sameCategory === null ? base : base.filter(w => (w.category === target.category) === sameCategory);
+  const ordered = [...shuffleArray(preferred), ...shuffleArray(base.filter(w => !preferred.includes(w)))];
+  const result: UnifiedWord[] = [];
+  const emojis = new Set<string>([target.emoji]);
+  for (const w of ordered) {
+    if (result.length >= count) break;
+    if (emojis.has(w.emoji)) continue;
+    emojis.add(w.emoji);
+    result.push(w);
+  }
+  return result;
+};
 
 // Helper to generate unique IDs
 const generateId = (): string => {
@@ -55,7 +83,7 @@ export const FRANCHISE_CATEGORIES = ["Mario", "Sonic", "Paw Patrol", "Star Wars"
 // This is the initial word bank - can be extended via admin panel
 
 // enabledForSorting defaults to enabledForMatching if not explicitly set
-const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting'>[] = [
+const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting' | 'enabledForListening'>[] = [
   // ===== MARIO CHARACTERS =====
   { english: "Mario", hebrew: "מריו", category: "Mario", emoji: "🍄", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "Luigi", hebrew: "לואיג'י", category: "Mario", emoji: "💚", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
@@ -1134,6 +1162,37 @@ const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting'>[] = [
 
 // ===== DEFAULT SENTENCES DATA =====
 const defaultSentences: Omit<SentenceData, 'id'>[] = [
+  // === Five-word sentences (Sentence Builder Hard) ===
+  { english: "I have a red ball", hebrew: "יש לי כדור אדום", words: ["I", "have", "a", "red", "ball"] },
+  { english: "The cat is very small", hebrew: "החתול קטן מאוד", words: ["The", "cat", "is", "very", "small"] },
+  { english: "My dog likes to run", hebrew: "הכלב שלי אוהב לרוץ", words: ["My", "dog", "likes", "to", "run"] },
+  { english: "We go to school today", hebrew: "אנחנו הולכים לבית הספר היום", words: ["We", "go", "to", "school", "today"] },
+  { english: "The sun is very hot", hebrew: "השמש חמה מאוד", words: ["The", "sun", "is", "very", "hot"] },
+  { english: "I eat an apple today", hebrew: "אני אוכל תפוח היום", words: ["I", "eat", "an", "apple", "today"] },
+  { english: "Mom reads a good book", hebrew: "אמא קוראת ספר טוב", words: ["Mom", "reads", "a", "good", "book"] },
+  { english: "The bird can fly high", hebrew: "הציפור יכולה לעוף גבוה", words: ["The", "bird", "can", "fly", "high"] },
+  { english: "I kick the ball hard", hebrew: "אני בועט בכדור חזק", words: ["I", "kick", "the", "ball", "hard"] },
+  { english: "The fish swims in water", hebrew: "הדג שוחה במים", words: ["The", "fish", "swims", "in", "water"] },
+  { english: "My sister likes pink shoes", hebrew: "אחותי אוהבת נעליים ורודות", words: ["My", "sister", "likes", "pink", "shoes"] },
+  { english: "Dad drives a blue car", hebrew: "אבא נוהג במכונית כחולה", words: ["Dad", "drives", "a", "blue", "car"] },
+  { english: "I drink milk every day", hebrew: "אני שותה חלב כל יום", words: ["I", "drink", "milk", "every", "day"] },
+  { english: "The goalkeeper catches the ball", hebrew: "השוער תופס את הכדור", words: ["The", "goalkeeper", "catches", "the", "ball"] },
+  { english: "We play soccer after school", hebrew: "אנחנו משחקים כדורגל אחרי בית הספר", words: ["We", "play", "soccer", "after", "school"] },
+  { english: "The moon is in the sky", hebrew: "הירח בשמיים", words: ["The", "moon", "is", "in", "the", "sky"] },
+  { english: "I wash my hands now", hebrew: "אני שוטף את הידיים עכשיו", words: ["I", "wash", "my", "hands", "now"] },
+  { english: "The baby is sleeping now", hebrew: "התינוק ישן עכשיו", words: ["The", "baby", "is", "sleeping", "now"] },
+  { english: "My teacher is very nice", hebrew: "המורה שלי נחמד מאוד", words: ["My", "teacher", "is", "very", "nice"] },
+  { english: "I see a big tree", hebrew: "אני רואה עץ גדול", words: ["I", "see", "a", "big", "tree"] },
+  { english: "The frog jumps very high", hebrew: "הצפרדע קופצת גבוה מאוד", words: ["The", "frog", "jumps", "very", "high"] },
+  { english: "We eat pizza for dinner", hebrew: "אנחנו אוכלים פיצה לארוחת ערב", words: ["We", "eat", "pizza", "for", "dinner"] },
+  { english: "The bus is very big", hebrew: "האוטובוס גדול מאוד", words: ["The", "bus", "is", "very", "big"] },
+  { english: "I like to draw pictures", hebrew: "אני אוהב לצייר תמונות", words: ["I", "like", "to", "draw", "pictures"] },
+  { english: "My brother has a bike", hebrew: "לאח שלי יש אופניים", words: ["My", "brother", "has", "a", "bike"] },
+  { english: "It is cold and rainy", hebrew: "קר וגשום", words: ["It", "is", "cold", "and", "rainy"] },
+  { english: "The cow gives us milk", hebrew: "הפרה נותנת לנו חלב", words: ["The", "cow", "gives", "us", "milk"] },
+  { english: "I brush my teeth today", hebrew: "אני מצחצח שיניים היום", words: ["I", "brush", "my", "teeth", "today"] },
+  { english: "The player scores a goal", hebrew: "השחקן מבקיע גול", words: ["The", "player", "scores", "a", "goal"] },
+  { english: "I am happy and smiling", hebrew: "אני שמח ומחייך", words: ["I", "am", "happy", "and", "smiling"] },
   // === Family ===
   { english: "I love Mom", hebrew: "אני אוהב את אמא", words: ["I", "love", "Mom"] },
   { english: "Dad helps me", hebrew: "אבא עוזר לי", words: ["Dad", "helps", "me"] },
@@ -1433,12 +1492,14 @@ class VocabularyManager {
           const newWordsWithIds = newWords.map(word => ({
             ...word,
             enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
             id: generateId(),
           }));
           // Migrate existing words that lack enabledForSorting
           const migratedExisting = existingVocab.map(w => ({
             ...w,
             enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+            enabledForListening: w.enabledForListening ?? w.enabledForMatching ?? true,
           }));
           this.vocabulary = [...migratedExisting, ...newWordsWithIds];
           this.saveVocabulary();
@@ -1448,6 +1509,7 @@ class VocabularyManager {
           this.vocabulary = existingVocab.map(w => ({
             ...w,
             enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+            enabledForListening: w.enabledForListening ?? w.enabledForMatching ?? true,
           }));
         }
       } else {
@@ -1455,6 +1517,7 @@ class VocabularyManager {
         this.vocabulary = defaultVocabulary.map(word => ({
           ...word,
           enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
           id: generateId(),
         }));
         this.saveVocabulary();
@@ -1486,6 +1549,7 @@ class VocabularyManager {
       this.vocabulary = defaultVocabulary.map(word => ({
         ...word,
         enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
         id: generateId(),
       }));
       this.sentences = defaultSentences.map(sentence => ({
@@ -1594,6 +1658,7 @@ class VocabularyManager {
     this.vocabulary = defaultVocabulary.map(word => ({
       ...word,
       enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
       id: generateId(),
     }));
     this.sentences = defaultSentences.map(sentence => ({
@@ -1655,6 +1720,30 @@ class VocabularyManager {
     });
     
     return shuffleArray(filtered).slice(0, count);
+  }
+
+  // For Listen & Pick - words enabled for listening that have a picture
+  getWordsForListening(): UnifiedWord[] {
+    return this.vocabulary.filter(w => w.enabledForListening && !!w.emoji);
+  }
+
+  // Wrong-answer options for a target word (never the target, unique emoji)
+  getDistractors(target: UnifiedWord, count: number, sameCategory: boolean | null, pool?: UnifiedWord[]): UnifiedWord[] {
+    return pickDistractors(target, pool ?? this.getWordsForListening(), count, sameCategory);
+  }
+
+  // Sentences of an exact word length, enabled for the Sentence Builder
+  getSentencesByLength(n: number, count: number = 5): SentenceData[] {
+    return shuffleArray(
+      this.sentences.filter(s => s.enabledForBuilder !== false && s.words.length === n)
+    ).slice(0, count);
+  }
+
+  // Find a vocabulary word ignoring case and punctuation
+  findWord(english: string): UnifiedWord | undefined {
+    const key = normalizeToken(english);
+    if (!key) return undefined;
+    return this.vocabulary.find(w => w.english.toLowerCase() === key);
   }
 
   // For Sentences screen - get random sentences

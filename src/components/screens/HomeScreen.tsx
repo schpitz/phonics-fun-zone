@@ -1,7 +1,7 @@
-import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool, ArrowDownToLine } from "lucide-react";
+import { Sparkles, BookOpen, MessageSquare, Puzzle, PenTool, ArrowDownToLine, Blocks, Ear } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting" | "builder" | "listening";
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -99,6 +99,28 @@ export const HomeScreen = ({ onNavigate, onSecretTap }: HomeScreenProps) => {
           >
             <ArrowDownToLine className="h-7 w-7" />
             <div className="text-xl">Sort</div>
+          </GameButton>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <GameButton
+            variant="primary"
+            size="lg"
+            onClick={() => onNavigate("builder")}
+            className="w-full flex-col gap-2 py-4 h-auto"
+          >
+            <Blocks className="h-7 w-7" />
+            <div className="text-xl">Build</div>
+          </GameButton>
+
+          <GameButton
+            variant="accent"
+            size="lg"
+            onClick={() => onNavigate("listening")}
+            className="w-full flex-col gap-2 py-4 h-auto"
+          >
+            <Ear className="h-7 w-7" />
+            <div className="text-xl">Listen</div>
           </GameButton>
         </div>
       </div>

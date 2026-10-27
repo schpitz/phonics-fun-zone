@@ -7,10 +7,12 @@ import { SentencesScreen } from "@/components/screens/SentencesScreen";
 import { MatchingGameScreen } from "@/components/screens/MatchingGameScreen";
 import { SpellingGameScreen } from "@/components/screens/SpellingGameScreen";
 import { SortingGameScreen } from "@/components/screens/SortingGameScreen";
+import { SentenceBuilderScreen } from "@/components/screens/SentenceBuilderScreen";
+import { ListenPickScreen } from "@/components/screens/ListenPickScreen";
 import { AdminLogin } from "@/components/admin/AdminLogin";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting";
+type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting" | "builder" | "listening";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
@@ -144,6 +146,10 @@ const Index = () => {
             onToggleHebrew={handleToggleHebrew}
           />
         );
+      case "builder":
+        return <SentenceBuilderScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} />;
+      case "listening":
+        return <ListenPickScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} />;
       default:
         return <HomeScreen onNavigate={setCurrentScreen} onSecretTap={handleSecretTap} />;
     }

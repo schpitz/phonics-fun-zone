@@ -20,7 +20,7 @@ export const WordsScreen = ({
   );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [mode, setMode] = useState<"grid" | "cards">("grid");
-  const { speakWord, isSpeaking } = useSpeech();
+  const { speakWord, isSpeaking, speechProps } = useSpeech();
 
   // Get categories dynamically from vocabulary
   const categories = useMemo(() => {
@@ -31,7 +31,7 @@ export const WordsScreen = ({
 
   const handlePlayWord = () => {
     if (currentWord) {
-      speakWord(currentWord.english);
+      speakWord(currentWord.english, "main-word");
     }
   };
 
@@ -115,6 +115,7 @@ export const WordsScreen = ({
           <div className="relative">
             <GameButton
               variant="primary"
+              {...speechProps("main-word")}
               onClick={handlePlayWord}
               disabled={isSpeaking}
               className="min-w-[300px] h-36 text-5xl md:text-6xl gap-4 relative"
@@ -171,11 +172,12 @@ export const WordsScreen = ({
             return (
               <GameButton
                 key={`${word.english}-${index}`}
+                {...speechProps(`grid-${word.id}`)}
                 variant={index === currentWordIndex ? "primary" : "word"}
                 size="lg"
                 onClick={() => {
                   setCurrentWordIndex(index);
-                  speakWord(word.english);
+                  speakWord(word.english, `grid-${word.id}`);
                 }}
                 className={`${getTextFontSize(word.english)} py-5 px-3`}
               >

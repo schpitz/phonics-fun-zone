@@ -18,7 +18,7 @@ export const SentencesScreen = ({
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speedMultiplier, setSpeedMultiplier] = useState(1.0);
-  const { speakWord, speak, isSpeaking, currentWordIndex } = useSpeech();
+  const { speakWord, speak, isSpeaking, currentWordIndex, speechProps } = useSpeech();
 
   const currentSentence = displayedSentences[currentIndex];
 
@@ -28,12 +28,12 @@ export const SentencesScreen = ({
 
   // Play the whole sentence smoothly with word tracking
   const playSentence = useCallback(() => {
-    speak(currentSentence.english, actualRate, true);
+    speak(currentSentence.english, actualRate, true, "read-sentence");
   }, [currentSentence, speak, actualRate]);
 
   // Click individual word to hear it
-  const handleWordClick = (word: string) => {
-    speakWord(word.replace(/[!.,?]/g, ""));
+  const handleWordClick = (word: string, index: number) => {
+    speakWord(word.replace(/[!.,?]/g, ""), `read-word-${index}`);
   };
 
   const handleGenerateMore = () => {
@@ -104,11 +104,13 @@ export const SentencesScreen = ({
             {currentSentence.words.map((word, index) => (
               <button
                 key={index}
-                onClick={() => handleWordClick(word)}
+                {...speechProps(`read-word-${index}`)}
+                data-speaking={currentWordIndex === index ? "true" : speechProps(`read-word-${index}`)["data-speaking"]}
+                onClick={() => handleWordClick(word, index)}
                 disabled={isSpeaking}
                 className={`font-bold py-2 px-2 md:px-3 rounded-xl transition-all duration-200 whitespace-nowrap
                   ${currentWordIndex === index
-                    ? "bg-success text-success-foreground scale-110 animate-word-highlight"
+                    ? "bg-success/20 text-foreground"
                     : "text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95"
                   }`}
                 style={{ fontSize: `clamp(1.1rem, ${Math.min(2.5, 8 / currentSentence.words.length)}rem, 2.5rem)` }}
@@ -137,6 +139,7 @@ export const SentencesScreen = ({
           <GameButton
             variant="accent"
             size="xl"
+            {...speechProps("read-sentence")}
             onClick={playSentence}
             disabled={isSpeaking}
             className="gap-3 glow-accent"

@@ -36,10 +36,9 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
   const [index, setIndex] = useState(0);
   const [wrongIds, setWrongIds] = useState<string[]>([]);
   const [lastWrong, setLastWrong] = useState<UnifiedWord | null>(null);
-  const [playing, setPlaying] = useState<"wrong" | "target" | null>(null);
   const [solved, setSolved] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const { speakWord, isSpeaking } = useSpeech();
+  const { speakWord, speechProps } = useSpeech();
   const { playSuccess, playError } = useSoundEffects();
   const replayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -61,13 +60,10 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
 
   useEffect(() => {
     if (!target) return;
-    const t = setTimeout(() => speakWord(target.english), 400);
+    const t = setTimeout(() => speakWord(target.english, "listen-target"), 400);
     return () => clearTimeout(t);
   }, [target, speakWord]);
 
-  useEffect(() => {
-    if (!isSpeaking) setPlaying(null);
-  }, [isSpeaking]);
 
   const startRound = useCallback((lvl: ThreeLevel) => {
     clearReplay();
@@ -75,7 +71,6 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
     setIndex(0);
     setWrongIds([]);
     setLastWrong(null);
-    setPlaying(null);
     setSolved(false);
   }, []);
 
@@ -91,13 +86,12 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
       setSolved(true);
       playSuccess();
       setShowCelebration(true);
-      speakWord(target.english);
+      speakWord(target.english, `listen-option-${w.id}`);
       setTimeout(() => {
         setShowCelebration(false);
         setSolved(false);
         setWrongIds([]);
         setLastWrong(null);
-        setPlaying(null);
         if (index + 1 < round.length) setIndex(index + 1);
         else startRound(level);
       }, 1800);
@@ -105,17 +99,17 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
       playError();
       setWrongIds((p) => [...p, w.id]);
       setLastWrong(w);
-      setPlaying("wrong");
-      speakWord(w.english);
+      speakWord(w.english, `listen-option-${w.id}`);
       // After the clicked word finishes, replay the quiz word
       clearReplay();
       replayTimer.current = setTimeout(() => {
         replayTimer.current = null;
-        setPlaying("target");
-        speakWord(target.english);
+        speakWord(target.english, "listen-target");
       }, 2500);
     }
   };
+
+  useEffect(() => () => clearReplay(), []);
 
   const cols = cfg.options === 6 ? "grid-cols-3" : cfg.options === 4 ? "grid-cols-2" : "grid-cols-3";
 
@@ -140,26 +134,27 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
               variant="accent"
               size="xl"
               onClick={() => {
-                setPlaying("target");
-                speakWord(target.english);
+                clearReplay();
+                speakWord(target.english, "listen-target");
               }}
-              className={`glow-accent rounded-full h-24 w-24 p-0 transition-all ${playing === "target" ? "ring-8 ring-success/60 scale-110 animate-pulse" : ""}`}
+              {...speechProps("listen-target")}
+              className="rounded-full h-24 w-24 p-0 transition-all"
               aria-label="Hear the word"
             >
               <Volume2 className="h-12 w-12" />
             </GameButton>
             {lastWrong && (
-              <div className={`flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 transition-all ${playing === "wrong" ? "border-success ring-4 ring-success/50 scale-105" : "border-accent"}`}>
+              <div className="flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 border-border">
                 <button
                   onClick={() => {
-                    setPlaying("wrong");
-                    speakWord(lastWrong.english);
+                    speakWord(lastWrong.english, "listen-picked");
                   }}
                   className="flex items-center gap-2 text-2xl font-black text-foreground hover:scale-105 transition-transform"
+                  {...speechProps("listen-picked")}
                   aria-label="Hear the picked word"
                 >
                   {lastWrong.english}
-                  <Volume2 className={`h-6 w-6 ${playing === "wrong" ? "text-success animate-pulse" : "text-accent"}`} />
+                  <Volume2 className="h-6 w-6 text-accent" />
                 </button>
                 {showHebrew && (
                   <p className="text-lg text-muted-foreground font-bold" dir="rtl">{lastWrong.hebrew}</p>
@@ -175,6 +170,7 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
               return (
                 <button
                   key={w.id}
+                  {...speechProps(`listen-option-${w.id}`)}
                   onClick={() => handlePick(w)}
                   disabled={isWrong}
                   aria-label="Picture option"

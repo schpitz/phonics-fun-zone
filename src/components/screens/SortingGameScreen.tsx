@@ -46,7 +46,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
   const [basketContents, setBasketContents] = useState<Record<string, UnifiedWord[]>>({});
   const [draggingOver, setDraggingOver] = useState<string | null>(null);
 
-  const { speakWord } = useSpeech();
+  const { speakWord, speechProps } = useSpeech();
   const { playSuccess, playError, playFanfare } = useSoundEffects();
   const feedbackTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -159,7 +159,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     setDraggingOver(null);
     if (!d) return;
     if (!d.moved) {
-      if (currentItem) speakWord(currentItem.word.english);
+      if (currentItem) speakWord(currentItem.word.english, "sort-card");
       return;
     }
     const cat = basketAt(e.clientX, e.clientY);
@@ -265,6 +265,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
         <div className="max-w-md mx-auto">
           {/* Draggable word card */}
           <div
+            {...speechProps("sort-card")}
             className="max-w-[200px] mx-auto bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-4 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
             style={{ touchAction: "none" }}
             onPointerDown={handlePointerDown}
@@ -307,8 +308,9 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                 >
                   {/* Basket label */}
                   <button
+                    {...speechProps(`basket-${cat}`)}
                     className="text-base font-black text-foreground bg-muted rounded-t-xl px-3 py-2 text-center border-2 border-b-0 border-border"
-                    onClick={(e) => { e.stopPropagation(); speakWord(cat); }}
+                    onClick={(e) => { e.stopPropagation(); speakWord(cat, `basket-${cat}`); }}
                     aria-label={`Hear ${cat}`}
                   >
                     🔊 {cat}

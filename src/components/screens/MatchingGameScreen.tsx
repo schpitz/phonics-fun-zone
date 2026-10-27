@@ -129,7 +129,7 @@ export const MatchingGameScreen = ({
   const [isChecking, setIsChecking] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const { speakWord } = useSpeech();
+  const { speakWord, speechProps } = useSpeech();
   const { playSuccess } = useSoundEffects();
 
   const config = difficultyConfig[difficulty];
@@ -178,7 +178,7 @@ export const MatchingGameScreen = ({
     }
 
     // Always speak the English word when clicking any card
-    speakWord(card.englishWord);
+    speakWord(card.englishWord, card.id);
 
     const newCards = cards.map((c) =>
       c.id === card.id ? { ...c, isFlipped: true } : c
@@ -338,6 +338,7 @@ export const MatchingGameScreen = ({
           return (
             <button
               key={card.id}
+              {...speechProps(card.id)}
               onClick={() => handleCardClick(card)}
               disabled={card.isFlipped || card.isMatched || isChecking}
               className={`

@@ -17,21 +17,21 @@ export const LettersScreen = ({
   const [currentWords, setCurrentWords] = useState(() => 
     vocabularyManager.getWordsForLetter(letters[0].letter, 10)
   );
-  const { speakWord, isSpeaking } = useSpeech();
+  const { speakWord, isSpeaking, speechProps } = useSpeech();
 
   const currentLetter = letters[currentIndex];
   const currentSounds = letterSounds[currentLetter.letter] || [];
 
   const handlePlayUppercase = () => {
-    speakWord(`Uppercase ${currentLetter.letter}`);
+    speakWord(`Uppercase ${currentLetter.letter}`, "uppercase");
   };
 
   const handlePlayLowercase = () => {
-    speakWord(`Lowercase ${currentLetter.lowercase}`);
+    speakWord(`Lowercase ${currentLetter.lowercase}`, "lowercase");
   };
 
   const handlePlaySound = (example: string) => {
-    speakWord(example);
+    speakWord(example, `sound-${example}`);
   };
 
   // Highlight the target letter in a word
@@ -52,7 +52,7 @@ export const LettersScreen = ({
   };
 
   const handlePlayWord = (word: string) => {
-    speakWord(word);
+    speakWord(word, `word-${word}`);
   };
 
   const handleShuffle = useCallback(() => {
@@ -99,6 +99,7 @@ export const LettersScreen = ({
             <GameButton
               variant="letter"
               size="icon-xl"
+              {...speechProps("uppercase")}
               onClick={handlePlayUppercase}
               disabled={isSpeaking}
               className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative"
@@ -111,6 +112,7 @@ export const LettersScreen = ({
             <GameButton
               variant="letter"
               size="icon-xl"
+              {...speechProps("lowercase")}
               onClick={handlePlayLowercase}
               disabled={isSpeaking}
               className="w-28 h-28 md:w-36 md:h-36 text-6xl md:text-7xl relative bg-gradient-to-br from-secondary to-secondary/80"
@@ -141,6 +143,7 @@ export const LettersScreen = ({
                 key={index}
                 variant="accent"
                 size="sm"
+                {...speechProps(`sound-${soundData.example}`)}
                 onClick={() => handlePlaySound(soundData.example)}
                 className="flex-col py-3 px-4 h-auto min-h-[2.5rem]"
               >
@@ -206,6 +209,7 @@ export const LettersScreen = ({
                 key={`${wordData.english}-${index}`}
                 variant="word"
                 size="lg"
+                {...speechProps(`word-${wordData.english}`)}
                 onClick={() => handlePlayWord(wordData.english)}
                 className="w-full justify-between"
               >

@@ -57,7 +57,7 @@ export const SpellingGameScreen = ({
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [keyboardLayout, setKeyboardLayout] = useState<"abc" | "qwerty">("abc");
   const [showCelebration, setShowCelebration] = useState(false);
-  const { speakWord } = useSpeech();
+  const { speakWord, speechProps } = useSpeech();
   const { playSuccess, playError } = useSoundEffects();
 
   const currentWord = wordList[currentWordIndex];
@@ -140,12 +140,12 @@ export const SpellingGameScreen = ({
       setIsCorrect(true);
       setShowCelebration(true);
       playSuccess();
-      speakWord(currentWord.english);
+      speakWord(currentWord.english, "spell-picture");
     } else {
       setIsCorrect(false);
       playError();
       // Speak the correct word so user hears it
-      setTimeout(() => speakWord(currentWord.english), 300);
+      setTimeout(() => speakWord(currentWord.english, "spell-picture"), 300);
       setTimeout(() => setIsCorrect(null), 1500);
       setUserInput([]);
     }
@@ -159,8 +159,8 @@ export const SpellingGameScreen = ({
     }
   };
 
-  const handleHearWord = () => {
-    if (currentWord) speakWord(currentWord.english);
+  const handleHearWord = (source: string) => {
+    if (currentWord) speakWord(currentWord.english, source);
   };
 
   const handleDifficultyChange = (newDiff: number) => {
@@ -246,7 +246,8 @@ export const SpellingGameScreen = ({
       {/* Word to spell - clickable emoji */}
       <div className="mt-6 flex flex-col items-center">
         <button
-          onClick={handleHearWord}
+          {...speechProps("spell-picture")}
+          onClick={() => handleHearWord("spell-picture")}
           className="text-7xl mb-2 hover:scale-110 active:scale-95 transition-transform cursor-pointer"
           aria-label="Hear the word"
         >
@@ -263,7 +264,8 @@ export const SpellingGameScreen = ({
         )}
 
         <button
-          onClick={handleHearWord}
+          {...speechProps("spell-speaker")}
+          onClick={() => handleHearWord("spell-speaker")}
           className="p-3 rounded-full bg-muted hover:bg-muted/80 transition-colors"
           aria-label="Hear the word"
         >

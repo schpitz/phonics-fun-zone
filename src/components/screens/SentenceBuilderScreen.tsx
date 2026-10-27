@@ -105,6 +105,62 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
     setPlaced((p) => p.filter((_, idx) => idx !== i));
   };
 
+  // ---- Pointer drag (mouse + touch) ----
+  const dragRef = useRef<{ tile: Tile; from: "bank" | "answer"; index: number; sx: number; sy: number; moved: boolean } | null>(null);
+  const [ghost, setGhost] = useState<{ text: string; x: number; y: number } | null>(null);
+
+  const startDrag = (e: React.PointerEvent, tile: Tile, from: "bank" | "answer", index: number) => {
+    if (solved || (from === "answer" && index < lockedCount)) return;
+    dragRef.current = { tile, from, index, sx: e.clientX, sy: e.clientY, moved: false };
+  };
+
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      const d = dragRef.current;
+      if (!d) return;
+      if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8) return;
+      d.moved = true;
+      e.preventDefault();
+      setGhost({ text: d.tile.text, x: e.clientX, y: e.clientY });
+    };
+    const up = (e: PointerEvent) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      setGhost(null);
+      if (!d) return;
+      if (!d.moved) {
+        if (d.from === "bank") addTile(d.tile);
+        else removeTile(d.index);
+        return;
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+      const zone = el?.closest("[data-drop]")?.getAttribute("data-drop");
+      const slotAttr = el?.closest("[data-slot]")?.getAttribute("data-slot");
+      if (zone === "answer") {
+        speakWord(d.tile.text.replace(/[!.,?]/g, ""));
+        setChecked(null);
+        setPlaced((p) => {
+          const list = d.from === "answer" ? p.filter((_, i) => i !== d.index) : [...p];
+          let at = slotAttr != null ? Number(slotAttr) : list.length;
+          if (d.from === "answer" && slotAttr != null && Number(slotAttr) > d.index) at -= 0;
+          at = Math.max(lockedCount, Math.min(at, list.length));
+          list.splice(at, 0, d.tile);
+          return list;
+        });
+      } else if (d.from === "answer") {
+        removeTile(d.index);
+      }
+    };
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  });
+
   const undo = () => {
     if (solved || placed.length <= lockedCount) return;
     setChecked(null);

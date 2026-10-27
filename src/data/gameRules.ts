@@ -27,7 +27,7 @@ export interface BuilderConfig {
 
 export const getBuilderConfig = (level: ThreeLevel): BuilderConfig => {
   switch (level) {
-    case 2: return { label: "Medium", sentenceLength: 4, prefillFirst: false, extraTiles: 0, showPictures: true };
+    case 2: return { label: "Medium", sentenceLength: 4, prefillFirst: true, extraTiles: 0, showPictures: true };
     case 3: return { label: "Hard", sentenceLength: 5, prefillFirst: false, extraTiles: 2, showPictures: false };
     default: return { label: "Easy", sentenceLength: 3, prefillFirst: true, extraTiles: 0, showPictures: true };
   }

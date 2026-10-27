@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Volume2, Shuffle, Undo2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, SentenceData, normalizeToken } from "@/data/vocabulary";
@@ -142,7 +142,6 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
         setPlaced((p) => {
           const list = d.from === "answer" ? p.filter((_, i) => i !== d.index) : [...p];
           let at = slotAttr != null ? Number(slotAttr) : list.length;
-          if (d.from === "answer" && slotAttr != null && Number(slotAttr) > d.index) at -= 0;
           at = Math.max(lockedCount, Math.min(at, list.length));
           list.splice(at, 0, d.tile);
           return list;
@@ -224,6 +223,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
 
           {/* Answer row */}
           <div
+            data-drop="answer"
             className={`mt-5 min-h-[5rem] bg-card rounded-3xl p-3 shadow-soft border-4 border-dashed flex flex-wrap justify-center items-center gap-2
               ${solved ? "border-success" : "border-border"}`}
           >
@@ -233,10 +233,15 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
               return (
                 <button
                   key={`${t.id}-${i}`}
-                  onClick={() => removeTile(i)}
-                  className={`rounded-2xl font-black transition-all ${tileSize}
+                  data-slot={i}
+                  onPointerDown={(e) => startDrag(e, t, "answer", i)}
+                  style={{ touchAction: "none" }}
+                  className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
                     ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
                 >
+                  <span className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
+                    {i + 1}
+                  </span>
                   {t.text}
                 </button>
               );
@@ -253,12 +258,13 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
           </div>
 
           {/* Tile bank */}
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div data-drop="bank" className="mt-6 min-h-[4rem] flex flex-wrap justify-center gap-3">
             {available.map((t) => (
               <button
                 key={t.id}
-                onClick={() => addTile(t)}
-                className={`rounded-2xl font-black bg-card text-foreground shadow-button border-2 border-border hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 ${tileSize}`}
+                onPointerDown={(e) => startDrag(e, t, "bank", -1)}
+                style={{ touchAction: "none" }}
+                className={`cursor-grab select-none rounded-2xl font-black bg-card text-foreground shadow-button border-2 border-border hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 ${tileSize}`}
               >
                 {t.emoji && <span className="text-2xl">{t.emoji}</span>}
                 {t.text}
@@ -274,6 +280,15 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
           New Sentences
         </GameButton>
       </div>
+
+      {ghost && (
+        <div
+          className="fixed z-50 pointer-events-none -translate-x-1/2 -translate-y-1/2 rounded-2xl font-black bg-primary text-primary-foreground shadow-button px-4 py-3 text-xl scale-110"
+          style={{ left: ghost.x, top: ghost.y }}
+        >
+          {ghost.text}
+        </div>
+      )}
 
       <CelebrationFeedback show={showCelebration} />
     </div>

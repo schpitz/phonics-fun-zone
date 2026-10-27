@@ -30,3 +30,11 @@ describe("Sentence Builder levels", () => {
     }
   });
 });
+
+describe("Sentence Builder prefill", () => {
+  it("Easy and Medium pre-place the first word, Hard does not", () => {
+    expect(getBuilderConfig(1).prefillFirst).toBe(true);
+    expect(getBuilderConfig(2).prefillFirst).toBe(true);
+    expect(getBuilderConfig(3).prefillFirst).toBe(false);
+  });
+});

@@ -3,7 +3,7 @@ import { Volume2, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
-import { Flashcards } from "../Flashcards";
+import { Flashcards } from "@/components/Flashcards";
 
 interface WordsScreenProps {
   showHebrew: boolean;

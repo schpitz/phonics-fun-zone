@@ -82,7 +82,6 @@ export const VocabularyManager = () => {
       enabledForMatching: true,
       enabledForSorting: true,
       enabledForListening: true,
-    enabledForListening: true,
       enabledForSpelling: true,
     });
     setEditingWord(null);

@@ -116,8 +116,20 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
             >
               <Volume2 className="h-12 w-12" />
             </GameButton>
-            {wrongIds.length > 0 && showHebrew && (
-              <p className="text-lg text-muted-foreground font-bold" dir="rtl">{target.hebrew}</p>
+            {wrongIds.length > 0 && (
+              <div className="flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 border-accent">
+                <button
+                  onClick={() => speakWord(target.english)}
+                  className="flex items-center gap-2 text-2xl font-black text-foreground hover:scale-105 transition-transform"
+                  aria-label="Hear the word again"
+                >
+                  {target.english}
+                  <Volume2 className="h-6 w-6 text-accent" />
+                </button>
+                {showHebrew && (
+                  <p className="text-lg text-muted-foreground font-bold" dir="rtl">{target.hebrew}</p>
+                )}
+              </div>
             )}
           </div>
 

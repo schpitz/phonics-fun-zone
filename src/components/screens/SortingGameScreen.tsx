@@ -47,7 +47,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
   const [draggingOver, setDraggingOver] = useState<string | null>(null);
 
   const { speakWord } = useSpeech();
-  const { playSuccess, playError } = useSoundEffects();
+  const { playSuccess, playError, playFanfare } = useSoundEffects();
   const feedbackTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const basketCount = difficulty === "easy" ? 2 : 3;
@@ -130,41 +130,50 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     }
   }, [currentItem, currentIndex, items.length, gameComplete, playSuccess, playError]);
 
-  // Drag handlers
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData("text/plain", "word");
+  // Pointer drag (works for mouse + touch). A short tap without movement = hear the word.
+  const dragRef = useRef<{ startX: number; startY: number; moved: boolean } | null>(null);
+  const [ghost, setGhost] = useState<{ x: number; y: number } | null>(null);
+
+  const basketAt = (x: number, y: number) =>
+    (document.elementFromPoint(x, y)?.closest("[data-basket]") as HTMLElement | null)?.dataset.basket ?? null;
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, moved: false };
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   };
 
-  const handleDragOver = (e: React.DragEvent, cat: string) => {
-    e.preventDefault();
-    setDraggingOver(cat);
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    if (!d) return;
+    if (!d.moved && Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 8) d.moved = true;
+    if (d.moved) {
+      setGhost({ x: e.clientX, y: e.clientY });
+      setDraggingOver(basketAt(e.clientX, e.clientY));
+    }
   };
 
-  const handleDragLeave = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setGhost(null);
     setDraggingOver(null);
+    if (!d) return;
+    if (!d.moved) {
+      if (currentItem) speakWord(currentItem.word.english);
+      return;
+    }
+    const cat = basketAt(e.clientX, e.clientY);
+    if (cat) handleSort(cat);
   };
 
-  const handleDrop = (e: React.DragEvent, cat: string) => {
-    e.preventDefault();
-    setDraggingOver(null);
+  // Tap-to-sort: tapping a basket puts the current word in it
+  const handleBasketTap = (cat: string) => {
     handleSort(cat);
   };
 
-  // Touch drag state
-  const touchRef = useRef<{ startX: number; startY: number } | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    touchRef.current = { startX: t.clientX, startY: t.clientY };
-  };
-
-  const handleWordTap = () => {
-    if (currentItem) speakWord(currentItem.word.english);
-  };
-
-  const handleBasketTap = (cat: string) => {
-    speakWord(cat); // Only speak, no sorting
-  };
+  useEffect(() => {
+    if (gameComplete) playFanfare();
+  }, [gameComplete, playFanfare]);
 
   if (categories.length === 0) {
     return (

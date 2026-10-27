@@ -272,9 +272,19 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
             onPointerUp={handlePointerUp}
             onPointerCancel={() => { dragRef.current = null; setGhost(null); setDraggingOver(null); }}
           >
-            <div className="text-5xl mb-1">{currentItem.word.emoji}</div>
+            <div key={currentIndex} className="text-5xl mb-1 animate-bounce-in">{currentItem.word.emoji}</div>
             <div className="text-xl font-black text-foreground">{currentItem.word.english}</div>
           </div>
+
+          {ghost && (
+            <div
+              className="fixed z-50 pointer-events-none -translate-x-1/2 -translate-y-1/2 bg-card rounded-2xl border-2 border-primary shadow-lg px-4 py-2 text-center opacity-90"
+              style={{ left: ghost.x, top: ghost.y }}
+            >
+              <div className="text-3xl">{currentItem.word.emoji}</div>
+              <div className="text-base font-black text-foreground">{currentItem.word.english}</div>
+            </div>
+          )}
 
           {/* Baskets */}
           <div className={`grid gap-3 ${categories.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
@@ -298,9 +308,10 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                   {/* Basket label */}
                   <button
                     className="text-base font-black text-foreground bg-muted rounded-t-xl px-3 py-2 text-center border-2 border-b-0 border-border"
-                    onClick={() => handleBasketTap(cat)}
+                    onClick={(e) => { e.stopPropagation(); speakWord(cat); }}
+                    aria-label={`Hear ${cat}`}
                   >
-                    {cat}
+                    🔊 {cat}
                   </button>
                   {/* Basket body */}
                   <div
@@ -310,7 +321,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                       ${draggingOver === cat
                         ? "border-primary bg-primary/10 scale-105 shadow-[inset_0_0_20px_hsl(var(--primary)/0.15)]"
                         : isCorrectFeedback
-                          ? "border-accent bg-accent/10 scale-105"
+                          ? "border-accent bg-accent/10 animate-wiggle"
                           : isWrongFeedback
                             ? "border-destructive bg-destructive/10 animate-shake"
                             : "border-border bg-card/60"

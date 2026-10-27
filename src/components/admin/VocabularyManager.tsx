@@ -162,7 +162,7 @@ export const VocabularyManager = () => {
   return (
     <div className="space-y-4">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
         <div className="bg-card rounded-lg border p-3 text-center">
           <div className="text-2xl font-bold text-primary">{words.length}</div>
           <div className="text-xs text-muted-foreground">Total Words</div>

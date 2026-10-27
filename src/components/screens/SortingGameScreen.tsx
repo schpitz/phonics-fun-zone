@@ -196,7 +196,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           Sort It! 🗂️
         </h1>
         <p className="text-sm text-muted-foreground font-semibold">
-          Put each word in the right basket!
+          Tap the right basket (or drag the card)!
         </p>
       </div>
 
@@ -266,10 +266,11 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
           {/* Draggable word card */}
           <div
             className="max-w-[200px] mx-auto bg-card rounded-3xl shadow-[0_8px_0_hsl(var(--border)),0_12px_24px_-4px_hsl(var(--foreground)/0.15)] border-2 border-dashed border-primary/40 p-4 mb-5 text-center cursor-grab active:cursor-grabbing active:shadow-[0_2px_0_hsl(var(--border)),0_4px_8px_-2px_hsl(var(--foreground)/0.1)] active:translate-y-1 select-none touch-manipulation transition-all duration-150 hover:scale-[1.02]"
-            draggable
-            onDragStart={handleDragStart}
-            onTouchStart={handleTouchStart}
-            onClick={handleWordTap}
+            style={{ touchAction: "none" }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={() => { dragRef.current = null; setGhost(null); setDraggingOver(null); }}
           >
             <div className="text-5xl mb-1">{currentItem.word.emoji}</div>
             <div className="text-xl font-black text-foreground">{currentItem.word.english}</div>
@@ -289,9 +290,10 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                   className={`
                     relative flex flex-col transition-all duration-200 touch-manipulation
                   `}
-                  onDragOver={(e) => handleDragOver(e, cat)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, cat)}
+                  data-basket={cat}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleBasketTap(cat)}
                 >
                   {/* Basket label */}
                   <button
@@ -317,7 +319,7 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
                     `}
                   >
                     {contents.length === 0 && !isFeedback && (
-                      <span className="text-xs text-muted-foreground/50 mt-4 italic">Drop here</span>
+                      <span className="text-xs text-muted-foreground/50 mt-4 italic">Tap here</span>
                     )}
                     <div className="flex flex-wrap gap-1 justify-center mt-1">
                       {contents.map(w => (

@@ -181,11 +181,16 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
     const target = sentence.words.map(normalizeToken);
     const marks = placed.map((t, i) => normalizeToken(t.text) === target[i]);
     const ok = placed.length === target.length && marks.every(Boolean);
+    // Read what the child actually built, in the order the tiles were placed.
+    const spoken = placed
+      .map((t) => t.text.replace(/[!.,?]/g, ""))
+      .join(" ")
+      .trim();
     if (ok) {
       setSolved(true);
       playSuccess();
       setShowCelebration(true);
-      speak(sentence.english, 0.5);
+      speak(spoken, 0.5);
       setTimeout(() => {
         setShowCelebration(false);
         if (index + 1 < sentences.length) setIndex(index + 1);
@@ -194,7 +199,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
     } else {
       setChecked(marks);
       playError();
-      setTimeout(() => speak(sentence.english, 0.5), 450);
+      if (spoken) setTimeout(() => speak(spoken, 0.5), 450);
     }
   };
 

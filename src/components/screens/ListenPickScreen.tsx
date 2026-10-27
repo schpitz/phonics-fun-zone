@@ -70,6 +70,7 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
   }, [isSpeaking]);
 
   const startRound = useCallback((lvl: ThreeLevel) => {
+    clearReplay();
     setRound(buildRound(lvl));
     setIndex(0);
     setWrongIds([]);
@@ -86,6 +87,7 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
   const handlePick = (w: UnifiedWord) => {
     if (solved || !target) return;
     if (w.id === target.id) {
+      clearReplay();
       setSolved(true);
       playSuccess();
       setShowCelebration(true);
@@ -106,7 +108,9 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
       setPlaying("wrong");
       speakWord(w.english);
       // After the clicked word finishes, replay the quiz word
-      setTimeout(() => {
+      clearReplay();
+      replayTimer.current = setTimeout(() => {
+        replayTimer.current = null;
         setPlaying("target");
         speakWord(target.english);
       }, 2500);

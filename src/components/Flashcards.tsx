@@ -100,17 +100,17 @@ export const Flashcards = ({ words, showHebrew }: FlashcardsProps) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 mt-5">
-        <GameButton variant="ghost" size="lg" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous">
+      <div className="flex items-center justify-center gap-2 mt-5 w-full max-w-sm">
+        <GameButton variant="ghost" size="sm" className="px-2" onClick={() => go(-1)} disabled={index === 0} aria-label="Previous">
           <ChevronLeft className="h-8 w-8" />
         </GameButton>
-        <GameButton variant="primary" size="lg" onClick={() => speakWord(word.english)} aria-label="Hear word">
+        <GameButton variant="primary" size="sm" className="px-4" onClick={() => speakWord(word.english)} aria-label="Hear word">
           <Volume2 className="h-7 w-7" />
         </GameButton>
-        <GameButton variant={isKnown ? "success" : "ghost"} size="lg" onClick={toggleKnown} className="gap-2">
+        <GameButton variant={isKnown ? "success" : "ghost"} size="sm" onClick={toggleKnown} className="gap-1 px-3">
           <Check className="h-6 w-6" /> I know it
         </GameButton>
-        <GameButton variant="ghost" size="lg" onClick={() => go(1)} disabled={index === words.length - 1} aria-label="Next">
+        <GameButton variant="ghost" size="sm" className="px-2" onClick={() => go(1)} disabled={index === words.length - 1} aria-label="Next">
           <ChevronRight className="h-8 w-8" />
         </GameButton>
       </div>

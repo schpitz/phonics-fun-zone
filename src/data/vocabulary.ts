@@ -28,6 +28,26 @@ export interface SentenceData {
 export const normalizeToken = (t: string): string =>
   t.toLowerCase().replace(/[^a-z0-9' -]/g, "").trim();
 
+// True when the emoji is an actual picture, not a plain text sign ("=", "▬", outline shapes).
+// Anything with explicit emoji presentation (variation selector, keycap, ZWJ, flags, skin tones) counts.
+export const isPictorialEmoji = (emoji?: string): boolean => {
+  if (!emoji) return false;
+  if (/[\u{FE0F}\u{200D}\u{20E3}]|[\u{1F1E6}-\u{1F1FF}]|[\u{1F3FB}-\u{1F3FF}]/u.test(emoji)) return true;
+  const textSymbolRanges: Array<[number, number]> = [
+    [0x20, 0x7e],     // ASCII signs like "="
+    [0x2010, 0x2015], // dashes
+    [0x2190, 0x21ff], // arrows
+    [0x2500, 0x25ff], // box drawing & geometric shapes ("▬")
+    [0x2b00, 0x2b1a], // outline shapes ("⬠", "⬡")
+    [0x2b1d, 0x2b4f],
+  ];
+  const chars = Array.from(emoji);
+  return !chars.every(ch => {
+    const code = ch.codePointAt(0) ?? 0;
+    return textSymbolRanges.some(([lo, hi]) => code >= lo && code <= hi);
+  });
+};
+
 // Pick wrong options: sameCategory true = same category, false = other categories, null = any
 export const pickDistractors = (
   target: UnifiedWord,
@@ -300,7 +320,7 @@ const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting' | 'enabled
   { english: "No", hebrew: "לא", category: "Basic", emoji: "❌", difficulty: 1, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "On", hebrew: "על", category: "Basic", emoji: "🔛", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "In", hebrew: "בתוך", category: "Basic", emoji: "📥", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
-  { english: "Is", hebrew: "הוא", category: "Basic", emoji: "=", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
+  { english: "Is", hebrew: "הוא", category: "Basic", emoji: "", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "It", hebrew: "זה", category: "Basic", emoji: "👆", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "At", hebrew: "ב", category: "Basic", emoji: "📍", difficulty: 1, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "We", hebrew: "אנחנו", category: "Basic", emoji: "👫", difficulty: 1, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
@@ -986,15 +1006,15 @@ const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting' | 'enabled
   { english: "Circle", hebrew: "עיגול", category: "Shapes", emoji: "⭕", difficulty: 4, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Square", hebrew: "ריבוע", category: "Shapes", emoji: "⬜", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Triangle", hebrew: "משולש", category: "Shapes", emoji: "🔺", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Rectangle", hebrew: "מלבן", category: "Shapes", emoji: "▬", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Rectangle", hebrew: "מלבן", category: "Shapes", emoji: "🖼️", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Diamond", hebrew: "יהלום", category: "Shapes", emoji: "💎", difficulty: 5, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Oval", hebrew: "אליפסה", category: "Shapes", emoji: "🥚", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Cube", hebrew: "קוביה", category: "Shapes", emoji: "🧊", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Sphere", hebrew: "כדור", category: "Shapes", emoji: "🔮", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Cone", hebrew: "חרוט", category: "Shapes", emoji: "📐", difficulty: 3, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
   { english: "Cylinder", hebrew: "גליל", category: "Shapes", emoji: "🧪", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Pentagon", hebrew: "מחומש", category: "Shapes", emoji: "⬠", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
-  { english: "Hexagon", hebrew: "משושה", category: "Shapes", emoji: "⬡", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Pentagon", hebrew: "מחומש", category: "Shapes", emoji: "🖐️", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
+  { english: "Hexagon", hebrew: "משושה", category: "Shapes", emoji: "", difficulty: 5, vowelType: "short", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
 
   // ===== NUMBERS (as words) =====
   { english: "One", hebrew: "אחד", category: "Numbers", emoji: "1️⃣", difficulty: 1, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: true, enabledForSpelling: true },
@@ -1557,6 +1577,12 @@ class VocabularyManager {
         id: generateId(),
       }));
     }
+    this.sanitizeIcons();
+  }
+
+  // Blank out non-pictorial icons ("=", arrows, outline shapes) from any word source
+  private sanitizeIcons(): void {
+    this.vocabulary = this.vocabulary.map(w => isPictorialEmoji(w.emoji) ? w : { ...w, emoji: "" });
   }
 
   private saveVocabulary(): void {
@@ -1598,6 +1624,7 @@ class VocabularyManager {
       id: generateId(),
     };
     this.vocabulary.push(newWord);
+    this.sanitizeIcons();
     this.saveVocabulary();
     return newWord;
   }
@@ -1608,6 +1635,7 @@ class VocabularyManager {
     if (index === -1) return false;
     
     this.vocabulary[index] = { ...this.vocabulary[index], ...updates };
+    this.sanitizeIcons();
     this.saveVocabulary();
     return true;
   }
@@ -1665,6 +1693,7 @@ class VocabularyManager {
       ...sentence,
       id: generateId(),
     }));
+    this.sanitizeIcons();
     this.saveVocabulary();
     this.saveSentences();
   }
@@ -1691,7 +1720,7 @@ class VocabularyManager {
 
   // For Matching screen - get random pairs
   getWordsForMatching(count: number = 6): UnifiedWord[] {
-    const filtered = this.vocabulary.filter(w => w.enabledForMatching);
+    const filtered = this.vocabulary.filter(w => w.enabledForMatching && isPictorialEmoji(w.emoji));
     return shuffleArray(filtered).slice(0, count);
   }
 
@@ -1724,7 +1753,7 @@ class VocabularyManager {
 
   // For Listen & Pick - words enabled for listening that have a picture
   getWordsForListening(): UnifiedWord[] {
-    return this.vocabulary.filter(w => w.enabledForListening && !!w.emoji);
+    return this.vocabulary.filter(w => w.enabledForListening && isPictorialEmoji(w.emoji));
   }
 
   // Wrong-answer options for a target word (never the target, unique emoji)

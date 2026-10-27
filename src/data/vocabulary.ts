@@ -1577,6 +1577,12 @@ class VocabularyManager {
         id: generateId(),
       }));
     }
+    this.sanitizeIcons();
+  }
+
+  // Blank out non-pictorial icons ("=", arrows, outline shapes) from any word source
+  private sanitizeIcons(): void {
+    this.vocabulary = this.vocabulary.map(w => isPictorialEmoji(w.emoji) ? w : { ...w, emoji: "" });
   }
 
   private saveVocabulary(): void {
@@ -1618,6 +1624,7 @@ class VocabularyManager {
       id: generateId(),
     };
     this.vocabulary.push(newWord);
+    this.sanitizeIcons();
     this.saveVocabulary();
     return newWord;
   }
@@ -1628,6 +1635,7 @@ class VocabularyManager {
     if (index === -1) return false;
     
     this.vocabulary[index] = { ...this.vocabulary[index], ...updates };
+    this.sanitizeIcons();
     this.saveVocabulary();
     return true;
   }
@@ -1685,6 +1693,7 @@ class VocabularyManager {
       ...sentence,
       id: generateId(),
     }));
+    this.sanitizeIcons();
     this.saveVocabulary();
     this.saveSentences();
   }

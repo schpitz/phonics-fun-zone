@@ -1720,7 +1720,7 @@ class VocabularyManager {
 
   // For Matching screen - get random pairs
   getWordsForMatching(count: number = 6): UnifiedWord[] {
-    const filtered = this.vocabulary.filter(w => w.enabledForMatching);
+    const filtered = this.vocabulary.filter(w => w.enabledForMatching && isPictorialEmoji(w.emoji));
     return shuffleArray(filtered).slice(0, count);
   }
 
@@ -1753,7 +1753,7 @@ class VocabularyManager {
 
   // For Listen & Pick - words enabled for listening that have a picture
   getWordsForListening(): UnifiedWord[] {
-    return this.vocabulary.filter(w => w.enabledForListening && !!w.emoji);
+    return this.vocabulary.filter(w => w.enabledForListening && isPictorialEmoji(w.emoji));
   }
 
   // Wrong-answer options for a target word (never the target, unique emoji)

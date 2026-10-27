@@ -86,13 +86,13 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
       setSolved(true);
       playSuccess();
       setShowCelebration(true);
-      speakWord(target.english, "listen-target");
+      speakWord(target.english, `listen-option-${w.id}`);
       setTimeout(() => {
         setShowCelebration(false);
         setSolved(false);
         setWrongIds([]);
         setLastWrong(null);
-            if (index + 1 < round.length) setIndex(index + 1);
+        if (index + 1 < round.length) setIndex(index + 1);
         else startRound(level);
       }, 1800);
     } else {
@@ -134,7 +134,8 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
               variant="accent"
               size="xl"
               onClick={() => {
-                        speakWord(target.english, "listen-target");
+                clearReplay();
+                speakWord(target.english, "listen-target");
               }}
               {...speechProps("listen-target")}
               className="rounded-full h-24 w-24 p-0 transition-all"
@@ -146,7 +147,7 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
               <div className="flex flex-col items-center gap-1 bg-card rounded-2xl px-5 py-2 shadow-soft border-2 border-border">
                 <button
                   onClick={() => {
-                                  speakWord(lastWrong.english, "listen-picked");
+                    speakWord(lastWrong.english, "listen-picked");
                   }}
                   className="flex items-center gap-2 text-2xl font-black text-foreground hover:scale-105 transition-transform"
                   {...speechProps("listen-picked")}

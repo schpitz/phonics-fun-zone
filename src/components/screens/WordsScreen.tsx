@@ -3,6 +3,7 @@ import { Volume2, Shuffle } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
+import { Flashcards } from "../Flashcards";
 
 interface WordsScreenProps {
   showHebrew: boolean;
@@ -18,6 +19,7 @@ export const WordsScreen = ({
     vocabularyManager.getWordsForWordsScreen(undefined, 10)
   );
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [mode, setMode] = useState<"grid" | "cards">("grid");
   const { speakWord, isSpeaking } = useSpeech();
 
   // Get categories dynamically from vocabulary
@@ -85,8 +87,30 @@ export const WordsScreen = ({
         </div>
       </div>
 
+      {/* View mode toggle */}
+      <div className="mt-4 flex justify-center gap-2">
+        <GameButton variant={mode === "grid" ? "primary" : "ghost"} size="sm" onClick={() => setMode("grid")}>
+          🔲 Grid
+        </GameButton>
+        <GameButton variant={mode === "cards" ? "primary" : "ghost"} size="sm" onClick={() => setMode("cards")}>
+          🃏 Flashcards
+        </GameButton>
+      </div>
+
+      {mode === "cards" && (
+        <>
+          <Flashcards words={displayedWords} showHebrew={showHebrew} />
+          <div className="flex justify-center mt-4">
+            <GameButton variant="accent" size="lg" onClick={handleGenerateMore} className="gap-3">
+              <Shuffle className="h-6 w-6" />
+              New Words
+            </GameButton>
+          </div>
+        </>
+      )}
+
       {/* Main word display */}
-      {currentWord && (
+      {mode === "grid" && currentWord && (
         <div className="mt-8 flex flex-col items-center">
           <div className="relative">
             <GameButton
@@ -124,7 +148,7 @@ export const WordsScreen = ({
       )}
 
       {/* Word grid - show only 10 */}
-      <div className="mt-8">
+      {mode === "grid" && <div className="mt-8">
         <h3 className="text-lg font-bold text-center mb-4 text-muted-foreground">
           {selectedCategory === "All" ? "Words" : `${selectedCategory} words`}
         </h3>
@@ -169,7 +193,7 @@ export const WordsScreen = ({
             );
           })}
         </div>
-      </div>
+      </div>}
     </div>
   );
 };

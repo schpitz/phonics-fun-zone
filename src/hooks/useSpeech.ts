@@ -1,3 +1,5 @@
+// @refresh reset
+// Changes to this shared hook must remount callers instead of preserving an old hook layout.
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Browser speech is global: only one hook instance may own playback at a time.

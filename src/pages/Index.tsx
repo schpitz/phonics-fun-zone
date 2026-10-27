@@ -12,7 +12,8 @@ import { ListenPickScreen } from "@/components/screens/ListenPickScreen";
 import { AdminLogin } from "@/components/admin/AdminLogin";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 
-type Screen = "home" | "letters" | "words" | "sentences" | "matching" | "spelling" | "sorting" | "builder" | "listening";
+import { GamesScreen } from "@/components/screens/GamesScreen";
+import type { Screen } from "@/data/screens";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
@@ -146,6 +147,8 @@ const Index = () => {
             onToggleHebrew={handleToggleHebrew}
           />
         );
+      case "games":
+        return <GamesScreen onNavigate={setCurrentScreen} />;
       case "builder":
         return <SentenceBuilderScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} />;
       case "listening":

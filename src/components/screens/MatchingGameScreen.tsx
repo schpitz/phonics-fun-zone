@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Shuffle, RotateCcw, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
+import { BackToGamesButton } from "../BackToGamesButton";
 import { vocabularyManager } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
@@ -9,6 +10,7 @@ import { CelebrationFeedback } from "../CelebrationFeedback";
 interface MatchingGameScreenProps {
   showHebrew: boolean;
   onToggleHebrew: () => void;
+  onBack: () => void;
 }
 
 interface Card {
@@ -121,6 +123,7 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 export const MatchingGameScreen = ({
   showHebrew,
   onToggleHebrew,
+  onBack,
 }: MatchingGameScreenProps) => {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [cards, setCards] = useState<Card[]>([]);
@@ -238,7 +241,8 @@ export const MatchingGameScreen = ({
         onComplete={() => setShowCelebration(false)} 
       />
       {/* Hebrew toggle */}
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex items-center justify-between">
+        <BackToGamesButton onBack={onBack} />
         <button
           onClick={onToggleHebrew}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors text-sm font-bold"

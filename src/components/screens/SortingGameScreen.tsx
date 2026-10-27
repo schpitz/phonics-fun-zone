@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Shuffle, Trophy } from "lucide-react";
 import { GameButton } from "../ui/game-button";
+import { BackToGamesButton } from "../BackToGamesButton";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
@@ -9,6 +10,7 @@ import { CelebrationFeedback } from "../CelebrationFeedback";
 interface SortingGameScreenProps {
   showHebrew: boolean;
   onToggleHebrew: () => void;
+  onBack: () => void;
 }
 
 type Difficulty = "easy" | "hard";
@@ -33,7 +35,7 @@ interface SortItem {
   sorted: boolean;
 }
 
-export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScreenProps) => {
+export const SortingGameScreen = ({ showHebrew, onToggleHebrew, onBack }: SortingGameScreenProps) => {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [categories, setCategories] = useState<string[]>([]);
   const [items, setItems] = useState<SortItem[]>([]);
@@ -190,8 +192,13 @@ export const SortingGameScreen = ({ showHebrew, onToggleHebrew }: SortingGameScr
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-3">
       {<CelebrationFeedback show={showCelebration} />}
 
+      {/* Back to games */}
+      <div className="pt-4 flex justify-start">
+        <BackToGamesButton onBack={onBack} />
+      </div>
+
       {/* Header */}
-      <div className="pt-4 pb-2 text-center">
+      <div className="pb-2 text-center">
         <h1 className="text-3xl md:text-4xl font-black text-gradient-rainbow mb-1">
           Sort It! 🗂️
         </h1>

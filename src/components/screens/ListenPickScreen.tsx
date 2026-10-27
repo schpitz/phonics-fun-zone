@@ -8,10 +8,12 @@ import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { CelebrationFeedback } from "../CelebrationFeedback";
 import { LevelSelector, THREE_LEVELS } from "../LevelSelector";
 import { HebrewToggle } from "../HebrewToggle";
+import { BackToGamesButton } from "../BackToGamesButton";
 
 interface Props {
   showHebrew: boolean;
   onToggleHebrew: () => void;
+  onBack: () => void;
 }
 
 const shuffle = <T,>(a: T[]): T[] => {
@@ -30,7 +32,7 @@ const buildRound = (level: ThreeLevel): UnifiedWord[] => {
   return shuffle(pool).filter((w) => (seen.has(w.emoji) ? false : (seen.add(w.emoji), true))).slice(0, LISTEN_ROUND);
 };
 
-export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
+export const ListenPickScreen = ({ showHebrew, onToggleHebrew, onBack }: Props) => {
   const [level, setLevel] = useState<ThreeLevel>(1);
   const [round, setRound] = useState<UnifiedWord[]>(() => buildRound(1));
   const [index, setIndex] = useState(0);
@@ -115,7 +117,10 @@ export const ListenPickScreen = ({ showHebrew, onToggleHebrew }: Props) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted pb-28 px-4">
-      <HebrewToggle showHebrew={showHebrew} onToggle={onToggleHebrew} />
+      <div className="pt-4 flex items-center justify-between">
+        <BackToGamesButton onBack={onBack} />
+        <HebrewToggle showHebrew={showHebrew} onToggle={onToggleHebrew} />
+      </div>
       <div className="mt-2 text-center">
         <h2 className="text-2xl font-black text-foreground">Listen & Pick! 👂</h2>
         <p className="text-muted-foreground font-semibold mt-1">

@@ -131,6 +131,7 @@ const Index = () => {
           <MatchingGameScreen
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
+            onBack={() => setCurrentScreen("games")}
           />
         );
       case "spelling":
@@ -138,6 +139,7 @@ const Index = () => {
           <SpellingGameScreen
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
+            onBack={() => setCurrentScreen("games")}
           />
         );
       case "sorting":
@@ -145,14 +147,15 @@ const Index = () => {
           <SortingGameScreen
             showHebrew={showHebrew}
             onToggleHebrew={handleToggleHebrew}
+            onBack={() => setCurrentScreen("games")}
           />
         );
       case "games":
         return <GamesScreen onNavigate={setCurrentScreen} />;
       case "builder":
-        return <SentenceBuilderScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} />;
+        return <SentenceBuilderScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} onBack={() => setCurrentScreen("games")} />;
       case "listening":
-        return <ListenPickScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} />;
+        return <ListenPickScreen showHebrew={showHebrew} onToggleHebrew={handleToggleHebrew} onBack={() => setCurrentScreen("games")} />;
       default:
         return <HomeScreen onNavigate={setCurrentScreen} onSecretTap={handleSecretTap} />;
     }

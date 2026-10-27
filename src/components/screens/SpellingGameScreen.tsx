@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Shuffle, Volume2, Keyboard, Undo2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
+import { BackToGamesButton } from "../BackToGamesButton";
 import { vocabularyManager, UnifiedWord } from "@/data/vocabulary";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
@@ -9,6 +10,7 @@ import { CelebrationFeedback } from "../CelebrationFeedback";
 interface SpellingGameScreenProps {
   showHebrew: boolean;
   onToggleHebrew: () => void;
+  onBack: () => void;
 }
 
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -49,6 +51,7 @@ const getDifficultyConfig = (difficulty: number) => {
 export const SpellingGameScreen = ({
   showHebrew,
   onToggleHebrew,
+  onBack,
 }: SpellingGameScreenProps) => {
   const [difficulty, setDifficulty] = useState(1);
   const [wordList, setWordList] = useState<UnifiedWord[]>([]);
@@ -192,7 +195,8 @@ export const SpellingGameScreen = ({
         onComplete={() => setShowCelebration(false)} 
       />
       {/* Hebrew toggle */}
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex items-center justify-between">
+        <BackToGamesButton onBack={onBack} />
         <button
           onClick={onToggleHebrew}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors text-sm font-bold"

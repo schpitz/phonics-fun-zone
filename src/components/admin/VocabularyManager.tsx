@@ -52,6 +52,7 @@ export const VocabularyManager = () => {
     enabledForWords: true,
     enabledForMatching: true,
     enabledForSorting: true,
+    enabledForListening: true,
     enabledForSpelling: true,
   });
 
@@ -80,6 +81,8 @@ export const VocabularyManager = () => {
       enabledForWords: true,
       enabledForMatching: true,
       enabledForSorting: true,
+      enabledForListening: true,
+    enabledForListening: true,
       enabledForSpelling: true,
     });
     setEditingWord(null);
@@ -103,6 +106,7 @@ export const VocabularyManager = () => {
       enabledForWords: word.enabledForWords,
       enabledForMatching: word.enabledForMatching,
       enabledForSorting: word.enabledForSorting,
+      enabledForListening: word.enabledForListening ?? true,
       enabledForSpelling: word.enabledForSpelling,
     });
     setIsDialogOpen(true);
@@ -185,6 +189,12 @@ export const VocabularyManager = () => {
           </div>
           <div className="text-xs text-muted-foreground">For Sorting</div>
         </div>
+        <div className="bg-card rounded-lg border p-3 text-center">
+          <div className="text-2xl font-bold text-primary">
+            {words.filter(w => w.enabledForListening).length}
+          </div>
+          <div className="text-xs text-muted-foreground">For Listening</div>
+        </div>
       </div>
 
       {/* Filters and Add Button */}
@@ -264,6 +274,7 @@ export const VocabularyManager = () => {
                       {word.enabledForWords && <Badge variant="outline" className="px-1">Words</Badge>}
                       {word.enabledForMatching && <Badge variant="outline" className="px-1">Match</Badge>}
                       {word.enabledForSorting && <Badge variant="outline" className="px-1">Sort</Badge>}
+                      {word.enabledForListening && <Badge variant="outline" className="px-1">Listen</Badge>}
                       {word.enabledForSpelling && <Badge variant="outline" className="px-1">Spell</Badge>}
                     </div>
                   </TableCell>
@@ -433,6 +444,14 @@ export const VocabularyManager = () => {
                     id="sorting"
                     checked={formData.enabledForSorting}
                     onCheckedChange={(v) => setFormData({ ...formData, enabledForSorting: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="listening" className="text-sm">Listen & Pick</Label>
+                  <Switch
+                    id="listening"
+                    checked={formData.enabledForListening}
+                    onCheckedChange={(v) => setFormData({ ...formData, enabledForListening: v })}
                   />
                 </div>
                 <div className="flex items-center justify-between">

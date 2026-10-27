@@ -13,6 +13,7 @@ export interface UnifiedWord {
   enabledForWords: boolean;
   enabledForMatching: boolean;
   enabledForSorting: boolean;
+  enabledForListening: boolean;
   enabledForSpelling: boolean;
 }
 
@@ -21,7 +22,34 @@ export interface SentenceData {
   english: string;
   hebrew: string;
   words: string[];
+  enabledForBuilder?: boolean;
 }
+
+export const normalizeToken = (t: string): string =>
+  t.toLowerCase().replace(/[^a-z0-9' -]/g, "").trim();
+
+// Pick wrong options: sameCategory true = same category, false = other categories, null = any
+export const pickDistractors = (
+  target: UnifiedWord,
+  pool: UnifiedWord[],
+  count: number,
+  sameCategory: boolean | null
+): UnifiedWord[] => {
+  const base = pool.filter(
+    w => w.id !== target.id && w.english.toLowerCase() !== target.english.toLowerCase() && w.emoji !== target.emoji
+  );
+  const preferred = sameCategory === null ? base : base.filter(w => (w.category === target.category) === sameCategory);
+  const ordered = [...shuffleArray(preferred), ...shuffleArray(base.filter(w => !preferred.includes(w)))];
+  const result: UnifiedWord[] = [];
+  const emojis = new Set<string>([target.emoji]);
+  for (const w of ordered) {
+    if (result.length >= count) break;
+    if (emojis.has(w.emoji)) continue;
+    emojis.add(w.emoji);
+    result.push(w);
+  }
+  return result;
+};
 
 // Helper to generate unique IDs
 const generateId = (): string => {
@@ -55,7 +83,7 @@ export const FRANCHISE_CATEGORIES = ["Mario", "Sonic", "Paw Patrol", "Star Wars"
 // This is the initial word bank - can be extended via admin panel
 
 // enabledForSorting defaults to enabledForMatching if not explicitly set
-const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting'>[] = [
+const defaultVocabulary: Omit<UnifiedWord, 'id' | 'enabledForSorting' | 'enabledForListening'>[] = [
   // ===== MARIO CHARACTERS =====
   { english: "Mario", hebrew: "מריו", category: "Mario", emoji: "🍄", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
   { english: "Luigi", hebrew: "לואיג'י", category: "Mario", emoji: "💚", difficulty: 4, vowelType: "long", enabledForABC: true, enabledForWords: true, enabledForMatching: false, enabledForSpelling: true },
@@ -1433,12 +1461,14 @@ class VocabularyManager {
           const newWordsWithIds = newWords.map(word => ({
             ...word,
             enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
             id: generateId(),
           }));
           // Migrate existing words that lack enabledForSorting
           const migratedExisting = existingVocab.map(w => ({
             ...w,
             enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+            enabledForListening: w.enabledForListening ?? w.enabledForMatching ?? true,
           }));
           this.vocabulary = [...migratedExisting, ...newWordsWithIds];
           this.saveVocabulary();
@@ -1448,6 +1478,7 @@ class VocabularyManager {
           this.vocabulary = existingVocab.map(w => ({
             ...w,
             enabledForSorting: w.enabledForSorting ?? w.enabledForMatching ?? true,
+            enabledForListening: w.enabledForListening ?? w.enabledForMatching ?? true,
           }));
         }
       } else {
@@ -1455,6 +1486,7 @@ class VocabularyManager {
         this.vocabulary = defaultVocabulary.map(word => ({
           ...word,
           enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
           id: generateId(),
         }));
         this.saveVocabulary();
@@ -1486,6 +1518,7 @@ class VocabularyManager {
       this.vocabulary = defaultVocabulary.map(word => ({
         ...word,
         enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
         id: generateId(),
       }));
       this.sentences = defaultSentences.map(sentence => ({
@@ -1594,6 +1627,7 @@ class VocabularyManager {
     this.vocabulary = defaultVocabulary.map(word => ({
       ...word,
       enabledForSorting: word.enabledForMatching,
+            enabledForListening: word.enabledForMatching,
       id: generateId(),
     }));
     this.sentences = defaultSentences.map(sentence => ({
@@ -1655,6 +1689,30 @@ class VocabularyManager {
     });
     
     return shuffleArray(filtered).slice(0, count);
+  }
+
+  // For Listen & Pick - words enabled for listening that have a picture
+  getWordsForListening(): UnifiedWord[] {
+    return this.vocabulary.filter(w => w.enabledForListening && !!w.emoji);
+  }
+
+  // Wrong-answer options for a target word (never the target, unique emoji)
+  getDistractors(target: UnifiedWord, count: number, sameCategory: boolean | null, pool?: UnifiedWord[]): UnifiedWord[] {
+    return pickDistractors(target, pool ?? this.getWordsForListening(), count, sameCategory);
+  }
+
+  // Sentences of an exact word length, enabled for the Sentence Builder
+  getSentencesByLength(n: number, count: number = 5): SentenceData[] {
+    return shuffleArray(
+      this.sentences.filter(s => s.enabledForBuilder !== false && s.words.length === n)
+    ).slice(0, count);
+  }
+
+  // Find a vocabulary word ignoring case and punctuation
+  findWord(english: string): UnifiedWord | undefined {
+    const key = normalizeToken(english);
+    if (!key) return undefined;
+    return this.vocabulary.find(w => w.english.toLowerCase() === key);
   }
 
   // For Sentences screen - get random sentences

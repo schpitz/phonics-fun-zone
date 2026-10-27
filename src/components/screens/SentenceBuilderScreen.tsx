@@ -108,6 +108,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
   // ---- Pointer drag (mouse + touch) ----
   const dragRef = useRef<{ tile: Tile; from: "bank" | "answer"; index: number; sx: number; sy: number; moved: boolean } | null>(null);
   const [ghost, setGhost] = useState<{ text: string; x: number; y: number } | null>(null);
+  const [dropSlot, setDropSlot] = useState<number | null>(null);
 
   const startDrag = (e: React.PointerEvent, tile: Tile, from: "bank" | "answer", index: number) => {
     if (solved || (from === "answer" && index < lockedCount)) return;
@@ -122,15 +123,24 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
       d.moved = true;
       e.preventDefault();
       setGhost({ text: d.tile.text, x: e.clientX, y: e.clientY });
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+      const zone = el?.closest("[data-drop]")?.getAttribute("data-drop");
+      if (zone === "answer") {
+        const slotAttr = el?.closest("[data-slot]")?.getAttribute("data-slot");
+        setDropSlot(slotAttr != null ? Number(slotAttr) : placed.length);
+      } else {
+        setDropSlot(null);
+      }
     };
     const up = (e: PointerEvent) => {
       const d = dragRef.current;
       dragRef.current = null;
       setGhost(null);
+      setDropSlot(null);
       if (!d) return;
       if (!d.moved) {
         if (d.from === "bank") addTile(d.tile);
-        else removeTile(d.index);
+        else speakWord(d.tile.text.replace(/[!.,?]/g, ""));
         return;
       }
       const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
@@ -224,37 +234,45 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
           {/* Answer row */}
           <div
             data-drop="answer"
-            className={`mt-5 min-h-[5rem] bg-card rounded-3xl p-3 shadow-soft border-4 border-dashed flex flex-wrap justify-center items-center gap-2
-              ${solved ? "border-success" : "border-border"}`}
+            className={`mt-5 min-h-[5rem] bg-card rounded-3xl p-3 shadow-soft border-4 border-dashed flex flex-wrap justify-center items-center gap-2 transition-all
+              ${solved ? "border-success" : dropSlot !== null ? "border-accent ring-4 ring-accent/40" : "border-border"}`}
           >
             {placed.length === 0 && <span className="text-muted-foreground font-semibold">Tap the words below</span>}
             {placed.map((t, i) => {
               const mark = checked?.[i];
               return (
-                <button
-                  key={`${t.id}-${i}`}
-                  data-slot={i}
-                  onPointerDown={(e) => startDrag(e, t, "answer", i)}
-                  style={{ touchAction: "none" }}
-                  className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
-                    ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
-                >
-                  <span className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
-                    {i + 1}
-                  </span>
-                  {t.text}
-                </button>
+                <span key={`${t.id}-${i}`} className="contents">
+                  {dropSlot === i && <span className="w-2 h-12 rounded-full bg-accent animate-pulse" />}
+                  <button
+                    data-slot={i}
+                    onPointerDown={(e) => startDrag(e, t, "answer", i)}
+                    style={{ touchAction: "none" }}
+                    className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
+                      ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
+                  >
+                    <span className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
+                      {i + 1}
+                    </span>
+                    {i >= lockedCount && !solved && (
+                      <span
+                        role="button"
+                        aria-label="Remove word"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeTile(i);
+                        }}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-sm font-black flex items-center justify-center shadow-soft cursor-pointer hover:scale-110"
+                      >
+                        ×
+                      </span>
+                    )}
+                    {t.text}
+                  </button>
+                </span>
               );
             })}
-          </div>
-
-          <div className="mt-4 flex items-center justify-center gap-3">
-            <GameButton variant="success" size="lg" onClick={check} disabled={solved || placed.length === 0} className="min-w-[10rem] text-xl">
-              Check
-            </GameButton>
-            <GameButton variant="ghost" size="lg" onClick={undo} disabled={solved || placed.length <= lockedCount} aria-label="Undo">
-              <Undo2 className="h-6 w-6" />
-            </GameButton>
+            {dropSlot !== null && dropSlot >= placed.length && <span className="w-2 h-12 rounded-full bg-accent animate-pulse" />}
           </div>
 
           {/* Tile bank */}
@@ -271,6 +289,16 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
               </button>
             ))}
           </div>
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <GameButton variant="success" size="lg" onClick={check} disabled={solved || placed.length === 0} className="min-w-[10rem] text-xl">
+              Check
+            </GameButton>
+            <GameButton variant="ghost" size="lg" onClick={undo} disabled={solved || placed.length <= lockedCount} aria-label="Undo">
+              <Undo2 className="h-6 w-6" />
+            </GameButton>
+          </div>
+
         </div>
       )}
 

@@ -86,9 +86,9 @@ Tap the footer text on the home screen **5 times rapidly** to reveal the admin l
 Private project.
 
 ## 🧱 Sentence Builder
-Tap mixed-up word tiles in the right order to build a sentence from the sentence bank. A speaker button plays the full sentence; the Hebrew toggle shows the translation. Tapping a tile says the word; tap a placed tile to return it; Undo removes the last one. A wrong Check plays an error sound, reads the sentence aloud, and colors correct/incorrect positions.
+Tap or drag mixed-up word tiles (placed tiles are numbered and can be dragged to reorder) in the right order to build a sentence from the sentence bank. A speaker button plays the full sentence; the Hebrew toggle shows the translation. Tapping a tile says the word; tap a placed tile to return it; Undo removes the last one. A wrong Check plays an error sound, reads the sentence aloud, and colors correct/incorrect positions.
 - **Easy**: 3-word sentences, first word pre-placed, picture hints on tiles.
-- **Medium**: 4-word sentences, picture hints.
+- **Medium**: 4-word sentences, first word pre-placed, picture hints.
 - **Hard**: 5-word sentences plus 2 extra wrong tiles from the vocabulary, no pictures.
 Rounds have 5 sentences. Admins can exclude a sentence via "Use in Sentence Builder".
 

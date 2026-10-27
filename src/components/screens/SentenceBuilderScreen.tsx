@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Volume2, Shuffle, Undo2 } from "lucide-react";
 import { GameButton } from "../ui/game-button";
 import { vocabularyManager, SentenceData, normalizeToken } from "@/data/vocabulary";
@@ -105,6 +105,61 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
     setPlaced((p) => p.filter((_, idx) => idx !== i));
   };
 
+  // ---- Pointer drag (mouse + touch) ----
+  const dragRef = useRef<{ tile: Tile; from: "bank" | "answer"; index: number; sx: number; sy: number; moved: boolean } | null>(null);
+  const [ghost, setGhost] = useState<{ text: string; x: number; y: number } | null>(null);
+
+  const startDrag = (e: React.PointerEvent, tile: Tile, from: "bank" | "answer", index: number) => {
+    if (solved || (from === "answer" && index < lockedCount)) return;
+    dragRef.current = { tile, from, index, sx: e.clientX, sy: e.clientY, moved: false };
+  };
+
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      const d = dragRef.current;
+      if (!d) return;
+      if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8) return;
+      d.moved = true;
+      e.preventDefault();
+      setGhost({ text: d.tile.text, x: e.clientX, y: e.clientY });
+    };
+    const up = (e: PointerEvent) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      setGhost(null);
+      if (!d) return;
+      if (!d.moved) {
+        if (d.from === "bank") addTile(d.tile);
+        else removeTile(d.index);
+        return;
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+      const zone = el?.closest("[data-drop]")?.getAttribute("data-drop");
+      const slotAttr = el?.closest("[data-slot]")?.getAttribute("data-slot");
+      if (zone === "answer") {
+        speakWord(d.tile.text.replace(/[!.,?]/g, ""));
+        setChecked(null);
+        setPlaced((p) => {
+          const list = d.from === "answer" ? p.filter((_, i) => i !== d.index) : [...p];
+          let at = slotAttr != null ? Number(slotAttr) : list.length;
+          at = Math.max(lockedCount, Math.min(at, list.length));
+          list.splice(at, 0, d.tile);
+          return list;
+        });
+      } else if (d.from === "answer") {
+        removeTile(d.index);
+      }
+    };
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+    };
+  });
+
   const undo = () => {
     if (solved || placed.length <= lockedCount) return;
     setChecked(null);
@@ -168,6 +223,7 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
 
           {/* Answer row */}
           <div
+            data-drop="answer"
             className={`mt-5 min-h-[5rem] bg-card rounded-3xl p-3 shadow-soft border-4 border-dashed flex flex-wrap justify-center items-center gap-2
               ${solved ? "border-success" : "border-border"}`}
           >
@@ -177,10 +233,15 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
               return (
                 <button
                   key={`${t.id}-${i}`}
-                  onClick={() => removeTile(i)}
-                  className={`rounded-2xl font-black transition-all ${tileSize}
+                  data-slot={i}
+                  onPointerDown={(e) => startDrag(e, t, "answer", i)}
+                  style={{ touchAction: "none" }}
+                  className={`relative rounded-2xl font-black transition-all select-none ${i < lockedCount ? "" : "cursor-grab"} ${tileSize}
                     ${solved || mark === true ? "bg-success text-success-foreground" : mark === false ? "bg-destructive text-destructive-foreground" : i < lockedCount ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}
                 >
+                  <span className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-black flex items-center justify-center shadow-soft">
+                    {i + 1}
+                  </span>
                   {t.text}
                 </button>
               );
@@ -197,12 +258,13 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
           </div>
 
           {/* Tile bank */}
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div data-drop="bank" className="mt-6 min-h-[4rem] flex flex-wrap justify-center gap-3">
             {available.map((t) => (
               <button
                 key={t.id}
-                onClick={() => addTile(t)}
-                className={`rounded-2xl font-black bg-card text-foreground shadow-button border-2 border-border hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 ${tileSize}`}
+                onPointerDown={(e) => startDrag(e, t, "bank", -1)}
+                style={{ touchAction: "none" }}
+                className={`cursor-grab select-none rounded-2xl font-black bg-card text-foreground shadow-button border-2 border-border hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 ${tileSize}`}
               >
                 {t.emoji && <span className="text-2xl">{t.emoji}</span>}
                 {t.text}
@@ -218,6 +280,15 @@ export const SentenceBuilderScreen = ({ showHebrew, onToggleHebrew }: Props) => 
           New Sentences
         </GameButton>
       </div>
+
+      {ghost && (
+        <div
+          className="fixed z-50 pointer-events-none -translate-x-1/2 -translate-y-1/2 rounded-2xl font-black bg-primary text-primary-foreground shadow-button px-4 py-3 text-xl scale-110"
+          style={{ left: ghost.x, top: ghost.y }}
+        >
+          {ghost.text}
+        </div>
+      )}
 
       <CelebrationFeedback show={showCelebration} />
     </div>

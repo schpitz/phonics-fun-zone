@@ -9,6 +9,7 @@ export const useSpeech = () => {
   const [speakingSource, setSpeakingSource] = useState<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const clearRef = useRef<(() => void) | null>(null);
+  const mountedRef = useRef(true);
 
   const stop = useCallback(() => {
     if (!utteranceRef.current) return;
@@ -16,10 +17,13 @@ export const useSpeech = () => {
     window.speechSynthesis?.cancel();
   }, []);
 
-  useEffect(() => () => stop(), [stop]);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; stop(); };
+  }, [stop]);
 
   const speak = useCallback((text: string, rate = 0.6, trackWords = false, source = "") => {
-    if (!text.trim() || !window.speechSynthesis) return;
+    if (!mountedRef.current || !text.trim() || !window.speechSynthesis) return;
     releasePlayback?.();
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
